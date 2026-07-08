@@ -44,7 +44,7 @@ function Stomach({ level }) {
   )
 }
 
-export default function FormScreen({ state, actions, sound, onAnalyze, onBack }) {
+export default function FormScreen({ state, actions, sound, drankT, onAnalyze, onBack }) {
   const set = (f, v) => { sound.pop(); actions.set(f, v) }
   const seg = (on) => ({
     border: `3px solid ${INK}`, borderRadius: 12, padding: '8px 6px', fontFamily: 'Fredoka, sans-serif',
@@ -59,6 +59,15 @@ export default function FormScreen({ state, actions, sound, onAnalyze, onBack })
         <div style={{ background: '#fff6e6', border: '3px solid #3d2410', borderRadius: 12, padding: '14px 16px 16px' }}>
           <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 15, color: '#8a6a45' }}>ficha del cliente · paso 2 de 3 🧬</div>
           <div style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 22, lineHeight: 1.1, marginTop: 2 }}>Contanos un poco de vos</div>
+          {drankT && drankT.ml > 0 && (
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 6, background: '#ffedd0',
+              border: `2.5px solid ${INK}`, borderRadius: 999, padding: '3px 12px', fontFamily: 'Fredoka, sans-serif',
+              fontWeight: 600, fontSize: 12.5,
+            }}>
+              🍸 vas a analizar todo lo que tomó: <b>{Math.round(drankT.ml)} ml · {drankT.std.toFixed(1).replace('.', ',')} tragos est.</b>
+            </div>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(260px,1fr))', gap: 16, marginTop: 12 }}>
             {/* COLUMNA A */}

@@ -49,6 +49,34 @@ export function useSound(muted) {
       clink: () => { beep(1250, 950, 0.12, 'sine', 0.1); beep(1900, 1500, 0.2, 'sine', 0.06) },
       gulp: () => beep(220, 90, 0.16, 'sine', 0.16),
       hic: () => { beep(700, 300, 0.1, 'square', 0.08); setTimeout(() => beep(500, 900, 0.08, 'sine', 0.06), 90) },
+      burp: () => { beep(140, 60, 0.28, 'sawtooth', 0.12); setTimeout(() => beep(110, 70, 0.18, 'square', 0.07), 120) },
+      // arcada: ruido filtrado descendente + blub grave
+      vomit: () => {
+        if (mutedRef.current) return
+        const ac = ensure(); if (!ac) return
+        const src = ac.createBufferSource(); src.buffer = noiseBuf()
+        const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2
+        bp.frequency.setValueAtTime(900, ac.currentTime)
+        bp.frequency.exponentialRampToValueAtTime(120, ac.currentTime + 0.55)
+        const g = ac.createGain(); g.gain.setValueAtTime(0.14, ac.currentTime)
+        g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.6)
+        src.connect(bp); bp.connect(g); g.connect(ac.destination)
+        src.start(); src.stop(ac.currentTime + 0.65)
+        beep(300, 70, 0.5, 'sawtooth', 0.09)
+        setTimeout(() => beep(180, 60, 0.3, 'triangle', 0.08), 260)
+      },
+      snore: () => {
+        beep(90, 60, 0.55, 'sawtooth', 0.07)
+        setTimeout(() => beep(70, 95, 0.4, 'sine', 0.06), 650)
+      },
+      // KO: trombón triste descendente
+      dead: () => {
+        beep(392, 392, 0.28, 'triangle', 0.12)
+        setTimeout(() => beep(370, 370, 0.28, 'triangle', 0.12), 300)
+        setTimeout(() => beep(349, 349, 0.3, 'triangle', 0.12), 600)
+        setTimeout(() => beep(330, 165, 0.8, 'triangle', 0.13), 900)
+      },
+      thud: () => beep(90, 40, 0.12, 'square', 0.1),
       bubble,
       // El tono del chorro depende del tamaño del recipiente: chico = más agudo.
       pourStart: (cap = 500) => {

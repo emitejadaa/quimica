@@ -12,8 +12,9 @@ import ShareCard from './ShareCard.jsx'
 
 const INK = '#2b1c0e'
 
-export default function ResultsScreen({ state, actions, sound, onEditData, onOther, poke, onPoke }) {
-  const { added, peso, sexo, contextura, estomago, horas, factSeed } = state
+export default function ResultsScreen({ state, actions, sound, items, onEditData, onOther, poke, onPoke }) {
+  const { peso, sexo, contextura, estomago, horas, factSeed } = state
+  const added = items // todo lo que TOMÓ (rondas fusionadas)
   const t = useMemo(() => totals(added), [added])
   const { rFactor, Cpeak, rLabel } = useMemo(() => widmark({ grams: t.grams, peso, contextura, sexo }), [t.grams, peso, contextura, sexo])
   const tpeak = tpeakFromStomach(estomago)
@@ -30,6 +31,8 @@ export default function ResultsScreen({ state, actions, sound, onEditData, onOth
   const T = TIERS[nowTier]
   const drunk = Math.min(1, levelFromBac(scrub.bac) / 6)
   const drunkQ = Math.round(drunk * 16) / 16 // cuantizado para el avatar (memo)
+  // el avatar entra en modo especial según el tramo de la curva
+  const avatarMode = nowTier >= 6 ? 'dead' : nowTier >= 5 ? 'sleep' : 'ok'
 
   const canDrive = Cpeak < 0.02
     ? { value: '✅ Sí · 0,0', danger: false }
@@ -62,7 +65,7 @@ export default function ResultsScreen({ state, actions, sound, onEditData, onOth
         {/* IZQUIERDA: personaje + héroe */}
         <div style={{ flex: '1 1 300px', minWidth: 280, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#2b1c0e', border: '4px dashed #8a5a2b', borderRadius: 18, padding: 12, minHeight: 0 }}>
-            <Avatar fear={0} drunk={drunkQ} scale={0.95} accent="#ffb03a" bump={poke} onPoke={onPoke} />
+            <Avatar fear={0} drunk={drunkQ} mode={avatarMode} scale={0.95} accent="#ffb03a" bump={poke} onPoke={onPoke} />
             <div style={{ width: 180, height: 18, background: 'linear-gradient(180deg,#8a5a2b,#5d3a19)', border: '3px solid #3d2410', borderRadius: '50%', marginTop: -6 }} />
             <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 6 }}>tocá al personaje 👆 · movés la curva y lo ves cambiar</div>
           </div>
@@ -87,9 +90,9 @@ export default function ResultsScreen({ state, actions, sound, onEditData, onOth
           <StatGrid stats={stats} />
           <RotatingCard seed={factSeed} onNext={() => { sound.pop(); actions.nextFact() }} />
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-            <div onClick={onEditData} style={btnWood}>← Cambiar datos</div>
+            <div onClick={onEditData} className="btn-cartoon" style={btnWood}>← Cambiar datos</div>
             <ShareCard data={cardData} />
-            <div onClick={onOther} style={{ ...btnWood, flex: 1, minWidth: 140, textAlign: 'center', background: '#ffb03a', color: INK }}>↩ Otro trago</div>
+            <div onClick={onOther} className="btn-cartoon" style={{ ...btnWood, flex: 1, minWidth: 140, textAlign: 'center', background: '#ffb03a', color: INK }}>↩ Empezar otra noche</div>
           </div>
           <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', textAlign: 'center' }}>
             🧮 Widmark: {comma(t.grams)} g ÷ ({peso} kg × {String(rFactor).replace('.', ',')}) — cuerpo {rLabel}. La única alcoholemia segura para manejar es <b style={{ color: '#ffd23f' }}>0,0</b>.

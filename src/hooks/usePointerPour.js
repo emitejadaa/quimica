@@ -13,7 +13,8 @@ const TAP_SPLASH = 18
 // Servir ARRASTRANDO la botella (o un pre-armado) al vaso: mientras el "ghost" está
 // sobre el vaso, se sirve según se mantiene. Soltás y corta. Nada de medidas fijas.
 // `cap` es el tope del recipiente elegido (cambia según el vaso).
-export function usePointerPour({ pour, pourPreset, addExtra, sound, added, cap, onPresetPour }) {
+// `disabled`: no se puede agarrar nada (p. ej. mientras el personaje está tomando).
+export function usePointerPour({ pour, pourPreset, addExtra, sound, added, cap, onPresetPour, disabled = false }) {
   const [draggingId, setDraggingId] = useState(null)
   const [dragOver, setDragOver] = useState(false)
   const [pouring, setPouring] = useState(false)
@@ -22,6 +23,8 @@ export function usePointerPour({ pour, pourPreset, addExtra, sound, added, cap, 
   useEffect(() => { addedRef.current = added }, [added])
   const capRef = useRef(cap)
   useEffect(() => { capRef.current = cap }, [cap])
+  const disabledRef = useRef(disabled)
+  useEffect(() => { disabledRef.current = disabled }, [disabled])
   const ghostRef = useRef(null)
   const glassRef = useRef(null)
   const st = useRef({ id: null, kind: 'drink', preset: null, x: 0, y: 0, sx: 0, sy: 0, t0: 0, over: false, raf: 0, last: 0, poured: 0, acc: 0, lastDispatch: 0 })
@@ -116,6 +119,7 @@ export function usePointerPour({ pour, pourPreset, addExtra, sound, added, cap, 
   }, [stopFlow, addExtra, pour, pourPreset, sound])
 
   const onBottleDown = useCallback((e) => {
+    if (disabledRef.current) return
     const el = e.currentTarget
     const id = el.dataset.id
     const isPreset = el.dataset.preset === '1'

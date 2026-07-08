@@ -83,9 +83,22 @@ export function tierIdx(c) {
 export function dreadFromStd(std) {
   return Math.max(0, Math.min(1, std / 4))
 }
-// Objetivo de "mareo" para la animación de tomar (0..1).
+
+// ─── Modo bar: el personaje toma rondas y se va poniendo peor en tiempo real ───
+// Umbrales en tragos estándar acumulados (perfil de referencia, sin ficha todavía).
+export const DRINK_LIMITS = { tipsy: 1.5, drunk: 3.5, vomit: 6, sleep: 9, dead: 12 }
+
+// Mareo continuo 0..1 para la pose del avatar en el bar (1 = colapso).
 export function drunkFromStd(std) {
-  return Math.max(0, Math.min(1, std / 4.5))
+  return Math.max(0, Math.min(1, std / DRINK_LIMITS.dead))
+}
+
+// Estado discreto según lo tomado: ok · vomit · sleep · dead.
+export function stateFromStd(std) {
+  if (std >= DRINK_LIMITS.dead) return 'dead'
+  if (std >= DRINK_LIMITS.sleep) return 'sleep'
+  if (std >= DRINK_LIMITS.vomit) return 'vomit'
+  return 'ok'
 }
 
 export function fmtH(h) {

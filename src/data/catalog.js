@@ -115,6 +115,22 @@ export const CATALOG = [
     bottle: { form: 'bottle', wide: true, glass: '#e0a828', cap: '#3a7a3a', liquid: '#e8b840', label: 'Manzana', labelBg: '#fff', ink: '#8a5a10' } },
   { id: 'agua', name: 'Agua mineral', variety: 'sin gas', cat: 'mezcla', abv: 0, dml: 250, kcal100: 0, sugar100: 0,
     bottle: { form: 'bottle', glass: '#cfeef6', clear: true, cap: '#1e88c8', liquid: '#e2f5fb', label: 'Agua', labelBg: '#eaf8fd', ink: '#1e6ca0' } },
+  { id: 'pina', name: 'Jugo de piña', variety: 'tropical', cat: 'mezcla', abv: 0, dml: 200, kcal100: 50, sugar100: 12,
+    bottle: { form: 'bottle', wide: true, glass: '#f2ce3a', cap: '#3a7a3a', liquid: '#f6e26b', label: 'Piña', labelBg: '#2a6b2a', ink: '#ffe873' } },
+  { id: 'arandano', name: 'Jugo arándano', variety: 'cranberry', cat: 'mezcla', abv: 0, dml: 200, kcal100: 46, sugar100: 11,
+    bottle: { form: 'bottle', glass: '#8a1030', clear: true, cap: '#5a0a20', liquid: '#c01a44', label: 'Arándano', labelBg: '#fbeaea', ink: '#8a1030' } },
+  { id: 'tomate', name: 'Jugo de tomate', variety: 'p/ bloody mary', cat: 'mezcla', abv: 0, dml: 150, kcal100: 21, sugar100: 3,
+    bottle: { form: 'can', glass: '#c8342a', cap: '#a02418', liquid: '#d84a30', label: 'Tomate', labelBg: '#c8342a', ink: '#fff' } },
+  { id: 'limonada', name: 'Limonada', variety: 'con menta', cat: 'mezcla', abv: 0, dml: 200, kcal100: 30, sugar100: 7,
+    bottle: { form: 'bottle', glass: '#e6f2ba', clear: true, cap: '#e8c020', liquid: '#eef7c8', label: 'Limonada', labelBg: '#fdfbe0', ink: '#7a8a10' } },
+  { id: 'tehelado', name: 'Té helado', variety: 'durazno', cat: 'mezcla', abv: 0, dml: 200, kcal100: 30, sugar100: 7,
+    bottle: { form: 'can', glass: '#e8a83a', cap: '#c8842a', liquid: '#d88a2e', label: 'Té', labelBg: '#f8ecd0', ink: '#a3530c' } },
+  { id: 'coco', name: 'Agua de coco', variety: '', cat: 'mezcla', abv: 0, dml: 200, kcal100: 19, sugar100: 4,
+    bottle: { form: 'bottle', wide: true, glass: '#f4f9f4', clear: true, cap: '#6b4a2a', liquid: '#f2f8f0', label: 'Coco', labelBg: '#2a6b4a', ink: '#eaf8f0' } },
+  { id: 'naranja', name: 'Naranja gaseosa', variety: 'Fanta', cat: 'mezcla', abv: 0, dml: 200, kcal100: 44, sugar100: 11,
+    bottle: { form: 'can', glass: '#f28a1e', cap: '#d0700f', liquid: '#ffa53a', label: 'Naranja', labelBg: '#f28a1e', ink: '#fff' } },
+  { id: 'gingerbeer', name: 'Ginger beer', variety: 'picante', cat: 'mezcla', abv: 0, dml: 200, kcal100: 38, sugar100: 9,
+    bottle: { form: 'bottle', slim: true, glass: '#d8c07a', clear: true, cap: '#8a5a1e', liquid: '#e6cd82', label: 'G.Beer', labelBg: '#3a2a10', ink: '#e6cd82' } },
 
   // ─── EXTRAS (no suman líquido, máx 2) ───
   { id: 'hielo', name: 'Hielo', cat: 'extra', abv: 0, kcalEach: 0, sugarEach: 0, emoji: '🧊' },
@@ -132,7 +148,7 @@ export const byId = Object.fromEntries(CATALOG.map((d) => [d.id, d]))
 // Bebidas con gas: burbujean fuerte en el vaso. Las cervezas/sidra son todas con gas;
 // además estos mezcladores/espumante. El resto (whisky, vino quieto, jugos, agua sin
 // gas…) casi no burbujean.
-const FIZZY_IDS = new Set(['espuma', 'cola', 'zero', 'sprite', 'tonica', 'energi', 'soda', 'pomelo', 'ginger'])
+const FIZZY_IDS = new Set(['espuma', 'cola', 'zero', 'sprite', 'tonica', 'energi', 'soda', 'pomelo', 'ginger', 'naranja', 'gingerbeer'])
 export const isFizzy = (id) => { const d = byId[id]; return !!d && (d.cat === 'cerveza' || FIZZY_IDS.has(id)) }
 // Cervezas y sidra hacen espuma al servir.
 export const isBeer = (id) => byId[id]?.cat === 'cerveza'
