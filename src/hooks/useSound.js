@@ -5,7 +5,7 @@ export function useSound(muted) {
   const mutedRef = useRef(muted)
   useEffect(() => { mutedRef.current = muted }, [muted])
 
-  const ref = useRef({ ac: null, nb: null, pour: null, bubT: null })
+  const ref = useRef({ ac: null, nb: null, pour: null, bubT: null, amb: null })
 
   const api = useMemo(() => {
     const ensure = () => {
@@ -50,17 +50,20 @@ export function useSound(muted) {
       gulp: () => beep(220, 90, 0.16, 'sine', 0.16),
       hic: () => { beep(700, 300, 0.1, 'square', 0.08); setTimeout(() => beep(500, 900, 0.08, 'sine', 0.06), 90) },
       bubble,
-      pourStart: () => {
+      // El tono del chorro depende del tamaño del recipiente: chico = más agudo.
+      pourStart: (cap = 500) => {
         if (mutedRef.current) return
         const ac = ensure(); const st = ref.current
         if (!ac || st.pour) return
+        const k = Math.max(0, Math.min(1, cap / 1000))
+        const freq = 480 + 780 * (1 - k) // 45ml→~1225 · 1000ml→~480
         const src = ac.createBufferSource(); src.buffer = noiseBuf(); src.loop = true
-        const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 750; bp.Q.value = 0.8
+        const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = freq; bp.Q.value = 0.8
         const g = ac.createGain(); g.gain.setValueAtTime(0.0001, ac.currentTime)
         g.gain.exponentialRampToValueAtTime(0.08, ac.currentTime + 0.12)
         src.connect(bp); bp.connect(g); g.connect(ac.destination); src.start()
         st.pour = { src, g }
-        st.bubT = setInterval(bubble, 350)
+        st.bubT = setInterval(bubble, cap < 120 ? 220 : 350)
       },
       pourStop: () => {
         const st = ref.current
@@ -69,9 +72,38 @@ export function useSound(muted) {
         const ac = st.ac, { src, g } = st.pour; st.pour = null
         try { g.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.15); src.stop(ac.currentTime + 0.2) } catch (e) {}
       },
+      // Pad ambiente lo-fi de bar (drone cálido + murmullo). Toggle propio, ignora el mute de SFX.
+      ambientOn: () => {
+        const ac = ensure(); const st = ref.current
+        if (!ac || st.amb) return
+        const t = ac.currentTime
+        const g = ac.createGain(); g.gain.setValueAtTime(0.0001, t)
+        g.gain.exponentialRampToValueAtTime(0.05, t + 1.6)
+        const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 520
+        const drone = ac.createOscillator(); drone.type = 'sine'; drone.frequency.value = 55
+        const fifth = ac.createOscillator(); fifth.type = 'triangle'; fifth.frequency.value = 82.4; fifth.detune.value = -6
+        const murmur = ac.createBufferSource(); murmur.buffer = noiseBuf(); murmur.loop = true
+        const mbp = ac.createBiquadFilter(); mbp.type = 'bandpass'; mbp.frequency.value = 320; mbp.Q.value = 0.6
+        const mg = ac.createGain(); mg.gain.value = 0.18
+        murmur.connect(mbp); mbp.connect(mg); mg.connect(g)
+        drone.connect(lp); fifth.connect(lp); lp.connect(g); g.connect(ac.destination)
+        const lfo = ac.createOscillator(); lfo.type = 'sine'; lfo.frequency.value = 0.11
+        const lfoG = ac.createGain(); lfoG.gain.value = 0.02; lfo.connect(lfoG); lfoG.connect(g.gain)
+        drone.start(); fifth.start(); murmur.start(); lfo.start()
+        st.amb = { g, nodes: [drone, fifth, murmur, lfo] }
+      },
+      ambientOff: () => {
+        const st = ref.current
+        if (!st.amb) return
+        const ac = st.ac, { g, nodes } = st.amb; st.amb = null
+        try {
+          g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.8)
+          nodes.forEach((n) => { try { n.stop(ac.currentTime + 0.9) } catch (e) {} })
+        } catch (e) {}
+      },
     }
   }, [])
 
-  useEffect(() => () => { api.pourStop() }, [api])
+  useEffect(() => () => { api.pourStop(); api.ambientOff() }, [api])
   return api
 }

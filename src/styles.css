@@ -83,6 +83,15 @@ a { color: var(--accent); }
 @keyframes avScared { 0%,100% { transform: translate(0,0); } 20% { transform: translate(-2px,1px); } 45% { transform: translate(2px,-1px); } 70% { transform: translate(-1.5px,-1px); } 90% { transform: translate(1.5px,1px); } }
 @keyframes avDrink { 0% { transform: rotate(0); } 30% { transform: rotate(-13deg) translateY(-3px); } 65% { transform: rotate(-5deg); } 100% { transform: rotate(0); } }
 @keyframes blink { 0%,90%,100% { transform: scaleY(1); } 95% { transform: scaleY(.08); } }
+@keyframes neonFlicker { 0%,100% { opacity: 1; } 8% { opacity: .5; } 10% { opacity: 1; } 42% { opacity: 1; } 44% { opacity: .35; } 46% { opacity: 1; } 70% { opacity: .85; } 72% { opacity: 1; } }
+@keyframes splash { 0% { transform: translateY(0) scale(1); opacity: .9; } 100% { transform: translateY(-14px) scale(.4); opacity: 0; } }
+@keyframes toastPop { 0% { transform: translateX(-50%) translateY(-16px) scale(.85); opacity: 0; } 10% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 86% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-10px) scale(.96); opacity: 0; } }
+
+/* scrollbar horizontal fino para las filas deslizables */
+.scroll-x { scrollbar-width: thin; scrollbar-color: var(--wood) transparent; }
+.scroll-x::-webkit-scrollbar { height: 7px; }
+.scroll-x::-webkit-scrollbar-thumb { background: var(--wood); border-radius: 999px; }
+.scroll-x::-webkit-scrollbar-track { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }

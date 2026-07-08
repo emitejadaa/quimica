@@ -1,12 +1,15 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import { useBarState } from './logic/barState.js'
 import { useSound } from './hooks/useSound.js'
+import { useAchievements } from './hooks/useAchievements.js'
 import { totals, drunkFromStd } from './logic/calc.js'
 import Hud from './components/Hud.jsx'
 import Confetti from './components/Confetti.jsx'
 import BarScreen from './components/bar/BarScreen.jsx'
 import FormScreen from './components/form/FormScreen.jsx'
 import ResultsScreen from './components/results/ResultsScreen.jsx'
+import { AchievementsModal, AchievementToast } from './components/Achievements.jsx'
+import { ACHIEVEMENTS } from './data/achievements.js'
 
 const PANEL_BG = [
   'linear-gradient(180deg,#3a2410 0%,#4a2e14 46%,#2e1a08 46.5%,#241505 100%)',
@@ -18,11 +21,30 @@ const PLANKS = 'repeating-linear-gradient(90deg,rgba(0,0,0,.14) 0 3px,transparen
 export default function App() {
   const [state, actions] = useBarState()
   const sound = useSound(state.muted)
+  const { unlocked, toast, clearToast, sync: achSync, notePreset, noteAnalyze } = useAchievements()
 
   const [mix, setMix] = useState({ on: false, drinking: false, drunk: 0 })
   const [poke, setPoke] = useState(false)
   const [confetti, setConfetti] = useState({ on: false, seed: 0 })
+  const [trophyOpen, setTrophyOpen] = useState(false)
+  const [ambient, setAmbient] = useState(false)
   const timers = useRef({ raf: 0, t1: 0, t2: 0, pk: 0 })
+
+  // Logros: reevaluar cuando cambia el trago o el recipiente.
+  useEffect(() => { achSync({ added: state.added, container: state.container }) }, [state.added, state.container, achSync])
+  // Toast del logro nuevo: sonido + auto-cierre.
+  useEffect(() => {
+    if (!toast) return
+    sound.tada()
+    const id = setTimeout(clearToast, 2600)
+    return () => clearTimeout(id)
+  }, [toast, clearToast, sound])
+
+  const onPreset = useCallback((preset) => notePreset(preset.id), [notePreset])
+
+  const toggleAmbient = useCallback(() => {
+    setAmbient((a) => { const n = !a; sound.ensure(); if (n) sound.ambientOn(); else sound.ambientOff(); return n })
+  }, [sound])
 
   const fireConfetti = useCallback(() => {
     setConfetti((c) => ({ on: true, seed: c.seed + 1 }))
@@ -67,7 +89,7 @@ export default function App() {
     }, 720)
   }, [state.added, sound, actions, fireConfetti])
 
-  const onAnalyze = useCallback(() => { sound.tada(); fireConfetti(); actions.analyze() }, [sound, actions, fireConfetti])
+  const onAnalyze = useCallback(() => { sound.tada(); fireConfetti(); noteAnalyze(); achSync({ added: state.added, container: state.container }); actions.analyze() }, [sound, actions, fireConfetti, noteAnalyze, achSync, state.added, state.container])
 
   useEffect(() => () => {
     const t = timers.current
@@ -83,6 +105,11 @@ export default function App() {
         canResults={state.analyzed}
         muted={state.muted}
         toggleMute={actions.toggleMute}
+        onTrophy={() => { sound.pop(); setTrophyOpen(true) }}
+        achDone={unlocked.length}
+        achTotal={ACHIEVEMENTS.length}
+        ambient={ambient}
+        toggleAmbient={toggleAmbient}
       />
 
       <div style={{
@@ -94,7 +121,7 @@ export default function App() {
           <section key={p} style={{ width: '100vw', height: '100%', flex: '0 0 auto', position: 'relative', overflow: 'hidden', background: PANEL_BG[p] }}>
             <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: PLANKS }} />
             <div style={{ position: 'relative', height: '100%' }}>
-              {p === 0 && <BarScreen state={state} actions={actions} sound={sound} mix={mix} onMix={startMix} poke={poke} onPoke={onPoke} />}
+              {p === 0 && <BarScreen state={state} actions={actions} sound={sound} mix={mix} onMix={startMix} poke={poke} onPoke={onPoke} onPreset={onPreset} />}
               {p === 1 && <FormScreen state={state} actions={actions} sound={sound} onAnalyze={onAnalyze} onBack={() => goPhase(0)} />}
               {p === 2 && <ResultsScreen state={state} actions={actions} sound={sound} onEditData={() => goPhase(1)} onOther={() => { sound.swoosh(); actions.resetDrink() }} poke={poke} onPoke={onPoke} />}
             </div>
@@ -103,6 +130,8 @@ export default function App() {
       </div>
 
       <Confetti on={confetti.on} seed={confetti.seed} />
+      <AchievementToast toast={toast} />
+      {trophyOpen && <AchievementsModal unlocked={unlocked} onClose={() => setTrophyOpen(false)} />}
     </div>
   )
 }

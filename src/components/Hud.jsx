@@ -4,7 +4,13 @@ const PHASES = [
   { p: 2, icon: '🔬', title: 'Análisis' },
 ]
 
-export default function Hud({ phase, setPhase, canForm, canResults, muted, toggleMute }) {
+const roundBtn = {
+  width: 38, height: 38, borderRadius: '50%', background: '#ffedd0', border: '3px solid #3d2410',
+  boxShadow: '0 4px 0 #3d2410', display: 'flex', alignItems: 'center', justifyContent: 'center',
+  fontSize: 17, cursor: 'pointer', position: 'relative',
+}
+
+export default function Hud({ phase, setPhase, canForm, canResults, muted, toggleMute, onTrophy, achDone = 0, achTotal = 0, ambient, toggleAmbient }) {
   const enabled = (p) => p === 0 || (p === 1 && canForm) || (p === 2 && canResults)
   return (
     <div style={{
@@ -48,14 +54,18 @@ export default function Hud({ phase, setPhase, canForm, canResults, muted, toggl
             )
           })}
         </div>
-        <div
-          onClick={toggleMute}
-          style={{
-            width: 38, height: 38, borderRadius: '50%', background: '#ffedd0', border: '3px solid #3d2410',
-            boxShadow: '0 4px 0 #3d2410', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 17, cursor: 'pointer',
-          }}
-        >{muted ? '🔕' : '🔔'}</div>
+        <div onClick={onTrophy} title="Tus stickers" style={roundBtn}>
+          🏆
+          {achDone > 0 && (
+            <span style={{
+              position: 'absolute', top: -5, right: -5, minWidth: 17, height: 17, padding: '0 3px', borderRadius: 999,
+              background: '#e8384f', color: '#fff', border: '2px solid #3d2410', fontFamily: 'Fredoka, sans-serif',
+              fontWeight: 700, fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>{achDone}</span>
+          )}
+        </div>
+        <div onClick={toggleAmbient} title="Música de bar" style={{ ...roundBtn, background: ambient ? '#ffb03a' : '#ffedd0' }}>{ambient ? '🎵' : '🎶'}</div>
+        <div onClick={toggleMute} title="Sonidos" style={roundBtn}>{muted ? '🔕' : '🔔'}</div>
       </div>
     </div>
   )

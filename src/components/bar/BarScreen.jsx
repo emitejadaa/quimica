@@ -1,22 +1,26 @@
 import { useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { totals, dreadFromStd, comma } from '../../logic/calc.js'
-import { byId, GLASS_CAP } from '../../data/catalog.js'
+import { byId } from '../../data/catalog.js'
+import { CONTAINERS, byContainer, capOf } from '../../data/containers.js'
+import { byPreset } from '../../data/presets.js'
 import { usePointerPour } from '../../hooks/usePointerPour.js'
 import Avatar from '../avatar/Avatar.jsx'
 import Glass from './Glass.jsx'
 import Shelf from './Shelf.jsx'
 import Recipe from './Recipe.jsx'
-import Presets from './Presets.jsx'
+import Cabinet from './Cabinet.jsx'
 import Bottle from './Bottle.jsx'
+import MixGlass from './MixGlass.jsx'
 
 const INK = '#2b1c0e'
 
-export default function BarScreen({ state, actions, sound, mix, onMix, poke, onPoke }) {
-  const { added, tab } = state
+export default function BarScreen({ state, actions, sound, mix, onMix, poke, onPoke, onPreset }) {
+  const { added, tab, container } = state
   const t = useMemo(() => totals(added), [added])
+  const cap = capOf(container)
   const { draggingId, dragOver, pouring, onBottleDown, ghostRef, glassRef } =
-    usePointerPour({ pour: actions.pour, addExtra: actions.addExtra, sound, added })
+    usePointerPour({ pour: actions.pour, pourPreset: actions.pourPreset, addExtra: actions.addExtra, sound, added, cap, onPresetPour: onPreset })
 
   const extrasSig = added.filter((it) => byId[it.id]?.cat === 'extra').map((it) => `${it.id}:${it.n || 1}`).join(',')
   const extrasInfo = useMemo(() => {
@@ -26,13 +30,17 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
   }, [extrasSig]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const setTab = useCallback((v) => { sound.pop(); actions.setTab(v) }, [sound, actions])
-  const onPick = useCallback((p) => { sound.pop(); actions.loadPreset(p) }, [sound, actions])
+  const pickContainer = useCallback((id) => { sound.pop(); actions.setContainer(id) }, [sound, actions])
   const bumpMl = useCallback((id, d) => { sound.bubble(); actions.bumpMl(id, d) }, [sound, actions])
   const removeItem = useCallback((id) => { sound.pop(); actions.remove(id) }, [sound, actions])
+  const openCabinet = useCallback(() => { sound.swoosh(); actions.setCabinet(true) }, [sound, actions])
+  const closeCabinet = useCallback(() => { sound.pop(); actions.setCabinet(false) }, [sound, actions])
+
+  const draggingPreset = draggingId ? byPreset[draggingId] : null
 
   const dread = dreadFromStd(t.std)
-  const dreadQ = Math.round(dread * 12) / 12 // cuantizado → el avatar (memo) no re-renderiza cada frame
-  const full = t.ml >= GLASS_CAP - 1
+  const dreadQ = Math.round(dread * 12) / 12
+  const full = t.ml >= cap - 1
   const av = mix.on
     ? { fear: 0, drunk: mix.drunk, drinking: mix.drinking }
     : { fear: dreadQ, drunk: 0, drinking: false }
@@ -41,27 +49,59 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
 
   const ghostDrink = draggingId ? byId[draggingId] : null
   const ghostIsExtra = ghostDrink?.cat === 'extra'
+  const activeColor = ghostDrink?.bottle?.liquid || draggingPreset?.color || null
+  const C = byContainer[container]
 
   return (
-    <div style={{ display: 'flex', gap: 14, height: '100%', padding: '80px 16px 14px', boxSizing: 'border-box' }} className="bar-wrap">
+    <div style={{ display: 'flex', gap: 14, height: '100%', padding: '80px 16px 14px', boxSizing: 'border-box', position: 'relative' }} className="bar-wrap">
+      {/* ambiente: cartel de neón + brillo cálido (decoración de fondo) */}
+      <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(60% 40% at 78% 12%,rgba(255,120,60,.12),transparent 60%)' }} />
+      <div aria-hidden style={{
+        position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1, pointerEvents: 'none',
+        fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 15, color: '#ff8ad6', letterSpacing: '1px',
+        textShadow: '0 0 6px #ff2fae,0 0 14px #ff2fae,0 0 22px rgba(255,47,174,.6)',
+        animation: 'neonFlicker 3.4s infinite',
+      }}>🍸 COCKTAILS</div>
+
       {/* IZQUIERDA */}
-      <div style={{ flex: '0 0 40%', minWidth: 300, display: 'flex', flexDirection: 'column', minHeight: 0 }} className="bar-left">
-        <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 15, color: '#e8c58f', marginBottom: 2 }}>tu vaso 🍹</div>
+      <div style={{ flex: '0 0 40%', minWidth: 300, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative', zIndex: 2 }} className="bar-left">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 15, color: '#e8c58f' }}>tu {C?.name?.toLowerCase() || 'vaso'} {C?.emoji || '🍹'}</div>
+        </div>
+
+        {/* selector de recipiente */}
+        <div className="scroll-x" style={{ display: 'flex', gap: 5, overflowX: 'auto', paddingBottom: 4, marginBottom: 2 }}>
+          {CONTAINERS.map((c) => {
+            const on = c.id === container
+            return (
+              <button key={c.id} onClick={() => pickContainer(c.id)} title={`${c.name} · ${c.cap} ml`} style={{
+                flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1,
+                background: on ? '#ffb03a' : '#ffedd0', border: '2.5px solid #3d2410', borderRadius: 10,
+                padding: '4px 8px 3px', cursor: 'pointer', boxShadow: on ? '0 3px 0 #3d2410' : '0 2px 0 #3d2410',
+                fontFamily: 'Fredoka, sans-serif', color: INK, transform: on ? 'translateY(-1px)' : 'none',
+              }}>
+                <span style={{ fontSize: 16 }}>{c.emoji}</span>
+                <span style={{ fontSize: 9, fontWeight: 700 }}>{c.cap >= 1000 ? '1 L' : `${c.cap}`}</span>
+              </button>
+            )
+          })}
+        </div>
+
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, minHeight: 0 }}>
-          <div ref={glassRef} style={{ position: 'relative' }}>
-            <Glass added={added} activeId={pouring ? draggingId : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} w={130} h={220} />
+          <div ref={glassRef} data-glass="1" style={{ position: 'relative' }}>
+            <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.86} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar {...av} scale={0.62} accent="#ffb03a" bubble={dread > 0.33 && !mix.on ? '¡hip!' : null} bump={poke} onPoke={onPoke} />
-            <div style={{ width: 70, height: 11, background: '#8a5a2b', border: '3px solid #3d2410', borderRadius: 5 }} />
-            <div style={{ width: 42, height: 30, background: '#6b4020', border: '3px solid #3d2410', borderTop: 'none', borderRadius: '0 0 6px 6px' }} />
+            <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={dread > 0.33 && !mix.on ? '¡hip!' : null} bump={poke} onPoke={onPoke} />
+            <div style={{ width: 66, height: 11, background: '#8a5a2b', border: '3px solid #3d2410', borderRadius: 5 }} />
+            <div style={{ width: 40, height: 28, background: '#6b4020', border: '3px solid #3d2410', borderTop: 'none', borderRadius: '0 0 6px 6px' }} />
             <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 4, textAlign: 'center', maxWidth: 120, lineHeight: 1.15 }}>{caption}</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', margin: '6px 0', fontWeight: 800, fontSize: 12 }}>
           <span style={badge}>{added.length} ingred.</span>
-          <span style={badge}>{Math.round(t.ml)} / {GLASS_CAP} ml</span>
+          <span style={badge}>{Math.round(t.ml)} / {cap} ml</span>
           <span style={{ ...badge, background: full ? '#fde4e4' : '#ffedd0', color: full ? '#a51a2c' : INK }}>
             {full ? '🚱 lleno' : t.abv > 0 ? `${comma(t.abv)}°` : 'sin alcohol'}
           </span>
@@ -86,12 +126,23 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
         </div>
       </div>
 
-      {/* DERECHA */}
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 0,
+      {/* DERECHA: el mueble */}
+      <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 0, position: 'relative', zIndex: 2,
         background: 'linear-gradient(180deg,#5d3a19,#4a2c12)', border: '4px solid #3d2410', borderRadius: 18,
         padding: 12, boxShadow: '0 10px 0 #2a1707,0 22px 40px rgba(0,0,0,.45)' }} className="bar-right">
-        <Presets onPick={onPick} />
-        <Shelf tab={tab} setTab={setTab} onBottleDown={onBottleDown} extrasInfo={extrasInfo} />
+        {/* cartel arriba del mueble */}
+        <div style={{
+          alignSelf: 'center', display: 'flex', alignItems: 'center', gap: 8,
+          background: 'linear-gradient(180deg,#e0a24a,#c07f28)', color: '#2b1c0e', border: '3px solid #3d2410',
+          borderRadius: 10, padding: '5px 16px', boxShadow: '0 4px 0 #3d2410', fontFamily: 'Patrick Hand, cursive',
+          animation: state.cabinetOpen ? undefined : 'signSwing 4s ease-in-out infinite', transformOrigin: 'top center',
+        }}>
+          <span style={{ fontSize: 18 }}>🍸 La barra</span>
+          <span style={{ fontSize: 15, opacity: 0.9 }}>{state.cabinetOpen ? '· ¡servite! 🍹' : '· tocá para abrir 👆'}</span>
+        </div>
+        <Cabinet open={state.cabinetOpen} onOpen={openCabinet} onClose={closeCabinet}>
+          <Shelf tab={tab} setTab={setTab} onBottleDown={onBottleDown} extrasInfo={extrasInfo} />
+        </Cabinet>
         <Recipe added={added} bumpMl={bumpMl} remove={removeItem} />
       </div>
 
@@ -99,9 +150,11 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
       {draggingId && createPortal(
         <div ref={ghostRef} style={{ position: 'fixed', left: -999, top: -999, zIndex: 200, pointerEvents: 'none', transform: 'translate(-50%,-58%)', willChange: 'left,top' }}>
           <div style={{ transform: dragOver && !ghostIsExtra ? 'rotate(-116deg) translateY(-6px)' : 'rotate(-8deg)', transition: 'transform .18s ease', transformOrigin: '60% 70%' }}>
-            {ghostIsExtra
-              ? <div style={{ fontSize: 40, filter: 'drop-shadow(0 8px 6px rgba(0,0,0,.5))' }}>{ghostDrink.emoji}</div>
-              : <Bottle spec={ghostDrink.bottle} h={84} />}
+            {draggingPreset
+              ? <MixGlass color={draggingPreset.color} h={80} />
+              : ghostIsExtra
+                ? <div style={{ fontSize: 40, filter: 'drop-shadow(0 8px 6px rgba(0,0,0,.5))' }}>{ghostDrink.emoji}</div>
+                : <Bottle spec={ghostDrink.bottle} h={84} />}
           </div>
         </div>,
         document.body,

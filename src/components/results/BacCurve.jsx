@@ -43,7 +43,7 @@ export default function BacCurve({ Cpeak, tpeak, tZero, horasNow, onScrub }) {
     setPlaying(true)
     const t0 = performance.now()
     const step = (now) => {
-      const k = Math.min(1, (now - t0) / 4600)
+      const k = Math.min(1, (now - t0) / 8000)
       setT(k * tEnd)
       if (k < 1) rafRef.current = requestAnimationFrame(step)
       else setPlaying(false)

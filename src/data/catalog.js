@@ -6,10 +6,11 @@
 //   label = texto de etiqueta · labelBg / ink = colores de la etiqueta
 
 export const TABS = [
+  { id: 'preparado', label: 'Pre-armados', emoji: '🍹' },
   { id: 'cerveza', label: 'Cervezas', emoji: '🍺' },
   { id: 'vino', label: 'Vinos', emoji: '🍷' },
   { id: 'destilado', label: 'Destilados', emoji: '🥃' },
-  { id: 'aperitivo', label: 'Aperitivos', emoji: '🍹' },
+  { id: 'aperitivo', label: 'Aperitivos', emoji: '🍸' },
   { id: 'mezcla', label: 'Sin alcohol', emoji: '🧃' },
   { id: 'extra', label: 'Extras', emoji: '🍋' },
 ]
@@ -96,6 +97,6 @@ export const CATALOG = [
 
 export const byId = Object.fromEntries(CATALOG.map((d) => [d.id, d]))
 
-export const GLASS_CAP = 500 // ml — tope del vaso, sin rebalse
+// El tope del vaso ahora lo da el recipiente elegido (ver data/containers.js).
 export const MAX_EXTRAS = 2
 export const STD_GRAMS = 10 // g de etanol por trago estándar
