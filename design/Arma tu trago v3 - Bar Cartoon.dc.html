@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;overflow:hidden;background:#241505}
+  a{color:#ffb03a}a:hover{color:#ffd23f}
+  @keyframes bub{0%{transform:translateY(0);opacity:0}10%{opacity:.85}100%{transform:translateY(-240px);opacity:0}}
+  @keyframes floatY{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-8px) rotate(5deg)}}
+  @keyframes popIn{0%{transform:scale(.9) translateY(10px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+  @keyframes streamFall{0%{background-position:0 0}100%{background-position:0 22px}}
+  @keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-2.5deg)}75%{transform:rotate(2.5deg)}}
+  @keyframes signSwing{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
+  @keyframes lampSwing{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+  @keyframes steamUp{0%{transform:translateY(0) scale(1);opacity:.5}100%{transform:translateY(-34px) scale(1.6);opacity:0}}
+  @keyframes avIdle{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-5px) rotate(0)}}
+  @keyframes avSway1{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+  @keyframes avSway2{0%,100%{transform:rotate(-5deg) translateX(-3px)}50%{transform:rotate(5deg) translateX(3px)}}
+  @keyframes avSway3{0%,100%{transform:rotate(-9deg) translateX(-7px)}50%{transform:rotate(9deg) translateX(7px)}}
+  @keyframes avSway4{0%,100%{transform:rotate(-14deg) translateX(-9px)}45%{transform:rotate(13deg) translateX(9px)}}
+  @keyframes avBounce{0%,100%{transform:translateY(0) scale(1,1)}40%{transform:translateY(-12px) scale(.96,1.05)}70%{transform:translateY(0) scale(1.05,.94)}}
+  @keyframes avLie{0%{transform:rotate(0)}100%{transform:rotate(90deg) translateY(-10px)}}
+  @keyframes pokeJumpA{0%{transform:translateY(0) scale(1,1)}30%{transform:translateY(-20px) scale(.94,1.08)}60%{transform:translateY(0) scale(1.08,.9)}100%{transform:translateY(0) scale(1,1)}}
+  @keyframes pokeJumpB{0%{transform:translateY(0) scale(1,1)}30%{transform:translateY(-20px) scale(.94,1.08)}60%{transform:translateY(0) scale(1.08,.9)}100%{transform:translateY(0) scale(1,1)}}
+  @keyframes blinkA{0%,90%,100%{transform:scaleY(1)}94%{transform:scaleY(.12)}}
+  @keyframes hipUp{0%{transform:translateY(4px) scale(.7);opacity:0}20%{transform:translateY(0) scale(1);opacity:1}80%{opacity:1}100%{transform:translateY(-14px);opacity:0}}
+  @keyframes twinkle{0%,100%{opacity:.35;transform:scale(.9)}50%{opacity:1;transform:scale(1.15)}}
+  @keyframes pourGlow{0%,100%{box-shadow:inset 0 0 18px rgba(255,255,255,.5),0 16px 36px rgba(0,0,0,.4)}50%{box-shadow:inset 0 0 32px rgba(255,255,255,.85),0 16px 36px rgba(0,0,0,.4)}}
+  @keyframes dustMote{0%{transform:translateY(0)}100%{transform:translateY(-60px)}}
+  @keyframes bottleBob{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-4px) rotate(-2.5deg)}}
+  @keyframes tailSwish{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-20deg)}}
+  @keyframes earTwitch{0%,88%,100%{transform:rotate(0)}93%{transform:rotate(-16deg)}}
+  @keyframes zzz{0%{transform:translate(0,0) scale(.6);opacity:0}30%{opacity:1}100%{transform:translate(15px,-28px) scale(1.25);opacity:0}}
+  @keyframes confettiFall{0%{transform:translateY(-12px) rotate(0);opacity:1}100%{transform:translateY(52vh) rotate(560deg);opacity:0}}
+  @keyframes shelfShine{0%{transform:translateX(-130%) skewX(-16deg)}55%,100%{transform:translateX(560%) skewX(-16deg)}}
+  @keyframes titleBop{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(10deg) scale(1.22)}}
+</style>
+</helmet>
+
+<div onPointerMove="{{ onMove }}" onPointerUp="{{ onUp }}" onPointerCancel="{{ onUp }}" style="width:100vw;height:100vh;overflow:hidden;position:relative;font-family:Nunito,system-ui,sans-serif;color:#2b1c0e;background:#241505;user-select:none;-webkit-user-select:none;">
+
+  <!-- ══════════ HUD (fijo sobre la cámara) ══════════ -->
+  <div style="position:absolute;top:0;left:0;right:0;z-index:60;display:flex;align-items:flex-start;justify-content:space-between;padding:0 16px;pointer-events:none;">
+    <div style="display:flex;flex-direction:column;align-items:center;pointer-events:auto;">
+      <div style="display:flex;gap:26px;"><div style="width:3px;height:14px;background:#caa06a;"></div><div style="width:3px;height:14px;background:#caa06a;"></div></div>
+      <div style="background:linear-gradient(180deg,#8a5a2b,#6b4020);border:3px solid #3d2410;border-radius:12px;padding:8px 18px 9px;box-shadow:0 6px 0 #3d2410,0 12px 22px rgba(0,0,0,.5);animation:signSwing 5s ease-in-out infinite;transform-origin:top center;text-align:center;">
+        <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:24px;color:#ffedd0;letter-spacing:-.4px;line-height:1;text-shadow:0 2px 0 #3d2410;"><span style="display:inline-block;animation:titleBop 2.6s ease-in-out infinite;">🍹</span> Armá tu trago</div>
+        <div style="font-family:'Patrick Hand',cursive;font-size:14px;color:#e8c58f;margin-top:2px;">bar-laboratorio de alcohol &amp; toxicocinética</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-top:12px;pointer-events:auto;flex-wrap:wrap;justify-content:flex-end;">
+      <div style="display:flex;align-items:center;gap:7px;background:#ffedd0;border:3px solid #3d2410;border-radius:999px;padding:6px 12px;font-weight:800;font-size:12px;box-shadow:0 4px 0 #3d2410;">
+        <span style="display:inline-flex;width:23px;height:23px;border-radius:50%;background:#e8384f;color:#fff;align-items:center;justify-content:center;font-size:10.5px;border:2px solid #3d2410;">+18</span>
+        Sos menor: lo recomendado es <span style="color:#2f9e44;">0 alcohol</span>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <sc-for list="{{ phaseTokens }}" as="pt" hint-placeholder-count="3">
+          <div onClick="{{ goPhase }}" data-p="{{ pt.p }}" style="{{ pt.style }}" title="{{ pt.title }}">{{ pt.label }}</div>
+        </sc-for>
+      </div>
+      <div onClick="{{ toggleMute }}" style="width:40px;height:40px;border-radius:50%;background:#ffedd0;border:3px solid #3d2410;box-shadow:0 4px 0 #3d2410;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:transform .1s;" style-hover="transform:scale(1.08) rotate(-8deg);" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3d2410;">{{ muteIcon }}</div>
+    </div>
+  </div>
+
+  <!-- ══════════ MUNDO / CÁMARA ══════════ -->
+  <div style="{{ worldStyle }}">
+
+    <!-- ─────── ZONA 1 · EL BAR ─────── -->
+    <section data-screen-label="Bar — armá tu trago" style="width:100vw;height:100%;flex:0 0 auto;position:relative;overflow-y:auto;overflow-x:hidden;background:linear-gradient(180deg,#3a2410 0%,#4a2e14 46%,#2e1a08 46.5%,#241505 100%);">
+      <!-- pared de tablones + luz cálida (parallax lejano) -->
+      <div ref="{{ bgFarRef }}" style="position:absolute;inset:-40px;pointer-events:none;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.14) 0 3px,transparent 3px 96px),radial-gradient(circle at 30% 12%,rgba(255,190,90,.20),transparent 42%),radial-gradient(circle at 76% 10%,rgba(255,190,90,.16),transparent 40%);"></div>
+      <!-- lámparas colgantes -->
+      <div ref="{{ bgMidRef }}" style="position:absolute;top:0;left:0;right:0;height:150px;pointer-events:none;">
+        <div style="position:absolute;left:26%;top:-6px;animation:lampSwing 6s ease-in-out infinite;transform-origin:top center;"><div style="width:3px;height:44px;background:#1c1006;margin:0 auto;"></div><div style="width:56px;height:30px;background:linear-gradient(180deg,#2b3f2f,#1d2c21);border:3px solid #14100a;border-radius:8px 8px 26px 26px;"></div><div style="width:16px;height:16px;background:#ffd884;border-radius:50%;margin:-9px auto 0;box-shadow:0 0 26px 12px rgba(255,200,110,.45);"></div></div>
+        <div style="position:absolute;left:70%;top:-6px;animation:lampSwing 7.3s ease-in-out infinite .9s;transform-origin:top center;"><div style="width:3px;height:32px;background:#1c1006;margin:0 auto;"></div><div style="width:56px;height:30px;background:linear-gradient(180deg,#4a2c12,#33200e);border:3px solid #14100a;border-radius:8px 8px 26px 26px;"></div><div style="width:16px;height:16px;background:#ffd884;border-radius:50%;margin:-9px auto 0;box-shadow:0 0 26px 12px rgba(255,200,110,.45);"></div></div>
+        <span style="position:absolute;left:14%;top:66px;width:4px;height:4px;border-radius:50%;background:rgba(255,220,150,.5);animation:dustMote 7s linear infinite;"></span>
+        <span style="position:absolute;left:55%;top:96px;width:3px;height:3px;border-radius:50%;background:rgba(255,220,150,.4);animation:dustMote 9s linear infinite 2s;"></span>
+      </div>
+
+      <div style="position:relative;max-width:1180px;margin:0 auto;padding:96px 16px 40px;display:flex;flex-wrap:wrap;gap:18px;align-items:stretch;">
+
+        <!-- MOSTRADOR: vaso + personaje -->
+        <div style="flex:1 1 340px;min-width:320px;display:flex;flex-direction:column;">
+          <div style="flex:1;position:relative;display:flex;align-items:flex-end;justify-content:center;gap:8px;min-height:390px;">
+
+            <!-- vaso -->
+            <div style="position:relative;display:flex;flex-direction:column;align-items:center;">
+              <sc-if value="{{ pourFlow }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ streamStyle }}"></div>
+              </sc-if>
+              <div style="{{ shakeStyle }}">
+                <div ref="{{ glassRef }}" onClick="{{ clinkGlass }}" title="¡chin chin!" style="{{ glassStyle }}">
+                  <div style="position:absolute;inset:3px;border-radius:12px 12px 20px 20px;overflow:hidden;">
+                    <sc-for list="{{ layers }}" as="ly" hint-placeholder-count="0"><div style="{{ ly.style }}"></div></sc-for>
+                    <sc-if value="{{ hasLiquid }}" hint-placeholder-val="{{ false }}"><div style="{{ surfaceStyle }}"></div></sc-if>
+                    <sc-if value="{{ hasLiquid }}" hint-placeholder-val="{{ false }}">
+                      <sc-for list="{{ bubbles }}" as="b" hint-placeholder-count="0"><div style="{{ b.style }}"></div></sc-for>
+                    </sc-if>
+                    <sc-for list="{{ garnish }}" as="g" hint-placeholder-count="0"><span style="{{ g.style }}">{{ g.emoji }}</span></sc-for>
+                  </div>
+                  <div style="position:absolute;top:-7px;left:-2px;right:-2px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,.5);background:rgba(255,255,255,.06);pointer-events:none;"></div>
+                  <div style="position:absolute;top:8px;left:9px;width:12px;height:78%;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.65),rgba(255,255,255,.04));pointer-events:none;"></div>
+                  <sc-if value="{{ dragOver }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;inset:-10px;border:3px dashed #ffd23f;border-radius:20px;pointer-events:none;animation:twinkle 1s ease-in-out infinite;"></div>
+                  </sc-if>
+                </div>
+              </div>
+              <div style="width:210px;height:16px;background:linear-gradient(180deg,#a06a33,#7a4c20);border:3px solid #3d2410;border-radius:6px;margin-top:-4px;box-shadow:0 6px 0 #3d2410;"></div>
+              <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+                <div style="font-family:'Patrick Hand',cursive;font-size:17px;color:#e8c58f;margin-top:9px;text-align:center;line-height:1.25;">agarrá una botella y arrastrala<br>hasta el vaso 🫳 (tap = una medida)</div>
+              </sc-if>
+              <sc-if value="{{ notEmpty }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:9px;font-weight:800;font-size:12px;">
+                  <span style="background:#ffedd0;border:2px solid #3d2410;border-radius:999px;padding:3px 10px;">{{ itemCount }} ingred.</span>
+                  <span style="background:#ffedd0;border:2px solid #3d2410;border-radius:999px;padding:3px 10px;">{{ totalMl }} ml</span>
+                  <span style="{{ fillBadgeStyle }}">{{ fillLabel }}</span>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- personaje mini en su banquito -->
+            <div style="display:flex;flex-direction:column;align-items:center;flex:0 0 auto;">
+              <div onClick="{{ pokeAv }}" style="{{ miniAv.wrap }}">
+                <sc-if value="{{ miniAv.hasBubble }}" hint-placeholder-val="{{ false }}"><div style="{{ miniAv.bubbleStyle }}">{{ miniAv.bubbleText }}</div></sc-if>
+                <div style="{{ miniAv.sway }}">
+                  <sc-for list="{{ miniAv.floats }}" as="f" hint-placeholder-count="0"><span style="{{ f.style }}">{{ f.char }}</span></sc-for>
+                  <div style="{{ miniAv.head }}">
+                    <div style="{{ miniAv.hair }}"></div>
+                    <div style="{{ miniAv.eyeL }}">{{ miniAv.eyeChar }}</div>
+                    <div style="{{ miniAv.eyeR }}">{{ miniAv.eyeChar }}</div>
+                    <div style="{{ miniAv.blushL }}"></div>
+                    <div style="{{ miniAv.blushR }}"></div>
+                    <div style="{{ miniAv.mouth }}"></div>
+                  </div>
+                  <div style="{{ miniAv.body }}">
+                    <div style="{{ miniAv.armL }}"></div>
+                    <div style="{{ miniAv.armR }}"></div>
+                  </div>
+                  <div style="{{ miniAv.legs }}"></div>
+                </div>
+                <div style="{{ miniAv.shadow }}"></div>
+              </div>
+              <div style="width:74px;height:12px;background:#8a5a2b;border:3px solid #3d2410;border-radius:5px;"></div>
+              <div style="width:44px;height:34px;background:#6b4020;border:3px solid #3d2410;border-top:none;border-radius:0 0 6px 6px;"></div>
+              <div style="font-family:'Patrick Hand',cursive;font-size:14px;color:#e8c58f;margin-top:5px;text-align:center;max-width:130px;line-height:1.2;">{{ miniCaption }}</div>
+            </div>
+          </div>
+
+          <!-- botonera del mostrador -->
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:stretch;">
+            <div onClick="{{ mix }}" style="{{ mixBtnStyle }}" style-hover="transform:translateY(-2px);" style-active="transform:translateY(3px);">
+              <span style="font-size:22px;">🛎️</span> ¡Mezclar!
+            </div>
+            <div onClick="{{ clearAll }}" title="Vaciar el vaso" style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:#ffedd0;border:3px solid #3d2410;border-radius:14px;padding:6px 14px;font-family:Fredoka,sans-serif;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 5px 0 #3d2410;transition:transform .1s;" style-hover="transform:translateY(-2px) rotate(-2deg);" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3d2410;">
+              <span style="font-size:20px;">🪣</span>Vaciar
+            </div>
+          </div>
+        </div>
+
+        <!-- ESTANTERÍA -->
+        <div style="flex:1.35 1 420px;min-width:330px;background:linear-gradient(180deg,#5d3a19,#4a2c12);border:4px solid #3d2410;border-radius:18px;padding:14px;box-shadow:0 10px 0 #2a1707,0 22px 40px rgba(0,0,0,.45);position:relative;">
+          <!-- brillo que barre la estantería -->
+          <div style="position:absolute;inset:0;border-radius:14px;overflow:hidden;pointer-events:none;z-index:2;"><div style="position:absolute;top:0;bottom:0;left:0;width:20%;background:linear-gradient(90deg,transparent,rgba(255,235,190,.13),transparent);animation:shelfShine 7.5s ease-in-out infinite;"></div></div>
+          <!-- gato del bar -->
+          <div onClick="{{ pokeCat }}" title="miau…" style="{{ catStyle }}">
+            <div style="position:absolute;left:-16px;bottom:10px;width:34px;height:9px;background:#4a4a52;border:2.5px solid #2b1c0e;border-radius:6px;transform-origin:right center;animation:tailSwish 3.5s ease-in-out infinite;"></div>
+            <div style="position:absolute;left:4px;bottom:3px;width:58px;height:34px;background:#4a4a52;border:3px solid #2b1c0e;border-radius:20px 22px 14px 14px;box-shadow:inset 0 -8px 0 rgba(0,0,0,.16);"></div>
+            <div style="position:absolute;right:0;bottom:20px;width:34px;height:30px;background:#4a4a52;border:3px solid #2b1c0e;border-radius:50% 50% 46% 46%;">
+              <div style="position:absolute;left:-2px;top:-9px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #2b1c0e;animation:earTwitch 4.2s ease-in-out infinite;"></div>
+              <div style="position:absolute;right:-2px;top:-9px;width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-bottom:12px solid #2b1c0e;"></div>
+              <div style="position:absolute;left:5px;top:12px;width:8px;height:4px;border-bottom:2.5px solid #2b1c0e;border-radius:0 0 8px 8px;"></div>
+              <div style="position:absolute;right:5px;top:12px;width:8px;height:4px;border-bottom:2.5px solid #2b1c0e;border-radius:0 0 8px 8px;"></div>
+              <div style="position:absolute;left:12px;top:17px;width:5px;height:3.5px;background:#ff9d9d;border-radius:50%;"></div>
+            </div>
+            <span style="position:absolute;right:-13px;top:-15px;font-size:13px;animation:zzz 2.8s ease-in-out infinite;">💤</span>
+          </div>
+          <!-- carteles colgantes (categorías) -->
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+            <sc-for list="{{ tabsView }}" as="t" hint-placeholder-count="6">
+              <div onClick="{{ setTab }}" data-tab="{{ t.id }}" style="{{ t.style }}" style-hover="transform:translateY(-2px) rotate(-1.5deg);">
+                <span style="position:absolute;top:-5px;left:50%;width:7px;height:7px;margin-left:-3px;border-radius:50%;background:#1c1006;border:2px solid #caa06a;"></span>
+                {{ t.label }}
+              </div>
+            </sc-for>
+          </div>
+          <div style="font-family:'Patrick Hand',cursive;font-size:15px;color:#e8c58f;margin:6px 2px 8px;">{{ tabHint }}</div>
+
+          <!-- estantes con botellas -->
+          <div style="background:rgba(0,0,0,.16);border-radius:12px;padding:8px 8px 2px;background-image:repeating-linear-gradient(180deg,transparent 0 108px,#33200e 108px 118px);">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));grid-auto-rows:118px;align-items:end;">
+              <sc-for list="{{ currentItems }}" as="it" hint-placeholder-count="8">
+                <div onPointerDown="{{ startDrag }}" data-id="{{ it.id }}" style="display:flex;flex-direction:column;align-items:center;gap:1px;cursor:grab;touch-action:none;padding:2px 2px 12px;position:relative;transition:transform .12s;" style-hover="transform:translateY(-6px) scale(1.07);z-index:5;">
+                  <div style="{{ it.bob }}">
+                    <div style="position:relative;width:46px;height:66px;filter:drop-shadow(0 5px 3px rgba(0,0,0,.4));">
+                      <div style="{{ it.partA }}"></div>
+                      <div style="{{ it.partB }}"></div>
+                      <div style="{{ it.partC }}"></div>
+                      <div style="{{ it.partD }}"><span style="font-size:13px;line-height:1;">{{ it.emoji }}</span></div>
+                      <div style="{{ it.partE }}"></div>
+                    </div>
+                  </div>
+                  <div style="font-weight:800;font-size:11px;color:#ffedd0;text-align:center;line-height:1.05;">{{ it.name }}</div>
+                  <div style="font-family:'Patrick Hand',cursive;font-size:11.5px;color:#d9b98c;line-height:1;">{{ it.detail }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <!-- pizarra receta -->
+          <div style="margin-top:12px;background:#2f3e34;border:4px solid #8a5a2b;border-radius:12px;padding:10px 12px;box-shadow:inset 0 0 24px rgba(0,0,0,.35);">
+            <div style="font-family:'Patrick Hand',cursive;font-size:19px;color:#fff;display:flex;align-items:center;gap:7px;">📋 Tu receta <span style="flex:1;border-bottom:2px dashed rgba(255,255,255,.25);"></span></div>
+            <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+              <div style="font-family:'Patrick Hand',cursive;font-size:16px;color:rgba(255,255,255,.55);margin-top:6px;">todavía no serviste nada…</div>
+            </sc-if>
+            <div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">
+              <sc-for list="{{ addedView }}" as="a" hint-placeholder-count="0">
+                <div style="display:flex;align-items:center;gap:8px;font-family:'Patrick Hand',cursive;font-size:16.5px;color:#fff;border-bottom:1.5px dashed rgba(255,255,255,.14);padding:2px 0 4px;">
+                  <span style="font-size:15px;">{{ a.emoji }}</span>
+                  <span style="width:10px;height:10px;border-radius:50%;border:1.5px solid rgba(255,255,255,.5);{{ a.dotStyle }}"></span>
+                  <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ a.name }}</span>
+                  <sc-if value="{{ a.isLiquid }}" hint-placeholder-val="{{ true }}">
+                    <span style="display:flex;align-items:center;gap:5px;">
+                      <span onClick="{{ decMl }}" data-idx="{{ a.idx }}" style="width:21px;height:21px;border-radius:50%;border:2px solid rgba(255,255,255,.7);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900;font-size:14px;line-height:1;" style-hover="background:rgba(255,255,255,.15);">−</span>
+                      <span style="min-width:52px;text-align:center;color:#ffd23f;">{{ a.ml }} ml</span>
+                      <span onClick="{{ incMl }}" data-idx="{{ a.idx }}" style="width:21px;height:21px;border-radius:50%;border:2px solid rgba(255,255,255,.7);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-weight:900;font-size:14px;line-height:1;" style-hover="background:rgba(255,255,255,.15);">+</span>
+                    </span>
+                  </sc-if>
+                  <sc-if value="{{ a.notLiquid }}" hint-placeholder-val="{{ false }}">
+                    <span style="color:rgba(255,255,255,.6);font-size:14px;">{{ a.detail }}</span>
+                  </sc-if>
+                  <span onClick="{{ removeAt }}" data-idx="{{ a.idx }}" style="color:#ff8a8a;cursor:pointer;font-weight:900;padding:0 3px;font-family:Nunito,sans-serif;font-size:14px;" style-hover="transform:scale(1.3);">✕</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────── ZONA 2 · FICHA (form) ─────── -->
+    <section data-screen-label="Ficha — tus datos" style="width:100vw;height:100%;flex:0 0 auto;position:relative;overflow-y:auto;background:linear-gradient(180deg,#33200e 0%,#4a2e14 52%,#241505 100%);">
+      <div style="position:absolute;inset:0;pointer-events:none;background-image:repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 3px,transparent 3px 96px),radial-gradient(circle at 50% 8%,rgba(255,190,90,.16),transparent 45%);"></div>
+      <div style="position:relative;max-width:600px;margin:0 auto;padding:96px 16px 46px;">
+        <div style="background:#c98a4b;border:4px solid #3d2410;border-radius:20px;padding:10px;box-shadow:0 12px 0 #2a1707,0 26px 44px rgba(0,0,0,.5);animation:popIn .3s ease;">
+          <div style="width:120px;height:26px;background:#8a5a2b;border:3px solid #3d2410;border-radius:8px;margin:-24px auto 4px;box-shadow:0 3px 0 #3d2410;"></div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:18px 20px 22px;">
+            <div style="font-family:'Patrick Hand',cursive;font-size:17px;color:#8a6a45;">ficha del cliente · paso 2 de 3 🧬</div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:25px;line-height:1.1;margin-top:2px;">Contanos un poco de vos</div>
+            <div style="font-size:13px;font-weight:700;margin-top:4px;color:#8a6a45;">Lo usamos para estimar tu alcoholemia con la fórmula de Widmark.</div>
+
+            <div style="display:flex;flex-direction:column;gap:18px;margin-top:18px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+                  <span style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;">⚖️ Peso corporal</span>
+                  <span style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;color:#b3541e;">{{ pesoLabel }}</span>
+                </div>
+                <input type="range" min="35" max="110" step="1" value="{{ peso }}" data-f="peso" onInput="{{ setNum }}" style="width:100%;accent-color:#b3541e;height:24px;cursor:pointer;">
+              </div>
+              <div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:7px;">🧬 Sexo biológico <span style="font-weight:400;font-size:12px;color:#8a6a45;">(define tu % de agua corporal)</span></div>
+                <div style="display:flex;gap:8px;">
+                  <sc-for list="{{ sexoOpts }}" as="o" hint-placeholder-count="2">
+                    <button onClick="{{ setField }}" data-f="sexo" data-v="{{ o.v }}" style="{{ o.style }}">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:7px;">💪 Contextura física</div>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+                  <sc-for list="{{ contexturaOpts }}" as="o" hint-placeholder-count="4">
+                    <button onClick="{{ setField }}" data-f="contextura" data-v="{{ o.v }}" style="{{ o.style }}"><b>{{ o.label }}</b><span style="display:block;font-weight:600;font-size:11px;opacity:.7;margin-top:1px;">{{ o.sub }}</span></button>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:7px;">🍽️ ¿Cómo está tu estómago?</div>
+                <div style="display:flex;gap:8px;">
+                  <sc-for list="{{ estomagoOpts }}" as="o" hint-placeholder-count="3">
+                    <button onClick="{{ setField }}" data-f="estomago" data-v="{{ o.v }}" style="{{ o.style }}">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+                  <span style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;">⏳ ¿Hace cuánto empezaste?</span>
+                  <span style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;color:#b3541e;">{{ horasLabel }}</span>
+                </div>
+                <input type="range" min="0" max="6" step="0.25" value="{{ horas }}" data-f="horas" onInput="{{ setNum }}" style="width:100%;accent-color:#b3541e;height:24px;cursor:pointer;">
+              </div>
+              <button onClick="{{ analyze }}" style="width:100%;background:#2b1c0e;color:#ffedd0;border:3px solid #2b1c0e;border-radius:15px;padding:14px;font-family:Fredoka,sans-serif;font-weight:600;font-size:18px;cursor:pointer;box-shadow:0 5px 0 #14100a;">🧪 Analizar mi trago →</button>
+            </div>
+          </div>
+        </div>
+        <div onClick="{{ backToBar }}" style="margin:18px auto 0;width:fit-content;background:#8a5a2b;color:#ffedd0;border:3px solid #3d2410;border-radius:12px;padding:9px 18px;font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 5px 0 #3d2410;transition:transform .1s;" style-hover="transform:translateY(-2px);" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3d2410;">← volver al bar</div>
+      </div>
+    </section>
+
+    <!-- ─────── ZONA 3 · ANÁLISIS ─────── -->
+    <section data-screen-label="Resultados — análisis del trago" style="width:100vw;height:100%;flex:0 0 auto;position:relative;overflow-y:auto;background:linear-gradient(180deg,#1c1006 0%,#33200e 60%,#241505 100%);">
+      <div style="position:absolute;top:0;left:20%;width:60%;height:480px;pointer-events:none;background:radial-gradient(ellipse at 50% 0%,rgba(255,210,120,.18),transparent 65%);"></div>
+      <div style="position:relative;max-width:1020px;margin:0 auto;padding:96px 16px 50px;">
+
+        <div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-end;justify-content:center;">
+          <!-- escenario del personaje -->
+          <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:center;">
+            <div onClick="{{ pokeAv }}" style="{{ bigAv.wrap }}">
+              <sc-if value="{{ bigAv.hasBubble }}" hint-placeholder-val="{{ false }}"><div style="{{ bigAv.bubbleStyle }}">{{ bigAv.bubbleText }}</div></sc-if>
+              <div style="{{ bigAv.sway }}">
+                <sc-for list="{{ bigAv.floats }}" as="f" hint-placeholder-count="0"><span style="{{ f.style }}">{{ f.char }}</span></sc-for>
+                <div style="{{ bigAv.head }}">
+                  <div style="{{ bigAv.hair }}"></div>
+                  <div style="{{ bigAv.eyeL }}">{{ bigAv.eyeChar }}</div>
+                  <div style="{{ bigAv.eyeR }}">{{ bigAv.eyeChar }}</div>
+                  <div style="{{ bigAv.blushL }}"></div>
+                  <div style="{{ bigAv.blushR }}"></div>
+                  <div style="{{ bigAv.mouth }}"></div>
+                </div>
+                <div style="{{ bigAv.body }}">
+                  <div style="{{ bigAv.armL }}"></div>
+                  <div style="{{ bigAv.armR }}"></div>
+                </div>
+                <div style="{{ bigAv.legs }}"></div>
+              </div>
+              <div style="{{ bigAv.shadow }}"></div>
+            </div>
+            <div style="width:220px;height:22px;background:linear-gradient(180deg,#8a5a2b,#5d3a19);border:3px solid #3d2410;border-radius:50%;margin-top:-8px;"></div>
+            <div style="font-family:'Patrick Hand',cursive;font-size:15px;color:#e8c58f;margin-top:6px;">tocá al personaje 👆 · así estarías vos</div>
+          </div>
+
+          <!-- marquesina de números -->
+          <div style="flex:1 1 320px;min-width:300px;background:#2b1c0e;border:4px dashed #8a5a2b;border-radius:18px;padding:18px 20px;color:#ffedd0;box-shadow:0 10px 0 #14100a;">
+            <div style="font-family:'Patrick Hand',cursive;font-size:17px;color:#e8c58f;">paso 3 de 3 · análisis del trago</div>
+            <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-top:6px;">
+              <div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:52px;line-height:.95;color:{{ r.tierBd }};">{{ r.bacNow }}</div>
+                <div style="font-weight:800;font-size:13px;margin-top:3px;">g/L de alcoholemia ahora</div>
+              </div>
+              <div style="display:flex;gap:16px;font-size:12.5px;font-weight:700;color:#e8c58f;">
+                <div><span style="font-family:Fredoka,sans-serif;font-size:22px;color:#ffedd0;">{{ r.abv }}°</span><br>graduación</div>
+                <div><span style="font-family:Fredoka,sans-serif;font-size:22px;color:#ffedd0;">{{ r.std }}</span><br>tragos est.</div>
+                <div><span style="font-family:Fredoka,sans-serif;font-size:22px;color:#ffedd0;">{{ r.grams }}</span><br>g alcohol</div>
+              </div>
+            </div>
+            <div style="{{ r.tierStyle }}">
+              <div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;">{{ r.tierLabel }}</div>
+                <div style="font-size:13.5px;line-height:1.45;margin-top:2px;">{{ r.tierBody }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- curva en pizarra -->
+        <div style="margin-top:22px;background:#2f3e34;border:4px solid #8a5a2b;border-radius:16px;padding:14px 14px 10px;box-shadow:inset 0 0 26px rgba(0,0,0,.35);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;color:#fff;">
+            <span style="font-family:'Patrick Hand',cursive;font-size:19px;">📈 Curva de alcoholemia</span>
+            <span style="font-family:'Patrick Hand',cursive;font-size:15px;color:#cfe3d4;">pico ≈ {{ r.bacPeak }} g/L</span>
+          </div>
+          <svg viewBox="0 0 300 110" width="100%" preserveAspectRatio="none" style="height:130px;display:block;">
+            <line x1="8" y1="{{ curve.y05 }}" x2="292" y2="{{ curve.y05 }}" stroke="#ff8a8a" stroke-width="1.4" stroke-dasharray="4 3"></line>
+            <polygon points="{{ curve.area }}" fill="rgba(255,255,255,.10)"></polygon>
+            <polyline points="{{ curve.line }}" fill="none" stroke="#fff" stroke-width="2.5" stroke-linejoin="round" stroke-dasharray="5 2.5"></polyline>
+            <line x1="{{ curve.mx }}" y1="8" x2="{{ curve.mx }}" y2="92" stroke="#ffd23f" stroke-width="1.4"></line>
+            <circle cx="{{ curve.mx }}" cy="{{ curve.my }}" r="5" fill="#ffd23f" stroke="#2f3e34" stroke-width="2"></circle>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-family:'Patrick Hand',cursive;font-size:13.5px;color:#cfe3d4;margin-top:2px;">
+            <span>empezó a tomar</span><span style="color:#ff8a8a;">- - 0,5 g/L (límite autos)</span><span>{{ curve.endLabel }}</span>
+          </div>
+        </div>
+
+        <!-- posavasos de stats -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:20px;">
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:50% 50% 14px 14px / 24px 24px 14px 14px;padding:13px 14px 11px;box-shadow:0 6px 0 #3d2410;">
+            <div style="font-size:11px;font-weight:900;color:#8a6a45;text-transform:uppercase;letter-spacing:.4px;">⏱ Volver a 0,0 g/L</div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.sober }}</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:50% 50% 14px 14px / 24px 24px 14px 14px;padding:13px 14px 11px;box-shadow:0 6px 0 #3d2410;">
+            <div style="font-size:11px;font-weight:900;color:#8a6a45;text-transform:uppercase;letter-spacing:.4px;">🚗 ¿Podés conducir?</div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;color:#c8102e;">{{ r.drive }}</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:50% 50% 14px 14px / 24px 24px 14px 14px;padding:13px 14px 11px;box-shadow:0 6px 0 #3d2410;">
+            <div style="font-size:11px;font-weight:900;color:#8a6a45;text-transform:uppercase;letter-spacing:.4px;">📏 Volumen total</div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.ml }} ml</div>
+          </div>
+          <sc-if value="{{ showNutrition }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:50% 50% 14px 14px / 24px 24px 14px 14px;padding:13px 14px 11px;box-shadow:0 6px 0 #3d2410;">
+              <div style="font-size:11px;font-weight:900;color:#8a6a45;text-transform:uppercase;letter-spacing:.4px;">🔥 Calorías</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.kcal }} kcal</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ showNutrition }}" hint-placeholder-val="{{ true }}">
+            <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:50% 50% 14px 14px / 24px 24px 14px 14px;padding:13px 14px 11px;box-shadow:0 6px 0 #3d2410;">
+              <div style="font-size:11px;font-weight:900;color:#8a6a45;text-transform:uppercase;letter-spacing:.4px;">🍬 Azúcar</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.sugar }} g</div>
+            </div>
+          </sc-if>
+        </div>
+
+        <!-- fórmula -->
+        <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:14px;padding:12px 15px;margin-top:16px;box-shadow:0 6px 0 #3d2410;">
+          <div style="font-weight:900;font-size:12.5px;color:#b3541e;">🧮 CÓMO SE CALCULA (Widmark)</div>
+          <div style="font-size:13.5px;line-height:1.5;margin-top:5px;">Alcoholemia = gramos de etanol ÷ (peso × R).<br><b>{{ r.grams }} g ÷ ({{ peso }} kg × {{ r.rFactor }})</b> = <b>{{ r.bacPeak }} g/L</b> de pico.<br>R es el factor de distribución para cuerpo <b>{{ r.contexturaLabel }}</b> ({{ r.sexoLabel }}). Es una estimación: la única medida exacta es en sangre o aire espirado.</div>
+        </div>
+
+        <!-- notas pegadas (toxicocinética) -->
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-top:16px;">
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:12px 13px;box-shadow:0 6px 0 #3d2410;transform:rotate(-.6deg);">
+            <div style="font-weight:900;font-size:12.5px;">🩸 Absorción</div>
+            <div style="font-size:13px;line-height:1.45;margin-top:4px;">Aparece en sangre a los <b>5 min</b> y llega al pico entre los <b>30 y 90 min</b>. Con el estómago vacío sube más rápido y más alto.</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:12px 13px;box-shadow:0 6px 0 #3d2410;transform:rotate(.5deg);">
+            <div style="font-weight:900;font-size:12.5px;">💧 Distribución</div>
+            <div style="font-size:13px;line-height:1.45;margin-top:4px;">Se reparte por el agua del cuerpo y cruza al cerebro y a la placenta. A más grasa y menos agua, más concentración con lo mismo.</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:12px 13px;box-shadow:0 6px 0 #3d2410;transform:rotate(-.4deg);">
+            <div style="font-weight:900;font-size:12.5px;">🫀 Metabolismo</div>
+            <div style="font-size:13px;line-height:1.45;margin-top:4px;">El hígado transforma el <b>90–98%</b> en ácido acético. El exceso crónico forma grasa → hígado graso.</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:12px 13px;box-shadow:0 6px 0 #3d2410;transform:rotate(.6deg);">
+            <div style="font-weight:900;font-size:12.5px;">🌬️ Eliminación</div>
+            <div style="font-size:13px;line-height:1.45;margin-top:4px;">Un <b>2–10%</b> sale sin cambios por orina, sudor y aliento: por eso funciona el alcoholímetro.</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:12px 13px;box-shadow:0 6px 0 #3d2410;transform:rotate(.4deg);">
+            <div style="font-weight:900;font-size:12.5px;">🧊 Diluir no resta alcohol</div>
+            <div style="font-size:13px;line-height:1.45;margin-top:4px;">Mezclar baja los grados del trago, pero la cantidad total de etanol sigue siendo la misma. El hielo y la gaseosa no te "salvan".</div>
+          </div>
+          <div style="background:#fff6e6;border:3px solid #3d2410;border-radius:12px;padding:12px 13px;box-shadow:0 6px 0 #3d2410;transform:rotate(-.5deg);">
+            <div style="font-weight:900;font-size:12.5px;">🥃 Destiladas vs fermentadas</div>
+            <div style="font-size:13px;line-height:1.45;margin-top:4px;">Las blancas (vodka, gin, whisky) tienen mucho más etanol que vino o cerveza por su proceso de destilación.</div>
+          </div>
+        </div>
+
+        <!-- consejos -->
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:16px;">
+          <div style="background:#e7f6ec;border:3px solid #2f9e44;border-radius:14px;padding:11px 14px;box-shadow:0 5px 0 #1e6b30;">
+            <div style="font-weight:900;font-size:12.5px;color:#207a33;">💡 CONSEJO</div>
+            <div style="font-size:14px;line-height:1.45;margin-top:4px;">{{ r.consejo }}</div>
+          </div>
+          <div style="background:#fdeede;border:3px solid #e08a1e;border-radius:14px;padding:11px 14px;box-shadow:0 5px 0 #9a5e0a;">
+            <div style="font-weight:900;font-size:12.5px;color:#b76b0e;">⚠️ OJO CON ESTO</div>
+            <div style="font-size:14px;line-height:1.45;margin-top:4px;">{{ r.advertencia }}</div>
+          </div>
+          <div style="background:#eef1fb;border:3px solid #5566d6;border-radius:14px;padding:11px 14px;box-shadow:0 5px 0 #3b49b0;">
+            <div style="font-weight:900;font-size:12.5px;color:#3b49b0;">🧠 MITO vs VERDAD</div>
+            <div style="font-size:14px;line-height:1.45;margin-top:4px;"><b>"{{ r.mito }}"</b> → {{ r.mitoV }}</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;background:#2b1c0e;color:#ffedd0;border:3px solid #14100a;border-radius:16px;padding:13px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 6px 0 #14100a;">
+          <span style="font-size:24px;">🚦</span>
+          <div style="font-size:13.5px;line-height:1.5;font-weight:600;">En Argentina vender alcohol a menores de 18 está prohibido. A tu edad el cerebro sigue formándose, así que lo recomendado es <b style="color:#ffd23f;">cero</b>. Esto es un juego para entender qué le pasa al cuerpo, no una invitación a tomar.</div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;">
+          <div onClick="{{ editData }}" style="flex:0 0 auto;background:#8a5a2b;color:#ffedd0;border:3px solid #3d2410;border-radius:14px;padding:12px 18px;font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;cursor:pointer;box-shadow:0 5px 0 #3d2410;transition:transform .1s;" style-hover="transform:translateY(-2px);" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3d2410;">← Cambiar mis datos</div>
+          <div onClick="{{ backToBar }}" style="flex:1;min-width:220px;text-align:center;background:#ffb03a;border:3px solid #3d2410;border-radius:14px;padding:12px;font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;cursor:pointer;box-shadow:0 5px 0 #3d2410;transition:transform .1s;" style-hover="transform:translateY(-2px);" style-active="transform:translateY(3px);box-shadow:0 1px 0 #3d2410;">↩ Volver al bar y probar otro trago</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══════════ CONFETTI ══════════ -->
+  <sc-if value="{{ confettiOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:85;pointer-events:none;overflow:hidden;">
+      <sc-for list="{{ confetti }}" as="cf" hint-placeholder-count="0"><span style="{{ cf.style }}"></span></sc-for>
+    </div>
+  </sc-if>
+
+  <!-- ══════════ BOTELLA FANTASMA (drag) ══════════ -->
+  <sc-if value="{{ dragging }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:90;pointer-events:none;">
+      <div ref="{{ ghostRef }}" style="{{ ghostPos }}">
+        <div style="{{ ghostTilt }}">
+          <div style="position:relative;width:58px;height:84px;filter:drop-shadow(0 10px 8px rgba(0,0,0,.5));">
+            <div style="{{ ghost.partA }}"></div>
+            <div style="{{ ghost.partB }}"></div>
+            <div style="{{ ghost.partC }}"></div>
+            <div style="{{ ghost.partD }}"><span style="font-size:16px;line-height:1;">{{ ghost.emoji }}</span></div>
+            <div style="{{ ghost.partE }}"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ffb03a&quot;,&quot;options&quot;:[&quot;#ffb03a&quot;,&quot;#e8563f&quot;,&quot;#7ec26a&quot;,&quot;#5aa7d6&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estilo&quot;},&quot;stdGrams&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[10,14],&quot;default&quot;:10,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Cálculo&quot;,&quot;unit&quot;:&quot;g&quot;},&quot;showNutrition&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Resultados&quot;}}">
+class Component extends DCLogic {
+  state = {
+    added: [], tab: 'cerveza', phase: 0, analyzed: false,
+    drag: null, dragOver: false, pourFlow: false,
+    peso: 60, sexo: 'M', contextura: 'Promedio', estomago: 'algo', horas: 1, seed: 1,
+    muted: false, poke: 0, pokeOn: false,
+    clink: false, catOn: false, confettiN: 0, confettiOn: false,
+  };
+
+  CAP = 1000;
+
+  TABS = [
+    { id:'cerveza',   label:'🍺 Cervezas' },
+    { id:'vino',      label:'🍷 Vinos' },
+    { id:'destilado', label:'🥃 Destilados' },
+    { id:'aperitivo', label:'🍹 Aperitivos' },
+    { id:'mezcla',    label:'🧃 Sin alcohol' },
+    { id:'extra',     label:'🍋 Extras' },
+  ];
+
+  CATALOG = [
+    { id:'quilmes', name:'Quilmes', sub:'lager', emoji:'🍺', cat:'cerveza', abv:4.9, dml:340, kcal:145, sugar:0, color:'#e3a90f' },
+    { id:'stella',  name:'Stella', sub:'lager', emoji:'🍺', cat:'cerveza', abv:5.0, dml:330, kcal:140, sugar:0, color:'#e6b020' },
+    { id:'corona',  name:'Corona', sub:'pilsner', emoji:'🍺', cat:'cerveza', abv:4.5, dml:330, kcal:130, sugar:0, color:'#f0cf6b' },
+    { id:'ipa',     name:'IPA', sub:'artesanal', emoji:'🍺', cat:'cerveza', abv:6.5, dml:330, kcal:200, sugar:0, color:'#c8801a' },
+    { id:'negra',   name:'Stout', sub:'negra', emoji:'🍺', cat:'cerveza', abv:5.5, dml:330, kcal:180, sugar:1, color:'#2a160a' },
+    { id:'sidra',   name:'Sidra', sub:'dulce', emoji:'🍏', cat:'cerveza', abv:5.0, dml:330, kcal:150, sugar:12, color:'#d8b34a' },
+    { id:'malbec',  name:'Malbec', sub:'tinto', emoji:'🍷', cat:'vino', abv:14, dml:150, kcal:125, sugar:1, color:'#6e1b34' },
+    { id:'blanco',  name:'Vino blanco', sub:'', emoji:'🥂', cat:'vino', abv:12.5, dml:150, kcal:120, sugar:1, color:'#e7e7a8' },
+    { id:'espuma',  name:'Espumante', sub:'champán', emoji:'🍾', cat:'vino', abv:12, dml:120, kcal:95, sugar:3, color:'#f2e6b0' },
+    { id:'vermut',  name:'Vermut', sub:'rojo', emoji:'🍷', cat:'vino', abv:16, dml:80, kcal:110, sugar:8, color:'#8a3b1e' },
+    { id:'fernet',  name:'Fernet', sub:'Branca', emoji:'🥃', cat:'destilado', abv:39, dml:50, kcal:90, sugar:8, color:'#2c1810' },
+    { id:'vodka',   name:'Vodka', sub:'Smirnoff', emoji:'🍸', cat:'destilado', abv:40, dml:45, kcal:97, sugar:0, color:'#eaf2ff' },
+    { id:'gin',     name:'Gin', sub:'Beefeater', emoji:'🍸', cat:'destilado', abv:40, dml:45, kcal:97, sugar:0, color:'#e6f6ef' },
+    { id:'ron',     name:'Ron', sub:'Bacardí', emoji:'🥃', cat:'destilado', abv:37.5, dml:45, kcal:90, sugar:0, color:'#b9772e' },
+    { id:'whisky',  name:'Whisky', sub:'JW', emoji:'🥃', cat:'destilado', abv:40, dml:45, kcal:105, sugar:0, color:'#9c5a1e' },
+    { id:'tequila', name:'Tequila', sub:'Cuervo', emoji:'🌵', cat:'destilado', abv:38, dml:45, kcal:90, sugar:0, color:'#f1edc8' },
+    { id:'jager',   name:'Jäger', sub:'meister', emoji:'🦌', cat:'destilado', abv:35, dml:40, kcal:100, sugar:11, color:'#1f140c' },
+    { id:'campari', name:'Campari', sub:'amargo', emoji:'🍹', cat:'aperitivo', abv:25, dml:60, kcal:115, sugar:12, color:'#c8102e' },
+    { id:'aperol',  name:'Aperol', sub:'spritz', emoji:'🍹', cat:'aperitivo', abv:11, dml:80, kcal:95, sugar:12, color:'#ff5b1e' },
+    { id:'gancia',  name:'Gancia', sub:'', emoji:'🍸', cat:'aperitivo', abv:16, dml:80, kcal:90, sugar:7, color:'#d98a2b' },
+    { id:'baileys', name:'Baileys', sub:'crema', emoji:'🥛', cat:'aperitivo', abv:17, dml:50, kcal:165, sugar:10, color:'#c9a06b' },
+    { id:'durazno', name:'Licor durazno', sub:'dulce', emoji:'🍑', cat:'aperitivo', abv:18, dml:45, kcal:90, sugar:9, color:'#ffb37a' },
+    { id:'cola',    name:'Coca-Cola', sub:'', emoji:'🥤', cat:'mezcla', abv:0, dml:200, kcal:84, sugar:21, color:'#2b1408' },
+    { id:'zero',    name:'Coca Zero', sub:'sin azúcar', emoji:'🥤', cat:'mezcla', abv:0, dml:200, kcal:1, sugar:0, color:'#1a0d06' },
+    { id:'sprite',  name:'Lima-limón', sub:'', emoji:'🥤', cat:'mezcla', abv:0, dml:200, kcal:78, sugar:20, color:'#d7f0a8' },
+    { id:'tonica',  name:'Tónica', sub:'Schweppes', emoji:'🫧', cat:'mezcla', abv:0, dml:200, kcal:66, sugar:17, color:'#eef9ff' },
+    { id:'energi',  name:'Energizante', sub:'Speed', emoji:'⚡', cat:'mezcla', abv:0, dml:250, kcal:110, sugar:28, color:'#c5d92e' },
+    { id:'jugo',    name:'Jugo naranja', sub:'', emoji:'🧃', cat:'mezcla', abv:0, dml:200, kcal:90, sugar:18, color:'#ff9d1e' },
+    { id:'soda',    name:'Soda / agua', sub:'', emoji:'💧', cat:'mezcla', abv:0, dml:200, kcal:0, sugar:0, color:'#d6eeff' },
+    { id:'granada', name:'Granadina', sub:'jarabe', emoji:'🍒', cat:'mezcla', abv:0, dml:30, kcal:80, sugar:20, color:'#b3122e' },
+    { id:'hielo',  name:'Hielo', emoji:'🧊', cat:'extra', abv:0, dml:0, kcal:0,  sugar:0 },
+    { id:'limon',  name:'Limón', emoji:'🍋', cat:'extra', abv:0, dml:0, kcal:2,  sugar:1 },
+    { id:'azucar', name:'Azúcar', emoji:'🍬', cat:'extra', abv:0, dml:0, kcal:32, sugar:8 },
+    { id:'frutas', name:'Frutas', emoji:'🍓', cat:'extra', abv:0, dml:0, kcal:18, sugar:4 },
+    { id:'menta',  name:'Menta', emoji:'🌿', cat:'extra', abv:0, dml:0, kcal:0,  sugar:0 },
+    { id:'sal',    name:'Sal', emoji:'🧂', cat:'extra', abv:0, dml:0, kcal:0,  sugar:0 },
+  ];
+
+  R = {
+    Astenico:{ M:0.85, F:0.76, label:'asténico' },
+    Atletico:{ M:0.76, F:0.67, label:'atlético' },
+    Picnico:{  M:0.64, F:0.58, label:'pícnico' },
+    Promedio:{ M:0.75, F:0.67, label:'promedio' },
+  };
+
+  CONSEJOS = [
+    "Tomá agua entre trago y trago: te hidratás y bajás el ritmo sin darte cuenta.",
+    "No mezcles alcohol con energizantes: te sentís menos borracho, pero seguís igual de alcoholizado.",
+    "Comer antes y durante hace que el alcohol se absorba más lento y el pico sea más bajo.",
+    "Si tomaste, no manejes ni te subas con quien tomó. Pedí un viaje o quedate a dormir.",
+    "El alcohol no abriga: en realidad baja tu temperatura corporal aunque sientas calor.",
+    "Cuidá a tus amigos: si alguien se descompone, ponelo de costado y pedí ayuda a un adulto.",
+  ];
+  ADVERTENCIAS = [
+    "Tomar rápido y con el estómago vacío dispara el pico de alcoholemia.",
+    "Solo el tiempo baja la alcoholemia: ni café, ni ducha fría, ni vomitar lo aceleran.",
+    "Mezclar muchos tipos de alcohol no emborracha distinto: lo que cuenta son los gramos totales.",
+    "El alcohol cruza la placenta: durante el embarazo el riesgo para el bebé es real.",
+    "El cerebro adolescente todavía se está formando: el alcohol lo afecta más que al adulto.",
+  ];
+  MITOS = [
+    { m:"El café baja la borrachera", v:"Falso: solo te despabila, la alcoholemia sigue igual." },
+    { m:"Vomitar te despeja", v:"Falso: lo que ya pasó a la sangre no se va vomitando." },
+    { m:"La cerveza no es alcohol 'de verdad'", v:"Falso: una lata puede tener tanto etanol como un trago fuerte." },
+    { m:"Aguantar mucho es bueno", v:"Falso: significa que el cuerpo se acostumbró, y eso es señal de riesgo." },
+    { m:"Una ducha fría te baja todo", v:"Falso: el frío asusta, pero el etanol sigue en tu sangre." },
+  ];
+
+  // ═══════ SONIDO ═══════
+  _ensureAudio() {
+    if (!this._ac) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) this._ac = new AC();
+    }
+    if (this._ac && this._ac.state === 'suspended') this._ac.resume();
+    return this._ac;
+  }
+  _beep(f0, f1, dur, type, vol) {
+    if (this.state.muted) return;
+    const ac = this._ensureAudio(); if (!ac) return;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type || 'triangle';
+    o.frequency.setValueAtTime(f0, ac.currentTime);
+    o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), ac.currentTime + dur);
+    g.gain.setValueAtTime(vol ?? .12, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + dur);
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + dur + .02);
+  }
+  _noiseBuf() {
+    const ac = this._ac;
+    if (!this._nb) {
+      const b = ac.createBuffer(1, ac.sampleRate * 1.2, ac.sampleRate);
+      const d = b.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      this._nb = b;
+    }
+    return this._nb;
+  }
+  sndPop() { this._beep(300, 900, .09, 'triangle', .14); }
+  sndDing() { this._beep(880, 880, .25, 'sine', .1); this._beep(1320, 1320, .35, 'sine', .06); }
+  sndSwoosh() { this._beep(180, 700, .35, 'sawtooth', .05); }
+  sndTada() { this._beep(523, 523, .16, 'triangle', .12); setTimeout(() => this._beep(659, 659, .16, 'triangle', .12), 130); setTimeout(() => this._beep(784, 784, .3, 'triangle', .14), 260); }
+  sndBubble() { this._beep(500 + Math.random() * 500, 1400, .06, 'sine', .05); }
+  pourStart() {
+    if (this.state.muted) return;
+    const ac = this._ensureAudio(); if (!ac || this._pn) return;
+    const src = ac.createBufferSource(); src.buffer = this._noiseBuf(); src.loop = true;
+    const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 750; bp.Q.value = .8;
+    const g = ac.createGain(); g.gain.setValueAtTime(.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(.08, ac.currentTime + .12);
+    src.connect(bp); bp.connect(g); g.connect(ac.destination); src.start();
+    this._pn = { src, g };
+    this._bubT = setInterval(() => this.sndBubble(), 350);
+  }
+  pourStop() {
+    if (this._bubT) { clearInterval(this._bubT); this._bubT = null; }
+    if (!this._pn) return;
+    const ac = this._ac, { src, g } = this._pn; this._pn = null;
+    try { g.gain.exponentialRampToValueAtTime(.001, ac.currentTime + .15); src.stop(ac.currentTime + .2); } catch (e) {}
+  }
+  toggleMute = () => { this.pourStop(); this.setState(s => ({ muted: !s.muted })); };
+
+  // ═══════ DRAG & POUR ═══════
+  _overGlass(x, y) {
+    const el = this.glassRef.current; if (!el) return false;
+    const r = el.getBoundingClientRect();
+    return x > r.left - 36 && x < r.right + 36 && y > r.top - 60 && y < r.bottom + 20;
+  }
+  _posGhost() {
+    const el = this.ghostRef.current, d = this._drag;
+    if (el && d) { el.style.left = (d.x - 27) + 'px'; el.style.top = (d.y - 46) + 'px'; }
+  }
+  startDrag = (e) => {
+    if (this.state.phase !== 0) return;
+    const it = this.CATALOG.find(x => x.id === e.currentTarget.dataset.id);
+    if (!it) return;
+    if (e.preventDefault) e.preventDefault();
+    this._drag = { it, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t0: Date.now(), over: false, addedIdx: -1, poured: false };
+    this._ensureAudio(); this.sndPop();
+    this.setState({ drag: { id: it.id }, dragOver: false });
+    setTimeout(() => this._posGhost(), 0);
+  };
+  onMove = (e) => {
+    const d = this._drag; if (!d) return;
+    d.x = e.clientX; d.y = e.clientY;
+    this._posGhost();
+    const over = this._overGlass(d.x, d.y);
+    if (over !== d.over) {
+      d.over = over;
+      this.setState({ dragOver: over });
+      if (over) this._beginFlow(); else this._endFlow();
+    }
+  };
+  _beginFlow() {
+    const d = this._drag; if (!d || d.it.cat === 'extra' || this._timer) return;
+    if (this.state.added.length >= 24) return;
+    if (d.addedIdx < 0) {
+      this.setState(s => {
+        d.addedIdx = s.added.length;
+        return { added: [...s.added, { ...d.it, ml: 0 }] };
+      });
+    }
+    this.pourStart();
+    this.setState({ pourFlow: true });
+    this._timer = setInterval(() => {
+      this.setState(s => {
+        const i = d.addedIdx; if (i < 0 || !s.added[i]) return {};
+        const total = s.added.reduce((a, x) => a + x.ml, 0);
+        if (total >= this.CAP + 40) return {};
+        const added = s.added.slice();
+        added[i] = { ...added[i], ml: added[i].ml + 9 };
+        d.poured = true;
+        return { added };
+      });
+    }, 55);
+  }
+  _endFlow() {
+    if (this._timer) { clearInterval(this._timer); this._timer = null; }
+    this.pourStop();
+    const d = this._drag;
+    this.setState(s => {
+      let st = { pourFlow: false };
+      if (d && d.addedIdx >= 0 && s.added[d.addedIdx] && s.added[d.addedIdx].ml < 8) {
+        st.added = s.added.filter((_, j) => j !== d.addedIdx);
+        d.addedIdx = -1; d.poured = false;
+      }
+      return st;
+    });
+  }
+  onUp = (e) => {
+    const d = this._drag; if (!d) return;
+    this._endFlow();
+    const dt = Date.now() - d.t0;
+    const dist = Math.hypot(d.x - d.sx, d.y - d.sy);
+    const tap = dt < 320 && dist < 10;
+    if (d.over || tap) {
+      if (d.it.cat === 'extra') this._addExtra(d.it);
+      else if (!d.poured) this._addMeasure(d.it);
+      else this.sndDing();
+    }
+    this._drag = null;
+    this.setState({ drag: null, dragOver: false, pourFlow: false });
+  };
+  _addMeasure(it) {
+    if (this.state.added.length >= 24) return;
+    this.setState(s => ({ added: [...s.added, { ...it, ml: it.dml || 45 }] }));
+    this.sndDing();
+  }
+  _addExtra(it) {
+    if (this.state.added.length >= 24) return;
+    this.setState(s => ({ added: [...s.added, { ...it }] }));
+    this.sndPop();
+  }
+
+  incMl = (e) => { const i = +e.currentTarget.dataset.idx; this.sndBubble(); this.setState(s => { const a = s.added.slice(); if (a[i]) a[i] = { ...a[i], ml: a[i].ml + 15 }; return { added: a }; }); };
+  decMl = (e) => { const i = +e.currentTarget.dataset.idx; this.sndBubble(); this.setState(s => { let a = s.added.slice(); if (!a[i]) return {}; const nv = a[i].ml - 15; if (nv < 5) a = a.filter((_, j) => j !== i); else a[i] = { ...a[i], ml: nv }; return { added: a }; }); };
+  removeAt = (e) => { const i = +e.currentTarget.dataset.idx; this.sndPop(); this.setState(s => ({ added: s.added.filter((_, j) => j !== i) })); };
+  clearAll = () => { this.sndSwoosh(); this.setState({ added: [] }); };
+  setTab = (e) => { this.sndPop(); this.setState({ tab: e.currentTarget.dataset.tab }); };
+  setField = (e) => { this.sndPop(); this.setState({ [e.currentTarget.dataset.f]: e.currentTarget.dataset.v }); };
+  setNum = (e) => this.setState({ [e.target.dataset.f]: +e.target.value });
+
+  mix = () => { if (!this.state.added.length) return; this.sndSwoosh(); this._confetti(); this.setState({ phase: 1 }); };
+  analyze = () => { this.sndTada(); this._confetti(); this.setState({ phase: 2, analyzed: true, seed: Math.floor(Math.random() * 1e5) }); };
+  clinkGlass = () => {
+    this._beep(1250, 950, .12, 'sine', .1); this._beep(1900, 1500, .2, 'sine', .06);
+    this.setState({ clink: true });
+    if (this._clinkT) clearTimeout(this._clinkT);
+    this._clinkT = setTimeout(() => this.setState({ clink: false }), 650);
+  };
+  pokeCat = () => {
+    this._beep(660, 320, .22, 'sine', .12); setTimeout(() => this._beep(780, 390, .18, 'sine', .1), 150);
+    this.setState({ catOn: true });
+    if (this._catT) clearTimeout(this._catT);
+    this._catT = setTimeout(() => this.setState({ catOn: false }), 700);
+  };
+  _confetti() {
+    this.setState(s => ({ confettiN: s.confettiN + 1, confettiOn: true }));
+    if (this._cfT) clearTimeout(this._cfT);
+    this._cfT = setTimeout(() => this.setState({ confettiOn: false }), 1600);
+  }
+  editData = () => { this.sndSwoosh(); this.setState({ phase: 1 }); };
+  backToBar = () => { this.sndSwoosh(); this.setState({ phase: 0 }); };
+  goPhase = (e) => {
+    const p = +e.currentTarget.dataset.p;
+    if (p === 1 && !this.state.added.length) return;
+    if (p === 2 && !this.state.analyzed) return;
+    if (p !== this.state.phase) { this.sndSwoosh(); this.setState({ phase: p }); }
+  };
+  pokeAv = () => {
+    this.sndPop();
+    this.setState(s => ({ poke: s.poke + 1, pokeOn: true }));
+    if (this._pokeT) clearTimeout(this._pokeT);
+    this._pokeT = setTimeout(() => this.setState({ pokeOn: false }), 900);
+  };
+
+  fmtH(h) {
+    if (h <= 0) return '—';
+    const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    if (hh <= 0) return mm + ' min';
+    return hh + ' h' + (mm ? ' ' + mm + ' min' : '');
+  }
+
+  tierIdx(c) {
+    if (c < 0.05) return 0;
+    if (c < 0.3) return 1;
+    if (c < 0.5) return 2;
+    if (c < 1.0) return 3;
+    if (c < 2.0) return 4;
+    if (c < 3.0) return 5;
+    return 6;
+  }
+  TIERS = [
+    { l:'Prácticamente sobrio', b:'Casi nada de etanol en sangre. El riesgo se mantiene bajo.', bg:'#e7f6ec', bd:'#2f9e44', tx:'#1e6b30' },
+    { l:'Efecto leve', b:'Empieza la desinhibición. Los reflejos ya bajan aunque casi no se note.', bg:'#fff7df', bd:'#e0a91e', tx:'#8a6a0a' },
+    { l:'Euforia y menos reflejos', b:'Más confianza y menos atención. Conducir acá ya es peligroso.', bg:'#fff0d6', bd:'#e0901e', tx:'#9a6207' },
+    { l:'Coordinación afectada', b:'Cuesta hablar y moverse bien, el juicio falla. Prohibido manejar.', bg:'#fdeede', bd:'#e0791e', tx:'#a3530c' },
+    { l:'Borrachera marcada', b:'Marcha inestable, náuseas y vómitos. Alto riesgo de accidentes.', bg:'#fde4e4', bd:'#e8384f', tx:'#a51a2c' },
+    { l:'Estupor alcohólico', b:'Confusión severa, vómitos y somnolencia. El cuerpo está al límite.', bg:'#f6dada', bd:'#c8102e', tx:'#8c0a20' },
+    { l:'Riesgo vital', b:'Posible coma y depresión respiratoria. Es una emergencia médica.', bg:'#f3cccc', bd:'#a00b1e', tx:'#7a0818' },
+  ];
+
+  // ═══════ PERSONAJE ═══════
+  avatarVals(tier, s, opts) {
+    opts = opts || {};
+    const px = (n) => (n * s).toFixed(1) + 'px';
+    const ink = '#2b1c0e', skin = '#ffd9a0', shirt = '#e8563f';
+    const W = 150, H = 200;
+    const POSE = [
+      { anim:'avIdle 3.2s ease-in-out infinite', eye:'•', mouth:'smile', blush:0,  headTilt:0,  floats:[] },
+      { anim:'avSway1 2.8s ease-in-out infinite', eye:'•', mouth:'smile', blush:.4, headTilt:-2, floats:[] },
+      { anim:'avBounce 1.5s ease-in-out infinite', eye:'✦', mouth:'grin', blush:.55, headTilt:-5, floats:[{c:'♪',x:108,y:16},{c:'★',x:-4,y:30}] },
+      { anim:'avSway2 2.1s ease-in-out infinite', eye:'−', mouth:'flat', blush:.65, headTilt:7,  floats:[{c:'💧',x:112,y:24}] },
+      { anim:'avSway3 1.6s ease-in-out infinite', eye:'@', mouth:'open', blush:.75, headTilt:-9, floats:[{c:'★',x:-8,y:14},{c:'✦',x:116,y:8},{c:'★',x:60,y:-14}] },
+      { anim:'avSway4 1.5s ease-in-out infinite', eye:'✕', mouth:'open', blush:.5, headTilt:14, floats:[{c:'💫',x:-6,y:8},{c:'🤢',x:114,y:26}] },
+      { anim:'avLie 1s ease forwards', eye:'✕', mouth:'open', blush:.3, headTilt:0, floats:[{c:'🚨',x:54,y:-24},{c:'💤',x:116,y:10}] },
+    ];
+    let p = POSE[Math.min(tier, 6)];
+    if (opts.excited) p = { ...POSE[2], eye:'✦', floats:[{c:'!',x:110,y:10}] };
+    const swayAnim = opts.poked ? ((opts.pokeN % 2) ? 'pokeJumpA .55s ease' : 'pokeJumpB .55s ease') : p.anim;
+
+    const MOUTHS = {
+      smile: `position:absolute;left:${px(58)};top:${px(62)};width:${px(30)};height:${px(14)};border:${px(3.4)} solid ${ink};border-top:none;border-left-color:transparent;border-right-color:transparent;border-radius:0 0 ${px(26)} ${px(26)};background:transparent;`,
+      grin:  `position:absolute;left:${px(55)};top:${px(58)};width:${px(36)};height:${px(20)};background:#7a2c1c;border:${px(3)} solid ${ink};border-radius:${px(4)} ${px(4)} ${px(26)} ${px(26)};`,
+      flat:  `position:absolute;left:${px(60)};top:${px(68)};width:${px(26)};height:${px(3.4)};background:${ink};border-radius:${px(3)};`,
+      open:  `position:absolute;left:${px(64)};top:${px(60)};width:${px(18)};height:${px(22)};background:#7a2c1c;border:${px(3)} solid ${ink};border-radius:50%;`,
+    };
+    const eye = (left) => `position:absolute;left:${px(left)};top:${px(26)};width:${px(26)};height:${px(28)};background:#fff;border:${px(3)} solid ${ink};border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:${px(15)};color:${ink};font-family:Nunito,sans-serif;${p.eye === '•' ? 'animation:blinkA 3.8s ease-in-out infinite;' : ''}line-height:1;`;
+    const blush = (left) => `position:absolute;left:${px(left)};top:${px(52)};width:${px(18)};height:${px(10)};background:#ff8a7a;border-radius:50%;opacity:${p.blush};`;
+    const greenish = tier >= 5 ? 'filter:hue-rotate(28deg) saturate(.85);' : '';
+
+    return {
+      wrap: `position:relative;width:${px(W)};height:${px(H)};cursor:pointer;flex:0 0 auto;`,
+      sway: `position:absolute;inset:0;transform-origin:bottom center;animation:${swayAnim};`,
+      head: `position:absolute;left:${px(15)};top:0;width:${px(120)};height:${px(100)};background:${skin};border:${px(3.4)} solid ${ink};border-radius:${px(46)} ${px(46)} ${px(42)} ${px(42)};transform:rotate(${p.headTilt}deg);z-index:3;${greenish}`,
+      hair: `position:absolute;left:${px(-3.4)};top:${px(-3.4)};right:${px(-3.4)};height:${px(34)};background:${opts.accent || '#ffb03a'};border:${px(3.4)} solid ${ink};border-radius:${px(46)} ${px(46)} ${px(10)} ${px(10)};`,
+      eyeL: eye(26), eyeR: eye(68),
+      blushL: blush(14), blushR: blush(88),
+      mouth: MOUTHS[p.mouth],
+      eyeChar: p.eye,
+      body: `position:absolute;left:${px(41)};top:${px(92)};width:${px(68)};height:${px(66)};background:${shirt};border:${px(3.4)} solid ${ink};border-radius:${px(22)} ${px(22)} ${px(18)} ${px(18)};z-index:2;`,
+      armL: `position:absolute;left:${px(-16)};top:${px(8)};width:${px(16)};height:${px(40)};background:${skin};border:${px(3)} solid ${ink};border-radius:${px(10)};transform:rotate(${tier >= 3 ? 26 : 10}deg);transform-origin:top right;`,
+      armR: `position:absolute;right:${px(-16)};top:${px(8)};width:${px(16)};height:${px(40)};background:${skin};border:${px(3)} solid ${ink};border-radius:${px(10)};transform:rotate(${tier >= 3 ? -30 : -10}deg);transform-origin:top left;`,
+      legs: `position:absolute;left:${px(52)};top:${px(152)};width:${px(16)};height:${px(26)};background:#4a5568;border:${px(3)} solid ${ink};border-radius:${px(7)};box-shadow:${px(30)} 0 0 0 #4a5568,${px(30)} 0 0 ${px(3)} ${ink};z-index:1;`,
+      shadow: `position:absolute;left:${px(30)};bottom:${px(-8)};width:${px(90)};height:${px(14)};background:rgba(0,0,0,.35);border-radius:50%;`,
+      floats: p.floats.map((f, i) => ({
+        char: f.c,
+        style: `position:absolute;left:${px(f.x)};top:${px(f.y)};font-size:${px(17)};z-index:5;color:#ffd23f;font-weight:900;animation:floatY ${2 + i * .5}s ease-in-out infinite ${i * .3}s;text-shadow:0 1px 0 ${ink};pointer-events:none;`
+      })),
+      hasBubble: !!opts.poked,
+      bubbleText: opts.bubbleText || '¡hola!',
+      bubbleStyle: `position:absolute;top:${px(-26)};left:${px(90)};background:#fff6e6;border:${px(2.6)} solid ${ink};border-radius:${px(12)} ${px(12)} ${px(12)} ${px(2)};padding:${px(4)} ${px(10)};font-family:'Patrick Hand',cursive;font-size:${px(14)};z-index:9;animation:hipUp 1s ease forwards;white-space:nowrap;`,
+    };
+  }
+
+  // ═══════ BOTELLAS ═══════
+  bottleParts(it, big, idx) {
+    const ink = '#2b1c0e';
+    const m = big ? 1.28 : 1;
+    const px = (n) => (n * m).toFixed(1) + 'px';
+    const c = it.color || '#dfe7ef';
+    const i = idx || 0;
+    const bob = big ? '' : `animation:bottleBob ${(3 + (i % 4) * .45).toFixed(2)}s ease-in-out infinite;animation-delay:${(i * .19).toFixed(2)}s;transform-origin:bottom center;`;
+    const shine = (l, t, h) => `position:absolute;left:${px(l)};top:${px(t)};width:${px(5)};height:${px(h)};background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.06));border-radius:${px(4)};pointer-events:none;z-index:4;`;
+    const glassBg = `linear-gradient(105deg,${c} 55%,rgba(255,255,255,.34) 56%,rgba(255,255,255,.1))`;
+    if (it.cat === 'extra') {
+      return { bob,
+        partA: 'display:none;', partB: 'display:none;', partE: 'display:none;',
+        partC: `position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:${px(42)};height:${px(26)};background:linear-gradient(180deg,#fff6e6,#e8d9bd);border:${px(2.6)} solid ${ink};border-radius:50% 50% ${px(10)} ${px(10)} / ${px(14)} ${px(14)} ${px(9)} ${px(9)};box-shadow:inset 0 ${px(-5)} 0 rgba(0,0,0,.1);`,
+        partD: `position:absolute;left:0;right:0;bottom:${px(4)};display:flex;align-items:center;justify-content:center;z-index:3;`,
+        emoji: it.emoji,
+      };
+    }
+    if (it.cat === 'mezcla') {
+      return { bob,
+        partA: `position:absolute;left:50%;top:${px(9)};transform:translateX(-50%);width:${px(28)};height:${px(7)};background:linear-gradient(180deg,#ececec,#b9b9b9);border:${px(2)} solid ${ink};border-radius:${px(8)} ${px(8)} ${px(2)} ${px(2)};z-index:2;`,
+        partB: `position:absolute;left:50%;top:${px(6)};transform:translateX(-50%);width:${px(12)};height:${px(4)};background:#d9d9d9;border:${px(1.6)} solid ${ink};border-radius:${px(3)};z-index:3;`,
+        partC: `position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:${px(32)};height:${px(48)};background:linear-gradient(90deg,#aeb4bb 0 9%,${c} 9% 91%,#8f959c 91%);border:${px(2.6)} solid ${ink};border-radius:${px(6)} ${px(6)} ${px(7)} ${px(7)};box-shadow:inset 0 ${px(-6)} 0 rgba(0,0,0,.14);`,
+        partD: `position:absolute;left:50%;bottom:${px(13)};transform:translateX(-50%) rotate(2deg);width:${px(26)};height:${px(20)};background:#fff6e6;border:${px(2)} solid ${ink};border-radius:${px(5)};display:flex;align-items:center;justify-content:center;z-index:3;`,
+        partE: shine(12, 20, 26),
+        emoji: it.emoji,
+      };
+    }
+    const D = it.cat === 'vino' ? { bw: 28, bh: 40, nw: 10, nh: 22, br: 12, cap: '#7a1f3d' }
+      : it.cat === 'aperitivo' ? { bw: 34, bh: 40, nw: 12, nh: 16, br: 16, cap: '#f3c53f' }
+      : it.cat === 'cerveza' ? { bw: 32, bh: 42, nw: 12, nh: 18, br: 13, cap: '#d9d9d9' }
+      : { bw: 36, bh: 40, nw: 13, nh: 14, br: 7, cap: '#2b1c0e' };
+    return { bob,
+      partA: `position:absolute;left:50%;top:0;transform:translateX(-50%);width:${px(D.nw + 5)};height:${px(9)};background:linear-gradient(180deg,${D.cap},rgba(0,0,0,.25) 160%);border:${px(2)} solid ${ink};border-radius:${px(3.4)} ${px(3.4)} ${px(2)} ${px(2)};z-index:3;`,
+      partB: `position:absolute;left:50%;top:${px(7)};transform:translateX(-50%);width:${px(D.nw)};height:${px(D.nh)};background:${glassBg};border:${px(2.4)} solid ${ink};border-bottom:none;border-radius:${px(3)} ${px(3)} 0 0;`,
+      partC: `position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:${px(D.bw)};height:${px(D.bh)};background:${glassBg};border:${px(2.6)} solid ${ink};border-radius:${px(D.br)} ${px(D.br)} ${px(D.br * .8)} ${px(D.br * .8)};box-shadow:inset 0 ${px(-5)} 0 rgba(0,0,0,.18);`,
+      partD: `position:absolute;left:50%;bottom:${px(8)};transform:translateX(-50%) rotate(-2deg);width:${px(D.bw - 8)};height:${px(19)};background:#fff6e6;border:${px(2)} solid ${ink};border-radius:${px(4)};display:flex;align-items:center;justify-content:center;z-index:3;`,
+      partE: shine(11, 13, D.bh + D.nh - 18),
+      emoji: it.emoji,
+    };
+  }
+
+  renderVals() {
+    const S = this.state;
+    const cap = this.CAP;
+    const accent = this.props.accent ?? '#ffb03a';
+    const stdGrams = this.props.stdGrams ?? 10;
+    const showNutrition = this.props.showNutrition ?? true;
+    const ink = '#2b1c0e';
+
+    const detailOf = (it) => it.cat === 'extra' ? (it.kcal ? it.kcal + ' kcal' : 'a gusto') : it.abv + '°';
+
+    const tabsView = this.TABS.map(t => ({
+      id: t.id, label: t.label,
+      style: `position:relative;font-family:Fredoka,sans-serif;font-weight:600;font-size:12.5px;border:3px solid #3d2410;border-radius:10px;padding:8px 11px 6px;cursor:pointer;transition:transform .12s;margin-top:6px;` +
+        (t.id === S.tab ? `background:${accent};color:${ink};box-shadow:0 4px 0 #3d2410;` : 'background:#ffedd0;color:#6b4020;box-shadow:0 4px 0 #3d2410;opacity:.82;')
+    }));
+
+    const currentItems = this.CATALOG.filter(it => it.cat === S.tab).map((it, i) => ({
+      ...it, detail: detailOf(it), ...this.bottleParts(it, false, i),
+    }));
+    const addedView = S.added.map((it, i) => ({
+      ...it, idx: i, detail: detailOf(it), isLiquid: it.ml > 0, notLiquid: !(it.ml > 0),
+      dotStyle: it.color ? `background:${it.color};` : 'background:#dfe7ef;'
+    }));
+
+    // capas del vaso
+    const liquids = S.added.filter(it => it.ml > 0);
+    let cum = 0;
+    const layers = liquids.map((it, i) => {
+      const bottom = (cum / cap) * 100;
+      let h = (it.ml / cap) * 100;
+      if (bottom + h > 100) h = Math.max(0, 100 - bottom);
+      cum += it.ml;
+      const radius = i === 0 ? 'border-radius:0 0 11px 11px;' : '';
+      return { style: `position:absolute;left:0;right:0;bottom:${bottom.toFixed(2)}%;height:${h.toFixed(2)}%;background:${it.color};${radius}transition:height .12s linear,bottom .12s linear;` };
+    });
+    const totalMl = S.added.reduce((a, it) => a + it.ml, 0);
+    const fillPct = Math.min(100, (totalMl / cap) * 100);
+    const topColor = liquids.length ? liquids[liquids.length - 1].color : 'transparent';
+    const overflow = totalMl > cap;
+    const surfaceStyle = `position:absolute;left:-3px;right:-3px;height:11px;bottom:calc(${fillPct.toFixed(2)}% - 5px);background:${topColor};border-radius:50%;filter:brightness(1.12) saturate(1.1);box-shadow:0 0 8px ${topColor};transition:bottom .12s linear;`;
+    const exers = S.added.filter(it => it.cat === 'extra');
+    const garnish = exers.map((it, i) => ({
+      emoji: it.emoji,
+      style: `position:absolute;left:${12 + (i % 4) * 26}px;bottom:calc(${Math.min(92, fillPct).toFixed(2)}% - 20px);font-size:19px;animation:floatY ${2.4 + (i % 3) * .5}s ease-in-out infinite;animation-delay:${(i * .25).toFixed(2)}s;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3));pointer-events:none;`
+    }));
+
+    // alcohol + nutrición
+    const grams = S.added.reduce((a, it) => a + it.ml * (it.abv / 100) * 0.789, 0);
+    const abv = totalMl > 0 ? S.added.reduce((a, it) => a + it.ml * it.abv, 0) / totalMl : 0;
+    const std = grams / stdGrams;
+    const kcal = S.added.reduce((a, it) => a + it.kcal, 0);
+    const sugar = S.added.reduce((a, it) => a + it.sugar, 0);
+
+    // Widmark
+    const rRow = this.R[S.contextura] || this.R.Promedio;
+    const rFactor = rRow[S.sexo];
+    const m = S.peso;
+    const Cpeak = m > 0 ? grams / (m * rFactor) : 0;
+    const tpeak = S.estomago === 'vacio' ? 0.5 : S.estomago === 'lleno' ? 1.5 : 1.0;
+    const beta = 0.15;
+    const bacAt = (t) => t <= 0 ? 0 : (t <= tpeak ? Cpeak * (t / tpeak) : Math.max(0, Cpeak - beta * (t - tpeak)));
+    const Cnow = bacAt(S.horas);
+    const tZero = Cpeak > 0 ? tpeak + Cpeak / beta : 0;
+
+    // curva
+    const bY = 92, tY = 8, lX = 8, rX = 292;
+    const tEnd = Math.max(tZero, S.horas, 1) * 1.05;
+    const ymax = Math.max(Cpeak * 1.18, 0.6);
+    const X = (t) => lX + (t / tEnd) * (rX - lX);
+    const Y = (c) => bY - (c / ymax) * (bY - tY);
+    const N = 44; const pts = [];
+    for (let i = 0; i <= N; i++) { const t = tEnd * i / N; pts.push(X(t).toFixed(1) + ',' + Y(bacAt(t)).toFixed(1)); }
+    const line = pts.join(' ');
+    const area = line + ' ' + rX + ',' + bY + ' ' + lX + ',' + bY;
+    let y05 = Y(0.5); if (0.5 > ymax) y05 = -10;
+    const mt = Math.min(S.horas, tEnd);
+    const curve = { line, area, y05: y05.toFixed(1), mx: X(mt).toFixed(1), my: Y(bacAt(mt)).toFixed(1), endLabel: this.fmtH(tEnd) };
+
+    const nowTier = this.tierIdx(Cnow);
+    const peakTier = this.tierIdx(Cpeak);
+    const T = this.TIERS[nowTier];
+    const seed = S.seed;
+    const noAlc = grams < 0.3;
+    const consejo = noAlc ? 'Tu trago no tiene (casi) alcohol. ¡Buenísimo! Sin alcoholemia, sin riesgo y sin resaca.' : this.CONSEJOS[seed % this.CONSEJOS.length];
+
+    const r = {
+      bacNow: Cnow.toFixed(2).replace('.', ','),
+      bacPeak: Cpeak.toFixed(2).replace('.', ','),
+      abv: abv.toFixed(1).replace('.', ',').replace(/,0$/, ''),
+      std: std.toFixed(1).replace('.', ',').replace(/,0$/, ''),
+      grams: grams.toFixed(1).replace('.', ','),
+      ml: totalMl, kcal: Math.round(kcal), sugar: Math.round(sugar),
+      rFactor: String(rFactor).replace('.', ','),
+      contexturaLabel: rRow.label, sexoLabel: S.sexo === 'M' ? 'masculino' : 'femenino',
+      sober: noAlc ? 'Sin alcohol que eliminar 🎉' : '≈ ' + this.fmtH(tZero),
+      drive: 'No — sos menor (0 g/L)',
+      tierLabel: T.l, tierBody: T.b, tierBd: nowTier === 0 ? '#7ee29a' : T.bd,
+      tierStyle: `margin-top:14px;background:${T.bg};border:3px solid ${T.bd};color:${T.tx};border-radius:14px;padding:11px 14px;`,
+      consejo, advertencia: this.ADVERTENCIAS[seed % this.ADVERTENCIAS.length],
+      mito: this.MITOS[seed % this.MITOS.length].m, mitoV: this.MITOS[seed % this.MITOS.length].v,
+    };
+
+    // form
+    const segStyle = (on) => `flex:1;border:3px solid ${ink};border-radius:12px;padding:9px 8px;font-family:Fredoka,sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;box-shadow:0 3px 0 ${ink};text-align:center;line-height:1.15;` + (on ? `background:${ink};color:#ffedd0;` : `background:#fff;color:${ink};`);
+    const sexoOpts = [{ v:'M', label:'♂ Masculino' }, { v:'F', label:'♀ Femenino' }].map(o => ({ ...o, style: segStyle(S.sexo === o.v) }));
+    const contexturaOpts = [
+      { v:'Astenico', label:'Asténico', sub:'delgado, alto' },
+      { v:'Atletico', label:'Atlético', sub:'musculoso' },
+      { v:'Picnico', label:'Pícnico', sub:'robusto, bajo' },
+      { v:'Promedio', label:'Promedio', sub:'estándar' },
+    ].map(o => ({ ...o, style: segStyle(S.contextura === o.v) }));
+    const estomagoOpts = [{ v:'vacio', label:'🫗 Vacío' }, { v:'algo', label:'🍽️ Algo' }, { v:'lleno', label:'🍝 Lleno' }].map(o => ({ ...o, style: segStyle(S.estomago === o.v) }));
+
+    const tabHint = S.tab === 'extra' ? 'Decoran y dan gusto. ¡El hielo y la fruta NO bajan el alcohol!'
+      : S.tab === 'mezcla' ? 'Bajan los grados del trago, pero suman azúcar y calorías.'
+      : 'Arrastrá la botella al vaso y mantenela ahí para servir · tap = una medida.';
+
+    // avatares
+    const pokeBubble = nowTier >= 2 ? '¡hip!' : '¡hola!';
+    const miniAv = this.avatarVals(peakTier, .62, {
+      excited: S.pourFlow, poked: S.pokeOn, pokeN: S.poke, bubbleText: peakTier >= 2 ? '¡hip!' : '¡servime!', accent,
+    });
+    const bigAv = this.avatarVals(nowTier, 1.15, { poked: S.pokeOn, pokeN: S.poke, bubbleText: pokeBubble, accent });
+    const miniCaption = S.added.length === 0 ? 'este serías vos · tocame 👆'
+      : peakTier === 0 ? '¡así quedarías: fresco! ✨'
+      : 'así te dejaría este trago…';
+
+    // ghost
+    const d = S.drag ? this.CATALOG.find(x => x.id === S.drag.id) : null;
+    const ghost = d ? this.bottleParts(d, true) : { partA:'', partB:'', partC:'', partD:'', partE:'', emoji:'' };
+    const tilted = S.dragOver && d && d.cat !== 'extra';
+
+    const cfColors = ['#ffd23f', '#e8563f', '#7ec26a', '#5aa7d6', '#ffedd0'];
+    const confetti = Array.from({ length: 30 }, (_, i) => {
+      const rn = (S.confettiN * 37 + i * 13) % 100;
+      return { style: `position:absolute;left:${(i * 3.3 + rn % 6).toFixed(1)}%;top:${6 + (rn % 24)}%;width:${7 + (i % 3) * 3}px;height:${5 + ((i + 1) % 3) * 3}px;background:${cfColors[i % 5]};border:2px solid #2b1c0e;border-radius:${i % 2 ? '50%' : '2px'};animation:confettiFall ${(1 + (rn % 40) / 55).toFixed(2)}s ease-in forwards;animation-delay:${((i % 6) * .06).toFixed(2)}s;` };
+    });
+    const catStyle = `position:absolute;top:-51px;right:26px;width:76px;height:54px;cursor:pointer;z-index:3;` + (S.catOn ? 'animation:pokeJumpA .55s ease;transform-origin:bottom center;' : '');
+
+    const phaseNames = ['🍹', '📋', '🔬'];
+    const phaseTokens = phaseNames.map((lab, p) => {
+      const enabled = p === 0 || (p === 1 && S.added.length > 0) || (p === 2 && S.analyzed);
+      const on = S.phase === p;
+      return {
+        p, label: lab, title: ['El bar', 'Tus datos', 'Análisis'][p],
+        style: `width:40px;height:40px;border-radius:50%;border:3px solid #3d2410;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 0 #3d2410;transition:transform .1s;` +
+          (on ? `background:${accent};` : 'background:#ffedd0;') +
+          (enabled ? 'cursor:pointer;opacity:1;' : 'cursor:not-allowed;opacity:.45;'),
+      };
+    });
+
+    return {
+      accent, showNutrition,
+      worldStyle: `display:flex;width:300vw;height:100%;transition:transform .85s cubic-bezier(.7,0,.3,1);transform:translateX(${-S.phase * 100}vw);will-change:transform;`,
+      phaseTokens, muteIcon: S.muted ? '🔕' : '🔔',
+      tabsView, currentItems, addedView, layers, garnish, bubbles: this.bubbles,
+      hasLiquid: liquids.length > 0, empty: S.added.length === 0, notEmpty: S.added.length > 0,
+      itemCount: S.added.length, totalMl,
+      pourFlow: S.pourFlow, dragOver: S.dragOver, dragging: !!S.drag,
+      ghost, ghostPos: 'position:absolute;left:-999px;top:-999px;will-change:left,top;',
+      ghostTilt: `transition:transform .18s ease;transform:${tilted ? 'rotate(-115deg) translateY(-6px)' : 'rotate(-8deg)'} scale(1.05);transform-origin:60% 70%;`,
+      streamStyle: `position:absolute;top:-56px;left:50%;transform:translateX(-50%);width:8px;height:150px;border-radius:4px;background:${topColor === 'transparent' ? '#cfe8ff' : topColor};opacity:.9;animation:streamFall .25s linear infinite;background-image:linear-gradient(rgba(255,255,255,.35) 0 6px,transparent 6px 22px);background-size:100% 22px;z-index:4;`,
+      glassStyle: `position:relative;cursor:pointer;width:168px;height:290px;border-radius:14px 14px 22px 22px;background:linear-gradient(100deg,rgba(255,255,255,.5),rgba(255,255,255,.12) 32%,rgba(255,255,255,.04) 62%,rgba(255,255,255,.36));border:2.5px solid rgba(255,240,215,.45);box-shadow:inset 0 0 18px rgba(255,255,255,.5),0 16px 36px rgba(0,0,0,.4);overflow:visible;${S.pourFlow ? 'animation:pourGlow .6s ease infinite;' : ''}`,
+      shakeStyle: S.pourFlow ? 'animation:wobble .5s ease-in-out infinite;transform-origin:bottom center;' : (S.clink ? 'animation:wobble .3s ease-in-out 2;transform-origin:bottom center;' : ''),
+      surfaceStyle,
+      fillLabel: overflow ? '🚱 ¡se rebalsa!' : (abv > 0 ? abv.toFixed(1).replace('.', ',') + '°' : 'sin alcohol'),
+      fillBadgeStyle: `border:2px solid #3d2410;background:${overflow ? '#fde4e4' : '#ffedd0'};color:${overflow ? '#a51a2c' : ink};border-radius:999px;padding:3px 10px;`,
+      tabHint,
+      mixBtnStyle: `flex:1;display:flex;align-items:center;justify-content:center;gap:9px;background:${S.added.length ? accent : '#8a7a60'};border:3px solid #3d2410;border-radius:16px;padding:13px;font-family:Fredoka,sans-serif;font-weight:700;font-size:19px;color:${ink};cursor:${S.added.length ? 'pointer' : 'not-allowed'};box-shadow:0 6px 0 #3d2410;transition:transform .1s;opacity:${S.added.length ? 1 : .6};`,
+      miniAv, bigAv, miniCaption,
+      peso: S.peso, horas: S.horas,
+      pesoLabel: S.peso + ' kg', horasLabel: this.fmtH(S.horas),
+      sexoOpts, contexturaOpts, estomagoOpts,
+      r, curve,
+      glassRef: this.glassRef, ghostRef: this.ghostRef, bgFarRef: this.bgFarRef, bgMidRef: this.bgMidRef,
+      startDrag: this.startDrag, onMove: this.onMove, onUp: this.onUp,
+      incMl: this.incMl, decMl: this.decMl, removeAt: this.removeAt, clearAll: this.clearAll,
+      setTab: this.setTab, setField: this.setField, setNum: this.setNum,
+      mix: this.mix, analyze: this.analyze, editData: this.editData, backToBar: this.backToBar,
+      goPhase: this.goPhase, toggleMute: this.toggleMute, pokeAv: this.pokeAv,
+      clinkGlass: this.clinkGlass, pokeCat: this.pokeCat, catStyle,
+      confetti, confettiOn: S.confettiOn,
+    };
+  }
+
+  componentDidMount() {
+    this._mm = (e) => {
+      const dx = (e.clientX / window.innerWidth - .5), dy = (e.clientY / window.innerHeight - .5);
+      if (this.bgFarRef.current) this.bgFarRef.current.style.transform = `translate(${(-dx * 14).toFixed(1)}px,${(-dy * 8).toFixed(1)}px)`;
+      if (this.bgMidRef.current) this.bgMidRef.current.style.transform = `translate(${(-dx * 26).toFixed(1)}px,${(-dy * 12).toFixed(1)}px)`;
+    };
+    window.addEventListener('mousemove', this._mm);
+  }
+  componentWillUnmount() {
+    if (this._timer) clearInterval(this._timer);
+    if (this._bubT) clearInterval(this._bubT);
+    if (this._pokeT) clearTimeout(this._pokeT);
+    if (this._clinkT) clearTimeout(this._clinkT);
+    if (this._catT) clearTimeout(this._catT);
+    if (this._cfT) clearTimeout(this._cfT);
+    window.removeEventListener('mousemove', this._mm);
+    this.pourStop();
+  }
+
+  constructor(props) {
+    super(props);
+    this.glassRef = React.createRef();
+    this.ghostRef = React.createRef();
+    this.bgFarRef = React.createRef();
+    this.bgMidRef = React.createRef();
+    this.bubbles = Array.from({ length: 10 }, (_, i) => ({
+      style: `position:absolute;bottom:0;left:${7 + i * 9}%;width:${4 + (i % 3) * 2}px;height:${4 + (i % 3) * 2}px;border-radius:50%;background:rgba(255,255,255,.5);animation:bub ${2.6 + (i % 4) * .6}s linear infinite;animation-delay:${(i * .32).toFixed(2)}s;pointer-events:none;`
+    }));
+  }
+}
+</script>
+</body>
+</html>

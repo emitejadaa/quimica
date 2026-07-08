@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#f1ede3}
+  button{font-family:inherit}
+  @keyframes bub{0%{transform:translateY(0);opacity:0}10%{opacity:.8}100%{transform:translateY(-260px);opacity:0}}
+  @keyframes floatY{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+  @keyframes popIn{0%{transform:scale(.92) translateY(8px);opacity:0}100%{transform:scale(1) translateY(0);opacity:1}}
+  @keyframes streamFall{0%{background-position:0 0}100%{background-position:0 22px}}
+  @keyframes wobble{0%,100%{transform:rotate(0)}25%{transform:rotate(-2.5deg)}75%{transform:rotate(2.5deg)}}
+  @keyframes pourGlow{0%,100%{box-shadow:inset 0 0 18px rgba(255,255,255,.55),0 14px 34px rgba(0,0,0,.14)}50%{box-shadow:inset 0 0 30px rgba(255,255,255,.8),0 14px 34px rgba(0,0,0,.14)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;font-family:Nunito,system-ui,sans-serif;color:#221d16;padding:16px 14px 60px;background-image:radial-gradient(circle at 12% 6%,rgba(255,210,63,.2),transparent 38%),radial-gradient(circle at 92% 12%,rgba(85,102,214,.12),transparent 42%);">
+
+  <header style="max-width:1120px;margin:0 auto 16px;display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:{{ accent }};display:flex;align-items:center;justify-content:center;font-size:26px;transform:rotate(-6deg);box-shadow:3px 4px 0 rgba(0,0,0,.18);">🧪</div>
+      <div>
+        <h1 style="margin:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:29px;line-height:1;letter-spacing:-.5px;">Armá tu trago</h1>
+        <p style="margin:3px 0 0;font-family:'Patrick Hand',cursive;font-size:17px;color:#6a5f4e;">laboratorio de alcohol &amp; toxicocinética</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #221d16;border-radius:999px;padding:7px 13px;font-weight:800;font-size:12.5px;box-shadow:2px 3px 0 rgba(0,0,0,.15);">
+      <span style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#e8384f;color:#fff;align-items:center;justify-content:center;font-size:11px;">+18</span>
+      Sos menor: lo recomendado es <span style="color:#2f9e44;">0 alcohol</span>
+    </div>
+  </header>
+
+  <div style="max-width:1120px;margin:0 auto;display:flex;flex-wrap:wrap;gap:18px;align-items:stretch;">
+
+    <!-- GLASS PANEL -->
+    <section style="flex:1 1 300px;min-width:290px;background:#fffdf7;border:2px solid #221d16;border-radius:22px;padding:20px 16px 16px;box-shadow:5px 6px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;position:relative;">
+      <div style="position:absolute;top:13px;left:16px;font-family:'Patrick Hand',cursive;font-size:16px;color:#9a8f7a;transform:rotate(-3deg);">tu vaso 🍹</div>
+
+      <div style="flex:1;display:flex;align-items:flex-end;justify-content:center;width:100%;min-height:310px;position:relative;">
+        <sc-if value="{{ pouring }}" hint-placeholder-val="{{ false }}">
+          <div style="{{ streamStyle }}"></div>
+        </sc-if>
+        <div style="{{ shakeStyle }}">
+          <div style="{{ glassStyle }}">
+            <div style="position:absolute;inset:3px;border-radius:12px 12px 22px 22px;overflow:hidden;">
+              <sc-for list="{{ layers }}" as="ly" hint-placeholder-count="0">
+                <div style="{{ ly.style }}"></div>
+              </sc-for>
+              <sc-if value="{{ hasLiquid }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ surfaceStyle }}"></div>
+              </sc-if>
+              <sc-if value="{{ hasLiquid }}" hint-placeholder-val="{{ false }}">
+                <sc-for list="{{ bubbles }}" as="b" hint-placeholder-count="0">
+                  <div style="{{ b.style }}"></div>
+                </sc-for>
+              </sc-if>
+              <sc-for list="{{ garnish }}" as="g" hint-placeholder-count="0">
+                <span style="{{ g.style }}">{{ g.emoji }}</span>
+              </sc-for>
+            </div>
+            <div style="position:absolute;top:8px;left:10px;width:13px;height:80%;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.05));pointer-events:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:'Patrick Hand',cursive;font-size:17px;color:#9a8f7a;margin:4px 0 10px;text-align:center;">tocá una bebida para servir<br>(mantené apretado = más cantidad 💧)</div>
+      </sc-if>
+      <sc-if value="{{ notEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:4px 0 10px;font-weight:700;font-size:12.5px;color:#6a5f4e;">
+          <span style="background:#f1ede3;border-radius:999px;padding:4px 10px;">{{ itemCount }} ingred.</span>
+          <span style="background:#f1ede3;border-radius:999px;padding:4px 10px;">{{ totalMl }} ml</span>
+          <span style="{{ fillBadgeStyle }}">{{ fillLabel }}</span>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;gap:9px;width:100%;">
+        <button onClick="{{ mix }}" style="{{ mixBtnStyle }}">🥁 ¡Mezclar!</button>
+        <button onClick="{{ clearAll }}" style="flex:0 0 auto;background:#fff;border:2px solid #221d16;border-radius:14px;padding:0 15px;font-family:Fredoka,sans-serif;font-weight:600;font-size:14px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.15);">Vaciar</button>
+      </div>
+    </section>
+
+    <!-- SHELVES PANEL -->
+    <section style="flex:1.3 1 400px;min-width:320px;background:#fffdf7;border:2px solid #221d16;border-radius:22px;padding:16px 16px 16px 42px;box-shadow:5px 6px 0 rgba(0,0,0,.12);position:relative;background-image:repeating-linear-gradient(#fffdf7,#fffdf7 31px,#e3ebf2 31px,#e3ebf2 32px);">
+      <div style="position:absolute;top:0;bottom:0;left:32px;width:2px;background:#f3a9a9;"></div>
+
+      <div style="display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;">
+        <sc-for list="{{ tabsView }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ setTab }}" data-tab="{{ t.id }}" style="{{ t.style }}">{{ t.label }}</button>
+        </sc-for>
+      </div>
+
+      <div style="font-family:'Patrick Hand',cursive;font-size:15px;color:#9a8f7a;margin:0 0 8px;">{{ tabHint }}</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:9px;margin-bottom:16px;">
+        <sc-for list="{{ currentItems }}" as="it" hint-placeholder-count="8">
+          <button onClick="{{ pick }}" onPointerDown="{{ startPour }}" onPointerUp="{{ stopPour }}" onPointerLeave="{{ stopPour }}" onPointerCancel="{{ stopPour }}" data-id="{{ it.id }}" style="display:flex;align-items:center;gap:8px;text-align:left;background:#fff;border:2px solid #221d16;border-radius:13px;padding:8px 10px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.12);touch-action:none;user-select:none;transition:transform .08s;" style-hover="transform:translate(-1px,-1px);box-shadow:3px 4px 0 rgba(0,0,0,.16);" style-active="transform:translate(1px,1px);box-shadow:1px 1px 0 rgba(0,0,0,.16);">
+            <span style="font-size:21px;line-height:1;pointer-events:none;">{{ it.emoji }}</span>
+            <span style="flex:1;min-width:0;pointer-events:none;">
+              <span style="display:block;font-weight:800;font-size:13px;line-height:1.05;">{{ it.name }}</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:10.5px;color:#6a5f4e;font-weight:700;margin-top:2px;">
+                <span style="width:9px;height:9px;border-radius:50%;border:1px solid rgba(0,0,0,.2);{{ it.dotStyle }}"></span>{{ it.detail }}<span style="color:#b3a890;">{{ it.sub }}</span>
+              </span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border:2px dashed #c7bca8;border-radius:14px;padding:12px 13px;">
+        <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:8px;display:flex;align-items:center;gap:7px;">📋 Tu receta</div>
+        <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family:'Patrick Hand',cursive;font-size:16px;color:#b3a890;">Todavía no serviste nada… ¡empezá a llenar el vaso!</div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <sc-for list="{{ addedView }}" as="a" hint-placeholder-count="0">
+            <div style="display:flex;align-items:center;gap:8px;background:#faf7ef;border:1.5px solid #e6ddca;border-radius:10px;padding:6px 9px;">
+              <span style="font-size:17px;">{{ a.emoji }}</span>
+              <span style="width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.2);{{ a.dotStyle }}"></span>
+              <span style="flex:1;min-width:0;font-weight:800;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ a.name }}</span>
+              <sc-if value="{{ a.isLiquid }}" hint-placeholder-val="{{ true }}">
+                <span style="display:flex;align-items:center;gap:4px;">
+                  <button onClick="{{ decMl }}" data-idx="{{ a.idx }}" style="width:22px;height:22px;border-radius:7px;border:1.5px solid #221d16;background:#fff;font-weight:900;cursor:pointer;line-height:1;">−</button>
+                  <span style="font-size:12px;font-weight:800;min-width:46px;text-align:center;">{{ a.ml }} ml</span>
+                  <button onClick="{{ incMl }}" data-idx="{{ a.idx }}" style="width:22px;height:22px;border-radius:7px;border:1.5px solid #221d16;background:#fff;font-weight:900;cursor:pointer;line-height:1;">+</button>
+                </span>
+              </sc-if>
+              <sc-if value="{{ a.notLiquid }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:11px;color:#6a5f4e;font-weight:700;">{{ a.detail }}</span>
+              </sc-if>
+              <button onClick="{{ removeAt }}" data-idx="{{ a.idx }}" style="color:#e8384f;font-weight:900;font-size:15px;background:none;border:none;cursor:pointer;padding:0 2px;">✕</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- FORM OVERLAY -->
+  <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:fixed;inset:0;background:rgba(20,16,10,.5);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:22px 14px;z-index:50;overflow:auto;">
+      <div onClick="{{ stop }}" style="width:100%;max-width:560px;background:#fffdf7;border:2.5px solid #221d16;border-radius:24px;box-shadow:8px 10px 0 rgba(0,0,0,.18);animation:popIn .25s ease;overflow:hidden;">
+        <div style="padding:18px 20px;background:{{ accent }};border-bottom:2.5px solid #221d16;position:relative;">
+          <button onClick="{{ close }}" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:2px solid #221d16;background:#fffdf7;cursor:pointer;font-weight:900;box-shadow:2px 2px 0 rgba(0,0,0,.18);">✕</button>
+          <div style="font-family:'Patrick Hand',cursive;font-size:17px;">paso 2 de 3 🧬</div>
+          <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:23px;line-height:1.1;margin-top:2px;">Contanos un poco de vos</div>
+          <div style="font-size:13px;font-weight:700;margin-top:3px;opacity:.8;">Lo usamos para estimar tu alcoholemia con la fórmula de Widmark.</div>
+        </div>
+
+        <div style="padding:18px 20px 20px;display:flex;flex-direction:column;gap:18px;">
+
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+              <span style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;">⚖️ Peso corporal</span>
+              <span style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;color:#3b49b0;">{{ pesoLabel }}</span>
+            </div>
+            <input type="range" min="35" max="110" step="1" value="{{ peso }}" data-f="peso" onInput="{{ setNum }}" style="width:100%;accent-color:#3b49b0;height:24px;cursor:pointer;">
+          </div>
+
+          <div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:7px;">🧬 Sexo biológico <span style="font-weight:400;font-size:12px;color:#8a7f6c;">(define tu % de agua corporal)</span></div>
+            <div style="display:flex;gap:8px;">
+              <sc-for list="{{ sexoOpts }}" as="o" hint-placeholder-count="2">
+                <button onClick="{{ setField }}" data-f="sexo" data-v="{{ o.v }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:7px;">💪 Contextura física</div>
+            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+              <sc-for list="{{ contexturaOpts }}" as="o" hint-placeholder-count="4">
+                <button onClick="{{ setField }}" data-f="contextura" data-v="{{ o.v }}" style="{{ o.style }}"><b>{{ o.label }}</b><span style="display:block;font-weight:600;font-size:11px;opacity:.7;margin-top:1px;">{{ o.sub }}</span></button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;margin-bottom:7px;">🍽️ ¿Cómo está tu estómago?</div>
+            <div style="display:flex;gap:8px;">
+              <sc-for list="{{ estomagoOpts }}" as="o" hint-placeholder-count="3">
+                <button onClick="{{ setField }}" data-f="estomago" data-v="{{ o.v }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+              <span style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;">⏳ ¿Hace cuánto empezaste?</span>
+              <span style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;color:#3b49b0;">{{ horasLabel }}</span>
+            </div>
+            <input type="range" min="0" max="6" step="0.25" value="{{ horas }}" data-f="horas" onInput="{{ setNum }}" style="width:100%;accent-color:#3b49b0;height:24px;cursor:pointer;">
+          </div>
+
+          <button onClick="{{ analyze }}" style="width:100%;background:#221d16;color:#fff;border:2px solid #221d16;border-radius:15px;padding:14px;font-family:Fredoka,sans-serif;font-weight:600;font-size:18px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);">🧪 Analizar mi trago →</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- RESULTS OVERLAY -->
+  <sc-if value="{{ isResults }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:fixed;inset:0;background:rgba(20,16,10,.5);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:22px 14px;z-index:50;overflow:auto;">
+      <div onClick="{{ stop }}" style="width:100%;max-width:760px;background:#fffdf7;border:2.5px solid #221d16;border-radius:24px;box-shadow:8px 10px 0 rgba(0,0,0,.18);animation:popIn .25s ease;overflow:hidden;">
+
+        <div style="{{ rHeaderStyle }}">
+          <button onClick="{{ close }}" style="position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:2px solid #221d16;background:#fffdf7;cursor:pointer;font-weight:900;font-size:15px;box-shadow:2px 2px 0 rgba(0,0,0,.18);">✕</button>
+          <div style="font-family:'Patrick Hand',cursive;font-size:17px;opacity:.85;">paso 3 de 3 · análisis del trago</div>
+          <div style="display:flex;align-items:flex-end;gap:18px;flex-wrap:wrap;margin-top:6px;">
+            <div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:44px;line-height:.95;">{{ r.bacNow }}</div>
+              <div style="font-weight:800;font-size:13px;margin-top:2px;">g/L de alcoholemia ahora</div>
+            </div>
+            <div style="display:flex;gap:14px;font-size:13px;font-weight:700;">
+              <div><span style="font-family:Fredoka,sans-serif;font-size:22px;">{{ r.abv }}°</span><br>graduación</div>
+              <div><span style="font-family:Fredoka,sans-serif;font-size:22px;">{{ r.std }}</span><br>tragos est.</div>
+              <div><span style="font-family:Fredoka,sans-serif;font-size:22px;">{{ r.grams }}</span><br>g alcohol</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding:18px 20px 22px;">
+
+          <!-- curva -->
+          <div style="background:#fff;border:2px solid #221d16;border-radius:16px;padding:14px 14px 10px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;">📈 Curva de alcoholemia</span>
+              <span style="font-size:11.5px;font-weight:700;color:#6a5f4e;">pico ≈ {{ r.bacPeak }} g/L</span>
+            </div>
+            <svg viewBox="0 0 300 110" width="100%" preserveAspectRatio="none" style="height:120px;display:block;">
+              <line x1="8" y1="{{ curve.y05 }}" x2="292" y2="{{ curve.y05 }}" stroke="#e8384f" stroke-width="1.4" stroke-dasharray="4 3"></line>
+              <polygon points="{{ curve.area }}" fill="rgba(255,210,63,.3)"></polygon>
+              <polyline points="{{ curve.line }}" fill="none" stroke="#221d16" stroke-width="2.5" stroke-linejoin="round"></polyline>
+              <line x1="{{ curve.mx }}" y1="8" x2="{{ curve.mx }}" y2="92" stroke="#5566d6" stroke-width="1.4"></line>
+              <circle cx="{{ curve.mx }}" cy="{{ curve.my }}" r="5" fill="#5566d6" stroke="#fff" stroke-width="2"></circle>
+            </svg>
+            <div style="display:flex;justify-content:space-between;font-size:10.5px;font-weight:700;color:#9a8f7a;margin-top:2px;">
+              <span>empezó a tomar</span><span style="color:#e8384f;">- - 0,5 g/L (límite autos)</span><span>{{ curve.endLabel }}</span>
+            </div>
+          </div>
+
+          <!-- tier -->
+          <div style="{{ r.tierStyle }}margin-top:14px;">
+            <span style="font-size:30px;">{{ r.tierEmoji }}</span>
+            <div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;">{{ r.tierLabel }}</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:2px;">{{ r.tierBody }}</div>
+            </div>
+          </div>
+
+          <!-- stat grid -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px;">
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-size:11.5px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.4px;">⏱ Volver a 0,0 g/L</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.sober }}</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-size:11.5px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.4px;">🚗 ¿Podés conducir?</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;color:#c8102e;">{{ r.drive }}</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-size:11.5px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.4px;">📏 Volumen total</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.ml }} ml</div>
+            </div>
+            <sc-if value="{{ showNutrition }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+                <div style="font-size:11.5px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.4px;">🔥 Calorías</div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.kcal }} kcal</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showNutrition }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+                <div style="font-size:11.5px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.4px;">🍬 Azúcar</div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-top:3px;">{{ r.sugar }} g</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- formula card -->
+          <div style="background:#eef1fb;border:2px solid #5566d6;border-radius:14px;padding:12px 14px;margin-top:14px;">
+            <div style="font-weight:900;font-size:12.5px;color:#3b49b0;">🧮 CÓMO SE CALCULA (Widmark)</div>
+            <div style="font-size:13.5px;line-height:1.5;margin-top:5px;">Alcoholemia = gramos de etanol ÷ (peso × R).<br><b>{{ r.grams }} g ÷ ({{ peso }} kg × {{ r.rFactor }})</b> = <b>{{ r.bacPeak }} g/L</b> de pico.<br>R es el factor de distribución para cuerpo <b>{{ r.contexturaLabel }}</b> ({{ r.sexoLabel }}). Es una estimación: la única medida exacta es en sangre o aire espirado.</div>
+          </div>
+
+          <!-- info toxicocinetica -->
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:12px;">
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-weight:900;font-size:12.5px;">🩸 Absorción</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:4px;">Aparece en sangre a los <b>5 min</b> y llega al pico entre los <b>30 y 90 min</b>. Con el estómago vacío sube más rápido y más alto.</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-weight:900;font-size:12.5px;">💧 Distribución</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:4px;">Se reparte por el agua del cuerpo y cruza al cerebro y a la placenta. A más grasa y menos agua, más concentración con lo mismo.</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-weight:900;font-size:12.5px;">🫀 Metabolismo</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:4px;">El hígado transforma el <b>90–98%</b> en ácido acético. El exceso crónico forma grasa → hígado graso.</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-weight:900;font-size:12.5px;">🌬️ Eliminación</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:4px;">Un <b>2–10%</b> sale sin cambios por orina, sudor y aliento: por eso funciona el alcoholímetro.</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-weight:900;font-size:12.5px;">🧊 Diluir no resta alcohol</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:4px;">Mezclar baja los grados del trago, pero la cantidad total de etanol sigue siendo la misma. El hielo y la gaseosa no te "salvan".</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-weight:900;font-size:12.5px;">🥃 Destiladas vs fermentadas</div>
+              <div style="font-size:13px;line-height:1.45;margin-top:4px;">Las blancas (vodka, gin, whisky) tienen mucho más etanol que vino o cerveza por su proceso de destilación.</div>
+            </div>
+          </div>
+
+          <!-- consejos -->
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+            <div style="background:#e7f6ec;border:2px solid #2f9e44;border-radius:14px;padding:11px 14px;">
+              <div style="font-weight:900;font-size:12.5px;color:#207a33;">💡 CONSEJO</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:4px;">{{ r.consejo }}</div>
+            </div>
+            <div style="background:#fdeede;border:2px solid #e08a1e;border-radius:14px;padding:11px 14px;">
+              <div style="font-weight:900;font-size:12.5px;color:#b76b0e;">⚠️ OJO CON ESTO</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:4px;">{{ r.advertencia }}</div>
+            </div>
+            <div style="background:#eef1fb;border:2px solid #5566d6;border-radius:14px;padding:11px 14px;">
+              <div style="font-weight:900;font-size:12.5px;color:#3b49b0;">🧠 MITO vs VERDAD</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:4px;"><b>"{{ r.mito }}"</b> → {{ r.mitoV }}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px;background:#221d16;color:#fff;border-radius:16px;padding:13px 16px;display:flex;gap:12px;align-items:center;">
+            <span style="font-size:24px;">🚦</span>
+            <div style="font-size:13.5px;line-height:1.5;font-weight:600;">En Argentina vender alcohol a menores de 18 está prohibido. A tu edad el cerebro sigue formándose, así que lo recomendado es <b style="color:#ffd23f;">cero</b>. Esto es un juego para entender qué le pasa al cuerpo, no una invitación a tomar.</div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <button onClick="{{ editData }}" style="flex:0 0 auto;background:#fff;border:2px solid #221d16;border-radius:15px;padding:13px 16px;font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);">← Datos</button>
+            <button onClick="{{ close }}" style="flex:1;background:{{ accent }};border:2px solid #221d16;border-radius:15px;padding:13px;font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);">↩ Probar otro trago</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ffd23f&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estilo&quot;},&quot;stdGrams&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[10,14],&quot;default&quot;:10,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Cálculo&quot;,&quot;unit&quot;:&quot;g&quot;},&quot;showNutrition&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Resultados&quot;}}">
+class Component extends DCLogic {
+  state = {
+    added: [], tab: 'cerveza', phase: 'build', pouring: null,
+    peso: 60, sexo: 'M', contextura: 'Promedio', estomago: 'algo', horas: 1, seed: 1,
+  };
+
+  CAP = 1000;
+
+  TABS = [
+    { id:'cerveza',   label:'🍺 Cervezas' },
+    { id:'vino',      label:'🍷 Vinos' },
+    { id:'destilado', label:'🥃 Destilados' },
+    { id:'aperitivo', label:'🍹 Aperitivos' },
+    { id:'mezcla',    label:'🧃 Sin alcohol' },
+    { id:'extra',     label:'🍋 Extras' },
+  ];
+
+  CATALOG = [
+    // cervezas
+    { id:'quilmes', name:'Quilmes', sub:'lager', emoji:'🍺', cat:'cerveza', abv:4.9, dml:340, kcal:145, sugar:0, color:'#e3a90f' },
+    { id:'stella',  name:'Stella', sub:'lager', emoji:'🍺', cat:'cerveza', abv:5.0, dml:330, kcal:140, sugar:0, color:'#e6b020' },
+    { id:'corona',  name:'Corona', sub:'pilsner', emoji:'🍺', cat:'cerveza', abv:4.5, dml:330, kcal:130, sugar:0, color:'#f0cf6b' },
+    { id:'ipa',     name:'IPA', sub:'artesanal', emoji:'🍺', cat:'cerveza', abv:6.5, dml:330, kcal:200, sugar:0, color:'#c8801a' },
+    { id:'negra',   name:'Stout', sub:'negra', emoji:'🍺', cat:'cerveza', abv:5.5, dml:330, kcal:180, sugar:1, color:'#2a160a' },
+    { id:'sidra',   name:'Sidra', sub:'dulce', emoji:'🍏', cat:'cerveza', abv:5.0, dml:330, kcal:150, sugar:12, color:'#d8b34a' },
+    // vinos
+    { id:'malbec',  name:'Malbec', sub:'tinto', emoji:'🍷', cat:'vino', abv:14, dml:150, kcal:125, sugar:1, color:'#6e1b34' },
+    { id:'blanco',  name:'Vino blanco', sub:'', emoji:'🥂', cat:'vino', abv:12.5, dml:150, kcal:120, sugar:1, color:'#e7e7a8' },
+    { id:'espuma',  name:'Espumante', sub:'champán', emoji:'🍾', cat:'vino', abv:12, dml:120, kcal:95, sugar:3, color:'#f2e6b0' },
+    { id:'vermut',  name:'Vermut', sub:'rojo', emoji:'🍷', cat:'vino', abv:16, dml:80, kcal:110, sugar:8, color:'#8a3b1e' },
+    // destilados
+    { id:'fernet',  name:'Fernet', sub:'Branca', emoji:'🥃', cat:'destilado', abv:39, dml:50, kcal:90, sugar:8, color:'#2c1810' },
+    { id:'vodka',   name:'Vodka', sub:'Smirnoff', emoji:'🍸', cat:'destilado', abv:40, dml:45, kcal:97, sugar:0, color:'#eaf2ff' },
+    { id:'gin',     name:'Gin', sub:'Beefeater', emoji:'🍸', cat:'destilado', abv:40, dml:45, kcal:97, sugar:0, color:'#e6f6ef' },
+    { id:'ron',     name:'Ron', sub:'Bacardí', emoji:'🥃', cat:'destilado', abv:37.5, dml:45, kcal:90, sugar:0, color:'#b9772e' },
+    { id:'whisky',  name:'Whisky', sub:'JW', emoji:'🥃', cat:'destilado', abv:40, dml:45, kcal:105, sugar:0, color:'#9c5a1e' },
+    { id:'tequila', name:'Tequila', sub:'Cuervo', emoji:'🌵', cat:'destilado', abv:38, dml:45, kcal:90, sugar:0, color:'#f1edc8' },
+    { id:'jager',   name:'Jäger', sub:'meister', emoji:'🦌', cat:'destilado', abv:35, dml:40, kcal:100, sugar:11, color:'#1f140c' },
+    // aperitivos & licores
+    { id:'campari', name:'Campari', sub:'amargo', emoji:'🍹', cat:'aperitivo', abv:25, dml:60, kcal:115, sugar:12, color:'#c8102e' },
+    { id:'aperol',  name:'Aperol', sub:'spritz', emoji:'🍹', cat:'aperitivo', abv:11, dml:80, kcal:95, sugar:12, color:'#ff5b1e' },
+    { id:'gancia',  name:'Gancia', sub:'', emoji:'🍸', cat:'aperitivo', abv:16, dml:80, kcal:90, sugar:7, color:'#d98a2b' },
+    { id:'baileys', name:'Baileys', sub:'crema', emoji:'🥛', cat:'aperitivo', abv:17, dml:50, kcal:165, sugar:10, color:'#c9a06b' },
+    { id:'durazno', name:'Licor durazno', sub:'dulce', emoji:'🍑', cat:'aperitivo', abv:18, dml:45, kcal:90, sugar:9, color:'#ffb37a' },
+    // sin alcohol
+    { id:'cola',    name:'Coca-Cola', sub:'', emoji:'🥤', cat:'mezcla', abv:0, dml:200, kcal:84, sugar:21, color:'#2b1408' },
+    { id:'zero',    name:'Coca Zero', sub:'sin azúcar', emoji:'🥤', cat:'mezcla', abv:0, dml:200, kcal:1, sugar:0, color:'#1a0d06' },
+    { id:'sprite',  name:'Lima-limón', sub:'', emoji:'🥤', cat:'mezcla', abv:0, dml:200, kcal:78, sugar:20, color:'#d7f0a8' },
+    { id:'tonica',  name:'Tónica', sub:'Schweppes', emoji:'🫧', cat:'mezcla', abv:0, dml:200, kcal:66, sugar:17, color:'#eef9ff' },
+    { id:'energi',  name:'Energizante', sub:'Speed', emoji:'⚡', cat:'mezcla', abv:0, dml:250, kcal:110, sugar:28, color:'#c5d92e' },
+    { id:'jugo',    name:'Jugo naranja', sub:'', emoji:'🧃', cat:'mezcla', abv:0, dml:200, kcal:90, sugar:18, color:'#ff9d1e' },
+    { id:'soda',    name:'Soda / agua', sub:'', emoji:'💧', cat:'mezcla', abv:0, dml:200, kcal:0, sugar:0, color:'#d6eeff' },
+    { id:'granada', name:'Granadina', sub:'jarabe', emoji:'🍒', cat:'mezcla', abv:0, dml:30, kcal:80, sugar:20, color:'#b3122e' },
+    // extras
+    { id:'hielo',  name:'Hielo', emoji:'🧊', cat:'extra', abv:0, dml:0, kcal:0,  sugar:0 },
+    { id:'limon',  name:'Limón', emoji:'🍋', cat:'extra', abv:0, dml:0, kcal:2,  sugar:1 },
+    { id:'azucar', name:'Azúcar', emoji:'🍬', cat:'extra', abv:0, dml:0, kcal:32, sugar:8 },
+    { id:'frutas', name:'Frutas', emoji:'🍓', cat:'extra', abv:0, dml:0, kcal:18, sugar:4 },
+    { id:'menta',  name:'Menta', emoji:'🌿', cat:'extra', abv:0, dml:0, kcal:0,  sugar:0 },
+    { id:'sal',    name:'Sal', emoji:'🧂', cat:'extra', abv:0, dml:0, kcal:0,  sugar:0 },
+  ];
+
+  R = {
+    Astenico:{ M:0.85, F:0.76, label:'asténico' },
+    Atletico:{ M:0.76, F:0.67, label:'atlético' },
+    Picnico:{  M:0.64, F:0.58, label:'pícnico' },
+    Promedio:{ M:0.75, F:0.67, label:'promedio' },
+  };
+
+  CONSEJOS = [
+    "Tomá agua entre trago y trago: te hidratás y bajás el ritmo sin darte cuenta.",
+    "No mezcles alcohol con energizantes: te sentís menos borracho, pero seguís igual de alcoholizado.",
+    "Comer antes y durante hace que el alcohol se absorba más lento y el pico sea más bajo.",
+    "Si tomaste, no manejes ni te subas con quien tomó. Pedí un viaje o quedate a dormir.",
+    "El alcohol no abriga: en realidad baja tu temperatura corporal aunque sientas calor.",
+    "Cuidá a tus amigos: si alguien se descompone, ponelo de costado y pedí ayuda a un adulto.",
+  ];
+  ADVERTENCIAS = [
+    "Tomar rápido y con el estómago vacío dispara el pico de alcoholemia.",
+    "Solo el tiempo baja la alcoholemia: ni café, ni ducha fría, ni vomitar lo aceleran.",
+    "Mezclar muchos tipos de alcohol no emborracha distinto: lo que cuenta son los gramos totales.",
+    "El alcohol cruza la placenta: durante el embarazo el riesgo para el bebé es real.",
+    "El cerebro adolescente todavía se está formando: el alcohol lo afecta más que al adulto.",
+  ];
+  MITOS = [
+    { m:"El café baja la borrachera", v:"Falso: solo te despabila, la alcoholemia sigue igual." },
+    { m:"Vomitar te despeja", v:"Falso: lo que ya pasó a la sangre no se va vomitando." },
+    { m:"La cerveza no es alcohol 'de verdad'", v:"Falso: una lata puede tener tanto etanol como un trago fuerte." },
+    { m:"Aguantar mucho es bueno", v:"Falso: significa que el cuerpo se acostumbró, y eso es señal de riesgo." },
+    { m:"Una ducha fría te baja todo", v:"Falso: el frío asusta, pero el etanol sigue en tu sangre." },
+  ];
+
+  // ---- pour mechanics ----
+  startPour = (e) => {
+    const it = this.CATALOG.find(x => x.id === e.currentTarget.dataset.id);
+    if (!it || it.cat === 'extra') return;
+    if (e.preventDefault) e.preventDefault();
+    if (this.state.added.length >= 24) return;
+    this.setState(s => ({ added: [...s.added, { ...it, ml: 0, _fresh: true }], pouring: it.id }));
+    if (this._timer) clearInterval(this._timer);
+    this._timer = setInterval(() => {
+      this.setState(s => {
+        if (!s.added.length) return {};
+        const added = s.added.slice();
+        const last = { ...added[added.length - 1] };
+        const total = added.reduce((a, x) => a + x.ml, 0);
+        if (total >= this.CAP + 40) return {};
+        last.ml += 9; last._fresh = false;
+        added[added.length - 1] = last;
+        return { added };
+      });
+    }, 55);
+  };
+  stopPour = () => {
+    if (this._timer) { clearInterval(this._timer); this._timer = null; }
+    this.setState(s => {
+      if (!s.pouring || !s.added.length) return { pouring: null };
+      const added = s.added.slice();
+      const last = { ...added[added.length - 1] };
+      if (last.ml < 18) last.ml = last.dml || 45; // tap = una medida
+      last._fresh = false;
+      added[added.length - 1] = last;
+      return { added, pouring: null };
+    });
+  };
+  pick = (e) => {
+    const it = this.CATALOG.find(x => x.id === e.currentTarget.dataset.id);
+    if (!it || it.cat !== 'extra') return;
+    if (this.state.added.length >= 24) return;
+    this.setState(s => ({ added: [...s.added, { ...it }] }));
+  };
+  incMl = (e) => { const i = +e.currentTarget.dataset.idx; this.setState(s => { const a = s.added.slice(); if (a[i]) a[i] = { ...a[i], ml: a[i].ml + 15 }; return { added: a }; }); };
+  decMl = (e) => { const i = +e.currentTarget.dataset.idx; this.setState(s => { let a = s.added.slice(); if (!a[i]) return {}; const nv = a[i].ml - 15; if (nv < 5) a = a.filter((_, j) => j !== i); else a[i] = { ...a[i], ml: nv }; return { added: a }; }); };
+  removeAt = (e) => { const i = +e.currentTarget.dataset.idx; this.setState(s => ({ added: s.added.filter((_, j) => j !== i) })); };
+  clearAll = () => this.setState({ added: [], phase: 'build' });
+  setTab = (e) => this.setState({ tab: e.currentTarget.dataset.tab });
+  setField = (e) => this.setState({ [e.currentTarget.dataset.f]: e.currentTarget.dataset.v });
+  setNum = (e) => this.setState({ [e.target.dataset.f]: +e.target.value });
+  stop = (e) => e.stopPropagation();
+  mix = () => { if (!this.state.added.length) return; this.setState({ phase: 'form' }); };
+  analyze = () => this.setState({ phase: 'results', seed: Math.floor(Math.random() * 1e5) });
+  editData = () => this.setState({ phase: 'form' });
+  close = () => this.setState({ phase: 'build' });
+
+  fmtH(h) {
+    if (h <= 0) return '—';
+    const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    if (hh <= 0) return mm + ' min';
+    return hh + ' h' + (mm ? ' ' + mm + ' min' : '');
+  }
+
+  bacTier(c) {
+    if (c < 0.05) return { e:'✅', l:'Prácticamente sobrio', b:'Casi nada de etanol en sangre. El riesgo se mantiene bajo.', bg:'#e7f6ec', bd:'#2f9e44', tx:'#1e6b30' };
+    if (c < 0.3) return { e:'🙂', l:'Efecto leve', b:'Empieza la desinhibición. Los reflejos ya bajan aunque casi no se note.', bg:'#fff7df', bd:'#e0a91e', tx:'#8a6a0a' };
+    if (c < 0.5) return { e:'😅', l:'Euforia y menos reflejos', b:'Más confianza y menos atención. Conducir acá ya es peligroso.', bg:'#fff0d6', bd:'#e0901e', tx:'#9a6207' };
+    if (c < 1.0) return { e:'😵‍💫', l:'Coordinación afectada', b:'Cuesta hablar y moverse bien, el juicio falla. Prohibido manejar.', bg:'#fdeede', bd:'#e0791e', tx:'#a3530c' };
+    if (c < 2.0) return { e:'🤢', l:'Borrachera marcada', b:'Marcha inestable, náuseas y vómitos. Alto riesgo de accidentes.', bg:'#fde4e4', bd:'#e8384f', tx:'#a51a2c' };
+    if (c < 3.0) return { e:'🥴', l:'Estupor alcohólico', b:'Confusión severa, vómitos y somnolencia. El cuerpo está al límite.', bg:'#f6dada', bd:'#c8102e', tx:'#8c0a20' };
+    return { e:'🚨', l:'Riesgo vital', b:'Posible coma y depresión respiratoria. Es una emergencia médica.', bg:'#f3cccc', bd:'#a00b1e', tx:'#7a0818' };
+  }
+
+  segStyle(on) {
+    return `flex:1;border:2px solid #221d16;border-radius:12px;padding:9px 8px;font-family:Fredoka,sans-serif;font-weight:600;font-size:13.5px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.13);text-align:center;line-height:1.15;` + (on ? 'background:#221d16;color:#fff;' : 'background:#fff;color:#221d16;');
+  }
+  tabStyle(on) {
+    return `font-family:Fredoka,sans-serif;font-weight:600;font-size:13px;border:2px solid #221d16;border-radius:11px;padding:7px 11px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.13);` + (on ? 'background:#221d16;color:#fff;' : 'background:#fff;color:#221d16;');
+  }
+
+  renderVals() {
+    const S = this.state;
+    const cap = this.CAP;
+    const accent = this.props.accent ?? '#ffd23f';
+    const stdGrams = this.props.stdGrams ?? 10;
+    const showNutrition = this.props.showNutrition ?? true;
+
+    const detailOf = (it) => it.cat === 'extra' ? (it.kcal ? it.kcal + ' kcal' : 'a gusto') : it.abv + '°';
+
+    const tabsView = this.TABS.map(t => ({ id: t.id, label: t.label, style: this.tabStyle(t.id === S.tab) }));
+    const currentItems = this.CATALOG.filter(it => it.cat === S.tab).map(it => ({
+      ...it, detail: detailOf(it), sub: it.sub ? ' · ' + it.sub : '',
+      dotStyle: it.color ? `background:${it.color};` : 'background:#dfe7ef;'
+    }));
+    const addedView = S.added.map((it, i) => ({
+      ...it, idx: i, detail: detailOf(it), isLiquid: it.ml > 0, notLiquid: !(it.ml > 0),
+      dotStyle: it.color ? `background:${it.color};` : 'background:#dfe7ef;'
+    }));
+
+    // glass layers
+    const liquids = S.added.filter(it => it.ml > 0);
+    let cum = 0;
+    const layers = liquids.map((it, i) => {
+      const bottom = (cum / cap) * 100;
+      let h = (it.ml / cap) * 100;
+      if (bottom + h > 100) h = Math.max(0, 100 - bottom);
+      cum += it.ml;
+      const radius = i === 0 ? 'border-radius:0 0 11px 11px;' : '';
+      return { style: `position:absolute;left:0;right:0;bottom:${bottom.toFixed(2)}%;height:${h.toFixed(2)}%;background:${it.color};${radius}transition:height .12s linear,bottom .12s linear;` };
+    });
+    const totalMl = S.added.reduce((a, it) => a + it.ml, 0);
+    const fillPct = Math.min(100, (totalMl / cap) * 100);
+    const topColor = liquids.length ? liquids[liquids.length - 1].color : 'transparent';
+    const overflow = totalMl > cap;
+    const surfaceStyle = `position:absolute;left:-3px;right:-3px;height:11px;bottom:calc(${fillPct.toFixed(2)}% - 5px);background:${topColor};border-radius:50%;filter:brightness(1.12) saturate(1.1);box-shadow:0 0 8px ${topColor};transition:bottom .12s linear;`;
+    const exers = S.added.filter(it => it.cat === 'extra');
+    const garnish = exers.map((it, i) => ({
+      emoji: it.emoji,
+      style: `position:absolute;left:${14 + (i % 4) * 28}px;bottom:calc(${Math.min(92, fillPct).toFixed(2)}% - 20px);font-size:20px;animation:floatY ${2.4 + (i % 3) * .5}s ease-in-out infinite;animation-delay:${(i * .25).toFixed(2)}s;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));pointer-events:none;`
+    }));
+
+    // nutrition + alcohol
+    const grams = S.added.reduce((a, it) => a + it.ml * (it.abv / 100) * 0.789, 0);
+    const abv = totalMl > 0 ? S.added.reduce((a, it) => a + it.ml * it.abv, 0) / totalMl : 0;
+    const std = grams / stdGrams;
+    const kcal = S.added.reduce((a, it) => a + it.kcal, 0);
+    const sugar = S.added.reduce((a, it) => a + it.sugar, 0);
+
+    // Widmark
+    const rRow = this.R[S.contextura] || this.R.Promedio;
+    const rFactor = rRow[S.sexo];
+    const m = S.peso;
+    const Cpeak = m > 0 ? grams / (m * rFactor) : 0;
+    const tpeak = S.estomago === 'vacio' ? 0.5 : S.estomago === 'lleno' ? 1.5 : 1.0;
+    const beta = 0.15;
+    const bacAt = (t) => t <= 0 ? 0 : (t <= tpeak ? Cpeak * (t / tpeak) : Math.max(0, Cpeak - beta * (t - tpeak)));
+    const Cnow = bacAt(S.horas);
+    const tZero = Cpeak > 0 ? tpeak + Cpeak / beta : 0;
+
+    // curve svg
+    const W = 300, bY = 92, tY = 8, lX = 8, rX = 292;
+    const tEnd = Math.max(tZero, S.horas, 1) * 1.05;
+    const ymax = Math.max(Cpeak * 1.18, 0.6);
+    const X = (t) => lX + (t / tEnd) * (rX - lX);
+    const Y = (c) => bY - (c / ymax) * (bY - tY);
+    const N = 44; const pts = [];
+    for (let i = 0; i <= N; i++) { const t = tEnd * i / N; pts.push(X(t).toFixed(1) + ',' + Y(bacAt(t)).toFixed(1)); }
+    const line = pts.join(' ');
+    const area = line + ' ' + rX + ',' + bY + ' ' + lX + ',' + bY;
+    let y05 = Y(0.5); if (0.5 > ymax) y05 = -10;
+    const mt = Math.min(S.horas, tEnd);
+    const curve = { line, area, y05: y05.toFixed(1), mx: X(mt).toFixed(1), my: Y(bacAt(mt)).toFixed(1), endLabel: this.fmtH(tEnd) };
+
+    const t = this.bacTier(Cnow);
+    const seed = S.seed;
+    const noAlc = grams < 0.3;
+    const consejo = noAlc ? 'Tu trago no tiene (casi) alcohol. ¡Buenísimo! Sin alcoholemia, sin riesgo y sin resaca.' : this.CONSEJOS[seed % this.CONSEJOS.length];
+
+    const r = {
+      bacNow: Cnow.toFixed(2).replace('.', ','),
+      bacPeak: Cpeak.toFixed(2).replace('.', ','),
+      abv: abv.toFixed(1).replace('.', ',').replace(/,0$/, ''),
+      std: std.toFixed(1).replace('.', ',').replace(/,0$/, ''),
+      grams: grams.toFixed(1).replace('.', ','),
+      ml: totalMl, kcal: Math.round(kcal), sugar: Math.round(sugar),
+      rFactor: String(rFactor).replace('.', ','),
+      contexturaLabel: rRow.label, sexoLabel: S.sexo === 'M' ? 'masculino' : 'femenino',
+      sober: noAlc ? 'Sin alcohol que eliminar 🎉' : '≈ ' + this.fmtH(tZero),
+      drive: 'No — sos menor (0 g/L)',
+      tierEmoji: t.e, tierLabel: t.l, tierBody: t.b,
+      tierStyle: `display:flex;gap:13px;align-items:flex-start;background:${t.bg};border:2px solid ${t.bd};color:${t.tx};border-radius:16px;padding:13px 15px;`,
+      consejo, advertencia: this.ADVERTENCIAS[seed % this.ADVERTENCIAS.length],
+      mito: this.MITOS[seed % this.MITOS.length].m, mitoV: this.MITOS[seed % this.MITOS.length].v,
+    };
+    const rHeaderStyle = `position:relative;padding:18px 22px;color:#221d16;background:${t.bg};border-bottom:2.5px solid #221d16;`;
+
+    // form options
+    const sexoOpts = [{ v:'M', label:'♂ Masculino' }, { v:'F', label:'♀ Femenino' }].map(o => ({ ...o, style: this.segStyle(S.sexo === o.v) }));
+    const contexturaOpts = [
+      { v:'Astenico', label:'Asténico', sub:'delgado, alto' },
+      { v:'Atletico', label:'Atlético', sub:'musculoso' },
+      { v:'Picnico', label:'Pícnico', sub:'robusto, bajo' },
+      { v:'Promedio', label:'Promedio', sub:'estándar' },
+    ].map(o => ({ ...o, style: this.segStyle(S.contextura === o.v) }));
+    const estomagoOpts = [{ v:'vacio', label:'🫗 Vacío' }, { v:'algo', label:'🍽️ Algo' }, { v:'lleno', label:'🍝 Lleno' }].map(o => ({ ...o, style: this.segStyle(S.estomago === o.v) }));
+
+    const tabHint = S.tab === 'extra' ? 'Decoran y dan gusto. ¡El hielo y la fruta NO bajan el alcohol!'
+      : S.tab === 'mezcla' ? 'Bajan los grados del trago, pero suman azúcar y calorías.'
+      : 'Tocá para una medida · mantené apretado para servir más.';
+
+    return {
+      accent, showNutrition,
+      tabsView, currentItems, addedView, layers, garnish, bubbles: this.bubbles,
+      hasLiquid: liquids.length > 0, empty: S.added.length === 0, notEmpty: S.added.length > 0,
+      itemCount: S.added.length, totalMl,
+      pouring: !!S.pouring,
+      streamStyle: `position:absolute;top:8px;left:50%;transform:translateX(-50%);width:7px;height:140px;border-radius:4px;background:linear-gradient(${topColor === 'transparent' ? '#cfe8ff' : topColor},${topColor === 'transparent' ? '#cfe8ff' : topColor});opacity:.85;animation:streamFall .25s linear infinite;z-index:2;`,
+      glassStyle: `position:relative;width:170px;height:300px;border-radius:14px 14px 24px 24px;background:linear-gradient(100deg,rgba(255,255,255,.55),rgba(255,255,255,.12) 32%,rgba(255,255,255,.04) 62%,rgba(255,255,255,.4));border:2px solid rgba(34,29,22,.28);box-shadow:inset 0 0 18px rgba(255,255,255,.55),0 14px 34px rgba(0,0,0,.14);overflow:hidden;${S.pouring ? 'animation:pourGlow .6s ease infinite;' : ''}`,
+      shakeStyle: S.pouring ? 'animation:wobble .5s ease-in-out infinite;transform-origin:bottom center;' : '',
+      surfaceStyle,
+      fillLabel: overflow ? '🚱 ¡se rebalsa!' : (abv > 0 ? abv.toFixed(1).replace('.', ',') + '°' : 'sin alcohol'),
+      fillBadgeStyle: `background:${overflow ? '#fde4e4' : '#f1ede3'};color:${overflow ? '#a51a2c' : '#6a5f4e'};border-radius:999px;padding:4px 10px;`,
+      tabHint,
+      mixBtnStyle: `flex:1;background:${S.added.length ? accent : '#e7e1d4'};border:2px solid #221d16;border-radius:14px;padding:13px;font-family:Fredoka,sans-serif;font-weight:600;font-size:17px;cursor:${S.added.length ? 'pointer' : 'not-allowed'};box-shadow:3px 4px 0 rgba(0,0,0,.16);opacity:${S.added.length ? 1 : .55};`,
+      isForm: S.phase === 'form', isResults: S.phase === 'results',
+      peso: S.peso, horas: S.horas,
+      pesoLabel: S.peso + ' kg', horasLabel: this.fmtH(S.horas),
+      sexoOpts, contexturaOpts, estomagoOpts,
+      r, rHeaderStyle, curve,
+      startPour: this.startPour, stopPour: this.stopPour, pick: this.pick,
+      incMl: this.incMl, decMl: this.decMl, removeAt: this.removeAt, clearAll: this.clearAll,
+      setTab: this.setTab, setField: this.setField, setNum: this.setNum,
+      mix: this.mix, analyze: this.analyze, editData: this.editData, close: this.close, stop: this.stop,
+    };
+  }
+
+  componentWillUnmount() { if (this._timer) clearInterval(this._timer); }
+
+  constructor(props) {
+    super(props);
+    this.bubbles = Array.from({ length: 10 }, (_, i) => ({
+      style: `position:absolute;bottom:0;left:${7 + i * 9}%;width:${4 + (i % 3) * 2}px;height:${4 + (i % 3) * 2}px;border-radius:50%;background:rgba(255,255,255,.5);animation:bub ${2.6 + (i % 4) * .6}s linear infinite;animation-delay:${(i * .32).toFixed(2)}s;pointer-events:none;`
+    }));
+  }
+}
+</script>
+</body>
+</html>

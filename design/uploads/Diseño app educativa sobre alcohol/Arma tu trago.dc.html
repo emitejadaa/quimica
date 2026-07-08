@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Patrick+Hand&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:#f1ede3}
+  @keyframes bub{0%{transform:translateY(0);opacity:0}10%{opacity:.8}100%{transform:translateY(-200px);opacity:0}}
+  @keyframes floatY{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-6px) rotate(4deg)}}
+  @keyframes shakeIt{0%,100%{transform:rotate(0) translateX(0)}15%{transform:rotate(-5deg) translateX(-4px)}30%{transform:rotate(5deg) translateX(4px)}45%{transform:rotate(-4deg) translateX(-3px)}60%{transform:rotate(4deg) translateX(3px)}80%{transform:rotate(-2deg)}}
+  @keyframes popIn{0%{transform:scale(.9);opacity:0}100%{transform:scale(1);opacity:1}}
+  @keyframes pourGlow{0%,100%{box-shadow:inset 0 0 18px rgba(255,255,255,.55),0 14px 34px rgba(0,0,0,.14)}50%{box-shadow:inset 0 0 26px rgba(255,255,255,.75),0 14px 34px rgba(0,0,0,.14)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;font-family:Nunito,system-ui,sans-serif;color:#221d16;padding:18px 16px 60px;background-image:radial-gradient(circle at 12% 8%,rgba(255,210,63,.18),transparent 38%),radial-gradient(circle at 92% 14%,rgba(123,30,52,.10),transparent 40%);">
+
+  <header style="max-width:1080px;margin:0 auto 18px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:48px;height:48px;border-radius:14px;background:{{ accent }};display:flex;align-items:center;justify-content:center;font-size:26px;transform:rotate(-6deg);box-shadow:3px 4px 0 rgba(0,0,0,.18);">🧪</div>
+      <div>
+        <h1 style="margin:0;font-family:Fredoka,sans-serif;font-weight:700;font-size:30px;line-height:1;letter-spacing:-.5px;">Armá tu trago</h1>
+        <p style="margin:3px 0 0;font-family:'Patrick Hand',cursive;font-size:17px;color:#6a5f4e;">laboratorio de consumo responsable</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #221d16;border-radius:999px;padding:7px 14px;font-weight:800;font-size:13px;box-shadow:2px 3px 0 rgba(0,0,0,.15);">
+      <span style="display:inline-flex;width:24px;height:24px;border-radius:50%;background:#e8384f;color:#fff;align-items:center;justify-content:center;font-size:11px;">+18</span>
+      Tenés 13–17: lo que te recomienda este lab es <span style="color:#2f9e44;">0 alcohol</span>
+    </div>
+  </header>
+
+  <div style="max-width:1080px;margin:0 auto;display:flex;flex-wrap:wrap;gap:20px;align-items:stretch;">
+
+    <!-- GLASS PANEL -->
+    <section style="flex:1 1 320px;min-width:300px;background:#fffdf7;border:2px solid #221d16;border-radius:22px;padding:22px 18px 18px;box-shadow:5px 6px 0 rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;position:relative;">
+      <div style="position:absolute;top:14px;left:16px;font-family:'Patrick Hand',cursive;font-size:16px;color:#9a8f7a;transform:rotate(-3deg);">tu vaso 🍹</div>
+
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:300px;">
+        <div style="{{ shakeStyle }}">
+          <div style="{{ glassStyle }}">
+            <div style="position:absolute;inset:3px;border-radius:12px 12px 20px 20px;overflow:hidden;">
+              <sc-for list="{{ layers }}" as="ly" hint-placeholder-count="0">
+                <div style="{{ ly.style }}"></div>
+              </sc-for>
+              <sc-if value="{{ hasLiquid }}" hint-placeholder-val="{{ false }}">
+                <div style="{{ surfaceStyle }}"></div>
+              </sc-if>
+              <sc-if value="{{ hasLiquid }}" hint-placeholder-val="{{ false }}">
+                <sc-for list="{{ bubbles }}" as="b" hint-placeholder-count="0">
+                  <div style="{{ b.style }}"></div>
+                </sc-for>
+              </sc-if>
+              <sc-for list="{{ garnish }}" as="g" hint-placeholder-count="0">
+                <span style="{{ g.style }}">{{ g.emoji }}</span>
+              </sc-for>
+            </div>
+            <div style="position:absolute;top:8px;left:10px;width:14px;height:78%;border-radius:8px;background:linear-gradient(180deg,rgba(255,255,255,.7),rgba(255,255,255,.05));pointer-events:none;"></div>
+          </div>
+        </div>
+      </div>
+
+      <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+        <div style="font-family:'Patrick Hand',cursive;font-size:18px;color:#9a8f7a;margin:2px 0 12px;">elegí ingredientes 👉</div>
+      </sc-if>
+      <sc-if value="{{ notEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:2px 0 12px;font-weight:700;font-size:13px;color:#6a5f4e;">
+          <span style="background:#f1ede3;border-radius:999px;padding:4px 11px;">{{ itemCount }} ingredientes</span>
+          <span style="background:#f1ede3;border-radius:999px;padding:4px 11px;">{{ totalMl }} ml</span>
+          <span style="{{ fillBadgeStyle }}">{{ fillLabel }}</span>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;gap:10px;width:100%;">
+        <button onClick="{{ mix }}" style="{{ mixBtnStyle }}">🥁 ¡Mezclar!</button>
+        <button onClick="{{ clearAll }}" style="flex:0 0 auto;background:#fff;border:2px solid #221d16;border-radius:14px;padding:0 16px;font-family:Fredoka,sans-serif;font-weight:600;font-size:15px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.15);">Vaciar</button>
+      </div>
+    </section>
+
+    <!-- SHELVES PANEL -->
+    <section style="flex:1.25 1 380px;min-width:320px;background:#fffdf7;border:2px solid #221d16;border-radius:22px;padding:18px 18px 18px 44px;box-shadow:5px 6px 0 rgba(0,0,0,.12);position:relative;background-image:repeating-linear-gradient(#fffdf7,#fffdf7 31px,#e3ebf2 31px,#e3ebf2 32px);">
+      <div style="position:absolute;top:0;bottom:0;left:34px;width:2px;background:#f3a9a9;"></div>
+
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button onClick="{{ setTab }}" data-tab="alcohol" style="{{ tabAlcStyle }}">🍾 Con alcohol</button>
+        <button onClick="{{ setTab }}" data-tab="mezcla" style="{{ tabMezStyle }}">🧃 Mezcladores</button>
+        <button onClick="{{ setTab }}" data-tab="extra" style="{{ tabExtStyle }}">🍋 Extras</button>
+      </div>
+
+      <div style="font-family:'Patrick Hand',cursive;font-size:16px;color:#9a8f7a;margin:0 0 8px;">{{ tabHint }}</div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:18px;">
+        <sc-for list="{{ currentItems }}" as="it" hint-placeholder-count="8">
+          <button onClick="{{ pick }}" data-id="{{ it.id }}" style="display:flex;align-items:center;gap:9px;text-align:left;background:#fff;border:2px solid #221d16;border-radius:13px;padding:9px 11px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.12);transition:transform .08s;" style-hover="transform:translate(-1px,-1px);box-shadow:3px 4px 0 rgba(0,0,0,.16);">
+            <span style="font-size:22px;line-height:1;">{{ it.emoji }}</span>
+            <span style="flex:1;min-width:0;">
+              <span style="display:block;font-weight:800;font-size:14px;line-height:1.1;">{{ it.name }}</span>
+              <span style="display:flex;align-items:center;gap:5px;font-size:11px;color:#6a5f4e;font-weight:700;margin-top:2px;">
+                <span style="width:10px;height:10px;border-radius:50%;border:1px solid rgba(0,0,0,.2);{{ it.dotStyle }}"></span>{{ it.detail }}
+              </span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border:2px dashed #c7bca8;border-radius:14px;padding:12px 14px;">
+        <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:7px;">📋 Tu receta</div>
+        <sc-if value="{{ empty }}" hint-placeholder-val="{{ true }}">
+          <div style="font-family:'Patrick Hand',cursive;font-size:17px;color:#b3a890;">Todavía no agregaste nada… tocá un ingrediente para empezar.</div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <sc-for list="{{ addedView }}" as="a" hint-placeholder-count="0">
+            <button onClick="{{ removeAt }}" data-idx="{{ a.idx }}" style="display:flex;align-items:center;gap:9px;background:#faf7ef;border:1.5px solid #e6ddca;border-radius:10px;padding:7px 10px;cursor:pointer;text-align:left;" style-hover="border-color:#e8384f;background:#fff4f5;">
+              <span style="font-size:18px;">{{ a.emoji }}</span>
+              <span style="width:11px;height:11px;border-radius:50%;border:1px solid rgba(0,0,0,.2);{{ a.dotStyle }}"></span>
+              <span style="flex:1;font-weight:800;font-size:14px;">{{ a.name }}</span>
+              <span style="font-size:12px;color:#6a5f4e;font-weight:700;">{{ a.detail }}</span>
+              <span style="color:#e8384f;font-weight:900;font-size:15px;">✕</span>
+            </button>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- RESULTS OVERLAY -->
+  <sc-if value="{{ showResults }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ close }}" style="position:fixed;inset:0;background:rgba(20,16,10,.5);backdrop-filter:blur(3px);display:flex;align-items:flex-start;justify-content:center;padding:24px 14px;z-index:50;overflow:auto;">
+      <div onClick="{{ stop }}" style="width:100%;max-width:720px;background:#fffdf7;border:2.5px solid #221d16;border-radius:24px;box-shadow:8px 10px 0 rgba(0,0,0,.18);animation:popIn .25s ease;overflow:hidden;">
+
+        <div style="{{ rHeaderStyle }}">
+          <button onClick="{{ close }}" style="position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:2px solid #221d16;background:#fffdf7;cursor:pointer;font-weight:900;font-size:15px;box-shadow:2px 2px 0 rgba(0,0,0,.18);">✕</button>
+          <div style="font-family:'Patrick Hand',cursive;font-size:18px;opacity:.85;">resultado del análisis</div>
+          <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-top:2px;">
+            <span style="font-family:Fredoka,sans-serif;font-weight:700;font-size:46px;line-height:1;">{{ r.abv }}°</span>
+            <span style="font-weight:800;font-size:16px;">graduación del trago</span>
+          </div>
+          <div style="margin-top:6px;font-weight:700;font-size:14px;">≈ {{ r.std }} tragos estándar &nbsp;·&nbsp; {{ r.grams }} g de alcohol puro</div>
+        </div>
+
+        <div style="padding:18px 20px 22px;">
+
+          <div style="{{ r.tierStyle }}">
+            <span style="font-size:30px;">{{ r.tierEmoji }}</span>
+            <div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:700;font-size:18px;">{{ r.tierLabel }}</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:2px;">{{ r.tierBody }}</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px;">
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-size:12px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.5px;">⏱ Duración estimada</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:17px;margin-top:3px;">{{ r.duration }}</div>
+            </div>
+            <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+              <div style="font-size:12px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.5px;">📏 Volumen total</div>
+              <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:17px;margin-top:3px;">{{ r.ml }} ml</div>
+            </div>
+            <sc-if value="{{ showNutrition }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+                <div style="font-size:12px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.5px;">🔥 Calorías</div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:17px;margin-top:3px;">{{ r.kcal }} kcal</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ showNutrition }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:2px solid #221d16;border-radius:14px;padding:11px 13px;">
+                <div style="font-size:12px;font-weight:800;color:#6a5f4e;text-transform:uppercase;letter-spacing:.5px;">🍬 Azúcar</div>
+                <div style="font-family:Fredoka,sans-serif;font-weight:600;font-size:17px;margin-top:3px;">{{ r.sugar }} g</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+            <div style="background:#e7f6ec;border:2px solid #2f9e44;border-radius:14px;padding:12px 14px;">
+              <div style="font-weight:900;font-size:13px;color:#207a33;display:flex;align-items:center;gap:7px;">💡 CONSEJO</div>
+              <div style="font-size:14.5px;line-height:1.45;margin-top:4px;">{{ r.consejo }}</div>
+            </div>
+            <div style="background:#fdeede;border:2px solid #e08a1e;border-radius:14px;padding:12px 14px;">
+              <div style="font-weight:900;font-size:13px;color:#b76b0e;display:flex;align-items:center;gap:7px;">⚠️ OJO CON ESTO</div>
+              <div style="font-size:14.5px;line-height:1.45;margin-top:4px;">{{ r.advertencia }}</div>
+            </div>
+            <div style="background:#eef1fb;border:2px solid #5566d6;border-radius:14px;padding:12px 14px;">
+              <div style="font-weight:900;font-size:13px;color:#3b49b0;display:flex;align-items:center;gap:7px;">🧠 MITO vs VERDAD</div>
+              <div style="font-size:14.5px;line-height:1.45;margin-top:4px;"><b>"{{ r.mito }}"</b> → {{ r.mitoV }}</div>
+            </div>
+          </div>
+
+          <div style="margin-top:16px;background:#221d16;color:#fff;border-radius:16px;padding:14px 16px;display:flex;gap:12px;align-items:center;">
+            <span style="font-size:26px;">🚦</span>
+            <div style="font-size:14px;line-height:1.5;font-weight:600;">En Argentina la venta de alcohol a menores de 18 está prohibida. A tu edad el cerebro sigue desarrollándose, así que el consumo recomendado es <b style="color:#ffd23f;">cero</b>. Esto es un juego para entender qué pasa, no una invitación a tomar.</div>
+          </div>
+
+          <button onClick="{{ close }}" style="width:100%;margin-top:16px;background:{{ accent }};border:2px solid #221d16;border-radius:15px;padding:13px;font-family:Fredoka,sans-serif;font-weight:600;font-size:17px;cursor:pointer;box-shadow:3px 4px 0 rgba(0,0,0,.18);">↩ Probar otro trago</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#ffd23f&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Estilo&quot;},&quot;stdGrams&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[10,14],&quot;default&quot;:10,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Cálculo&quot;,&quot;unit&quot;:&quot;g&quot;},&quot;showNutrition&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Resultados&quot;}}">
+class Component extends DCLogic {
+  state = { added: [], tab: 'alcohol', showResults: false, mixing: false, seed: 1 };
+
+  CATALOG = [
+    // alcohol: ml = medida típica que se sirve, abv en grados
+    { id:'cerveza', name:'Cerveza', emoji:'🍺', cat:'alcohol', abv:5,  ml:330, kcal:140, sugar:0,  color:'#e6a517' },
+    { id:'vino',    name:'Vino tinto', emoji:'🍷', cat:'alcohol', abv:13, ml:150, kcal:125, sugar:1, color:'#6e1b34' },
+    { id:'fernet',  name:'Fernet', emoji:'🥃', cat:'alcohol', abv:39, ml:50,  kcal:70,  sugar:0,  color:'#2c1810' },
+    { id:'vodka',   name:'Vodka', emoji:'🍸', cat:'alcohol', abv:40, ml:45,  kcal:97,  sugar:0,  color:'#eaf2ff' },
+    { id:'gin',     name:'Gin', emoji:'🍸', cat:'alcohol', abv:40, ml:45,  kcal:97,  sugar:0,  color:'#e6f6ef' },
+    { id:'ron',     name:'Ron', emoji:'🥃', cat:'alcohol', abv:38, ml:45,  kcal:92,  sugar:0,  color:'#b9772e' },
+    { id:'tequila', name:'Tequila', emoji:'🌵', cat:'alcohol', abv:38, ml:45,  kcal:90,  sugar:0,  color:'#f1edc8' },
+    { id:'whisky',  name:'Whisky', emoji:'🥃', cat:'alcohol', abv:40, ml:45,  kcal:105, sugar:0,  color:'#9c5a1e' },
+    // mezcladores: sin alcohol
+    { id:'cola',    name:'Gaseosa cola', emoji:'🥤', cat:'mezcla', abv:0, ml:150, kcal:63, sugar:16, color:'#2b1408' },
+    { id:'tonica',  name:'Agua tónica', emoji:'🫧', cat:'mezcla', abv:0, ml:150, kcal:50, sugar:13, color:'#eef9ff' },
+    { id:'jugo',    name:'Jugo de naranja', emoji:'🧃', cat:'mezcla', abv:0, ml:150, kcal:67, sugar:14, color:'#ff9d1e' },
+    { id:'sprite',  name:'Lima-limón', emoji:'🥤', cat:'mezcla', abv:0, ml:150, kcal:58, sugar:15, color:'#d7f0a8' },
+    { id:'energi',  name:'Energizante', emoji:'⚡', cat:'mezcla', abv:0, ml:120, kcal:53, sugar:13, color:'#c5d92e' },
+    { id:'agua',    name:'Agua / soda', emoji:'💧', cat:'mezcla', abv:0, ml:150, kcal:0,  sugar:0,  color:'#d6eeff' },
+    // extras: garnish, sin volumen
+    { id:'hielo',  name:'Hielo', emoji:'🧊', cat:'extra', abv:0, ml:0, kcal:0,  sugar:0 },
+    { id:'limon',  name:'Limón', emoji:'🍋', cat:'extra', abv:0, ml:0, kcal:2,  sugar:1 },
+    { id:'azucar', name:'Azúcar', emoji:'🍬', cat:'extra', abv:0, ml:0, kcal:32, sugar:8 },
+    { id:'frutas', name:'Frutas', emoji:'🍓', cat:'extra', abv:0, ml:0, kcal:18, sugar:4 },
+    { id:'menta',  name:'Menta', emoji:'🌿', cat:'extra', abv:0, ml:0, kcal:0,  sugar:0 },
+    { id:'sal',    name:'Sal', emoji:'🧂', cat:'extra', abv:0, ml:0, kcal:0,  sugar:0 },
+  ];
+
+  CONSEJOS = [
+    "Tomá agua entre trago y trago: te hidrata y bajás el ritmo sin darte cuenta.",
+    "Nunca mezcles alcohol con energizantes: te sentís menos borracho, pero igual lo estás.",
+    "Comer antes y durante hace que el alcohol se absorba más lento y pegue menos de golpe.",
+    "Si tomaste, no manejes ni te subas con alguien que tomó. Pedí un viaje o quedate.",
+    "El alcohol no te abriga: en realidad baja tu temperatura corporal aunque sientas calor.",
+    "Cuidá a tus amigos: si alguien se descompone, ponelo de costado y pedí ayuda a un adulto.",
+  ];
+  ADVERTENCIAS = [
+    "Tomar rápido y con el estómago vacío dispara el riesgo de intoxicación.",
+    "Más de 4 tragos seguidos no es 'aguante': es consumo de riesgo.",
+    "Mezclar muchos tipos de alcohol no emborracha distinto: lo que cuenta son los gramos totales.",
+    "El alcohol afecta más al cerebro adolescente porque todavía se está formando.",
+  ];
+  MITOS = [
+    { m:"El café te baja la borrachera", v:"Falso: solo te despabila, pero seguís igual de alcoholizado." },
+    { m:"Vomitar te despeja", v:"Falso: el alcohol que ya pasó a la sangre no se va vomitando." },
+    { m:"La cerveza no es alcohol 'de verdad'", v:"Falso: una lata puede tener tanto alcohol como un trago fuerte." },
+    { m:"Aguantar mucho es bueno", v:"Falso: significa que tu cuerpo se acostumbró, y eso es señal de riesgo." },
+    { m:"Una ducha fría se te pasa", v:"Falso: el frío solo te asusta, el alcohol sigue en tu sangre." },
+  ];
+
+  CAP = 700; // ml de referencia visual del vaso
+
+  pick = (e) => {
+    const id = e.currentTarget.dataset.id;
+    const it = this.CATALOG.find(x => x.id === id);
+    if (!it || this.state.added.length >= 16) return;
+    this.setState(s => ({ added: [...s.added, { ...it }] }));
+  };
+  removeAt = (e) => {
+    const i = +e.currentTarget.dataset.idx;
+    this.setState(s => ({ added: s.added.filter((_, j) => j !== i) }));
+  };
+  clearAll = () => this.setState({ added: [], showResults: false });
+  setTab = (e) => this.setState({ tab: e.currentTarget.dataset.tab });
+  stop = (e) => e.stopPropagation();
+  close = () => this.setState({ showResults: false });
+  mix = () => {
+    if (!this.state.added.length) return;
+    this.setState({ mixing: true });
+    setTimeout(() => this.setState({ mixing: false, showResults: true, seed: Math.floor(Math.random() * 100000) }), 650);
+  };
+
+  fmtDur(h) {
+    if (h <= 0) return "—";
+    const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
+    if (hh <= 0) return mm + " min";
+    return hh + " h" + (mm ? " " + mm + " min" : "");
+  }
+
+  tier(std, grams) {
+    if (grams < 0.5) return { e:'✅', l:'Cero (o casi) alcohol', b:'¡Buena! Cero alcohol = cero riesgo. Tu hígado, tu cerebro y tus reflejos lo agradecen.', bg:'#e7f6ec', bd:'#2f9e44', tx:'#1e6b30' };
+    if (std < 2) return { e:'🙂', l:'Efecto leve', b:'Desinhibición y euforia liviana. Ya bajan los reflejos y la atención, aunque casi no lo notes.', bg:'#fff7df', bd:'#e0a91e', tx:'#8a6a0a' };
+    if (std < 4) return { e:'😵‍💫', l:'Efecto moderado', b:'Se afectan la coordinación, el habla y el juicio. Mucho más riesgo de accidentes y malas decisiones.', bg:'#fdeede', bd:'#e0791e', tx:'#a3530c' };
+    if (std < 6) return { e:'🤢', l:'Borrachera', b:'Confusión, mareos, náuseas y vómitos. El cuerpo te está avisando que es demasiado.', bg:'#fde4e4', bd:'#e8384f', tx:'#a51a2c' };
+    return { e:'🚨', l:'Riesgo de intoxicación', b:'Puede haber pérdida de conciencia y depresión respiratoria. Es una emergencia médica: hay que pedir ayuda.', bg:'#f6dada', bd:'#c8102e', tx:'#8c0a20' };
+  }
+
+  renderVals() {
+    const added = this.state.added;
+    const tab = this.state.tab;
+    const cap = this.CAP;
+    const stdGrams = this.props.stdGrams ?? 10;
+    const accent = this.props.accent ?? '#ffd23f';
+    const showNutrition = this.props.showNutrition ?? true;
+
+    const detailOf = (it) =>
+      it.cat === 'alcohol' ? it.abv + '°' :
+      it.cat === 'mezcla'  ? 'sin alcohol' :
+      (it.kcal ? it.kcal + ' kcal' : 'sin calorías');
+
+    const currentItems = this.CATALOG.filter(it => it.cat === tab).map(it => ({
+      ...it, detail: detailOf(it), dotStyle: it.color ? `background:${it.color};` : 'background:#dfe7ef;'
+    }));
+
+    const addedView = added.map((it, i) => ({
+      ...it, idx: i, detail: detailOf(it), dotStyle: it.color ? `background:${it.color};` : 'background:#dfe7ef;'
+    }));
+
+    // capas de líquido (alcohol + mezcladores)
+    const liquids = added.filter(it => it.ml > 0);
+    let cum = 0;
+    const layers = liquids.map((it, i) => {
+      const bottom = (cum / cap) * 100;
+      let h = (it.ml / cap) * 100;
+      if (bottom + h > 100) h = Math.max(0, 100 - bottom);
+      cum += it.ml;
+      const radius = i === 0 ? 'border-radius:0 0 11px 11px;' : '';
+      return { style: `position:absolute;left:0;right:0;bottom:${bottom.toFixed(2)}%;height:${h.toFixed(2)}%;background:${it.color};${radius}transition:height .45s ease,bottom .45s ease;` };
+    });
+
+    const totalMl = added.reduce((a, it) => a + it.ml, 0);
+    const fillPct = Math.min(100, (totalMl / cap) * 100);
+    const topColor = liquids.length ? liquids[liquids.length - 1].color : 'transparent';
+    const overflow = totalMl > cap;
+
+    const surfaceStyle = `position:absolute;left:-3px;right:-3px;height:11px;bottom:calc(${fillPct.toFixed(2)}% - 5px);background:${topColor};border-radius:50%;filter:brightness(1.12) saturate(1.1);box-shadow:0 0 8px ${topColor};transition:bottom .45s ease;`;
+
+    const exers = added.filter(it => it.cat === 'extra');
+    const garnish = exers.map((it, i) => ({
+      emoji: it.emoji,
+      style: `position:absolute;left:${16 + (i % 4) * 26}px;bottom:calc(${Math.min(92, fillPct).toFixed(2)}% - 20px);font-size:21px;animation:floatY ${2.4 + (i % 3) * .5}s ease-in-out infinite;animation-delay:${(i * .25).toFixed(2)}s;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));pointer-events:none;`
+    }));
+
+    // estadísticas
+    const grams = added.reduce((a, it) => a + it.ml * (it.abv / 100) * 0.789, 0);
+    const abv = totalMl > 0 ? added.reduce((a, it) => a + it.ml * it.abv, 0) / totalMl : 0;
+    const std = grams / stdGrams;
+    const kcal = added.reduce((a, it) => a + it.kcal, 0);
+    const sugar = added.reduce((a, it) => a + it.sugar, 0);
+    const durH = std * 1.5;
+
+    const t = this.tier(std, grams);
+    const seed = this.state.seed;
+    const consejo = grams < 0.5
+      ? "Seguí así: los tragos sin alcohol también son ricos y no te dejan resaca."
+      : this.CONSEJOS[seed % this.CONSEJOS.length];
+    const adv = this.ADVERTENCIAS[seed % this.ADVERTENCIAS.length];
+    const mito = this.MITOS[seed % this.MITOS.length];
+
+    const r = {
+      abv: abv.toFixed(1).replace(/\.0$/, ''),
+      std: std.toFixed(1).replace(/\.0$/, ''),
+      grams: grams.toFixed(1).replace(/\.0$/, ''),
+      ml: totalMl,
+      kcal: Math.round(kcal),
+      sugar: Math.round(sugar),
+      duration: grams < 0.5 ? "Sin alcohol que procesar 🎉" : ("≈ " + this.fmtDur(durH)),
+      tierEmoji: t.e, tierLabel: t.l, tierBody: t.b,
+      tierStyle: `display:flex;gap:13px;align-items:flex-start;background:${t.bg};border:2px solid ${t.bd};color:${t.tx};border-radius:16px;padding:14px 16px;`,
+      consejo, advertencia: adv, mito: mito.m, mitoV: mito.v,
+    };
+
+    const rHeaderStyle = `position:relative;padding:20px 22px 18px;color:#221d16;background:${t.bg};border-bottom:2.5px solid #221d16;`;
+
+    const tabBase = `font-family:Fredoka,sans-serif;font-weight:600;font-size:14px;border:2px solid #221d16;border-radius:12px;padding:8px 13px;cursor:pointer;box-shadow:2px 3px 0 rgba(0,0,0,.13);`;
+    const tabOn = `background:#221d16;color:#fff;`, tabOff = `background:#fff;color:#221d16;`;
+
+    const mixBtnStyle = `flex:1;background:${added.length ? accent : '#e7e1d4'};border:2px solid #221d16;border-radius:14px;padding:13px;font-family:Fredoka,sans-serif;font-weight:600;font-size:18px;cursor:${added.length ? 'pointer' : 'not-allowed'};box-shadow:3px 4px 0 rgba(0,0,0,.16);opacity:${added.length ? 1 : .55};`;
+
+    const tabHint = tab === 'alcohol'
+      ? 'Cada botella/medida ya viene en su porción típica.'
+      : tab === 'mezcla' ? 'Bajan la graduación pero suman azúcar y calorías.'
+      : 'Decoran y dan gusto. ¡El hielo y la fruta no bajan el alcohol!';
+
+    return {
+      accent, showNutrition,
+      currentItems, addedView, layers, garnish,
+      bubbles: this.bubbles,
+      hasLiquid: liquids.length > 0,
+      empty: added.length === 0,
+      notEmpty: added.length > 0,
+      itemCount: added.length,
+      totalMl,
+      glassStyle: `position:relative;width:170px;height:260px;border-radius:14px 14px 22px 22px;background:linear-gradient(100deg,rgba(255,255,255,.55),rgba(255,255,255,.12) 32%,rgba(255,255,255,.04) 62%,rgba(255,255,255,.4));border:2px solid rgba(34,29,22,.28);box-shadow:inset 0 0 18px rgba(255,255,255,.55),0 14px 34px rgba(0,0,0,.14);overflow:hidden;${this.state.mixing ? 'animation:pourGlow .65s ease;' : ''}`,
+      shakeStyle: this.state.mixing ? 'animation:shakeIt .65s ease;transform-origin:bottom center;' : '',
+      surfaceStyle,
+      fillLabel: overflow ? '🚱 ¡se rebalsa!' : (fillPct > 75 ? 'vaso casi lleno' : 'graduación ' + abv.toFixed(1) + '°'),
+      fillBadgeStyle: `background:${overflow ? '#fde4e4' : '#f1ede3'};color:${overflow ? '#a51a2c' : '#6a5f4e'};border-radius:999px;padding:4px 11px;`,
+      tabAlcStyle: tabBase + (tab === 'alcohol' ? tabOn : tabOff),
+      tabMezStyle: tabBase + (tab === 'mezcla' ? tabOn : tabOff),
+      tabExtStyle: tabBase + (tab === 'extra' ? tabOn : tabOff),
+      tabHint,
+      mixBtnStyle,
+      showResults: this.state.showResults,
+      r, rHeaderStyle,
+      pick: this.pick, removeAt: this.removeAt, clearAll: this.clearAll,
+      setTab: this.setTab, mix: this.mix, close: this.close, stop: this.stop,
+    };
+  }
+
+  constructor(props) {
+    super(props);
+    this.bubbles = Array.from({ length: 9 }, (_, i) => ({
+      style: `position:absolute;bottom:0;left:${8 + i * 10}%;width:${4 + (i % 3) * 2}px;height:${4 + (i % 3) * 2}px;border-radius:50%;background:rgba(255,255,255,.5);animation:bub ${2.4 + (i % 4) * .6}s linear infinite;animation-delay:${(i * .35).toFixed(2)}s;pointer-events:none;`
+    }));
+  }
+}
+</script>
+</body>
+</html>
