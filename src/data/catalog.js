@@ -129,6 +129,14 @@ export const CATALOG = [
 
 export const byId = Object.fromEntries(CATALOG.map((d) => [d.id, d]))
 
+// Bebidas con gas: burbujean fuerte en el vaso. Las cervezas/sidra son todas con gas;
+// además estos mezcladores/espumante. El resto (whisky, vino quieto, jugos, agua sin
+// gas…) casi no burbujean.
+const FIZZY_IDS = new Set(['espuma', 'cola', 'zero', 'sprite', 'tonica', 'energi', 'soda', 'pomelo', 'ginger'])
+export const isFizzy = (id) => { const d = byId[id]; return !!d && (d.cat === 'cerveza' || FIZZY_IDS.has(id)) }
+// Cervezas y sidra hacen espuma al servir.
+export const isBeer = (id) => byId[id]?.cat === 'cerveza'
+
 // El tope del vaso ahora lo da el recipiente elegido (ver data/containers.js).
 export const MAX_EXTRAS = 2
 export const STD_GRAMS = 10 // g de etanol por trago estándar

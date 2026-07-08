@@ -56,6 +56,7 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
     <div style={{ display: 'flex', gap: 14, height: '100%', padding: '80px 16px 14px', boxSizing: 'border-box', position: 'relative' }} className="bar-wrap">
       {/* ambiente: cartel de neón + brillo cálido (decoración de fondo) */}
       <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(60% 40% at 78% 12%,rgba(255,120,60,.12),transparent 60%)' }} />
+      <BackBar />
       <div aria-hidden style={{
         position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1, pointerEvents: 'none',
         fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 15, color: '#ff8ad6', letterSpacing: '1px',
@@ -88,7 +89,7 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
         </div>
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, minHeight: 0 }}>
-          <div ref={glassRef} data-glass="1" style={{ position: 'relative' }}>
+          <div ref={glassRef} data-glass="1" key={container} style={{ position: 'relative', animation: 'containerPop .42s cubic-bezier(.34,1.4,.5,1)' }}>
             <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.86} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -164,3 +165,37 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
 }
 
 const badge = { background: '#ffedd0', border: '2px solid #3d2410', borderRadius: 999, padding: '3px 10px' }
+
+// Botellas de fondo en una estantería, difuminadas, para dar profundidad al bar.
+const BACK_BOTTLES = [
+  { c: '#c9962f', h: 66, w: 15 }, { c: '#8a3b1e', h: 78, w: 13 }, { c: '#6e1b34', h: 58, w: 16 },
+  { c: '#3a6b3a', h: 84, w: 13 }, { c: '#a80c22', h: 64, w: 15 }, { c: '#e0a24a', h: 74, w: 14 },
+  { c: '#4a2c12', h: 90, w: 12 }, { c: '#2a5a4a', h: 60, w: 16 }, { c: '#b5541c', h: 80, w: 13 },
+  { c: '#7a1420', h: 68, w: 15 }, { c: '#d0a02a', h: 56, w: 16 }, { c: '#3a4a1e', h: 86, w: 12 },
+  { c: '#8a5a1e', h: 72, w: 14 }, { c: '#a83b52', h: 62, w: 15 }, { c: '#1a6b3a', h: 82, w: 13 },
+  { c: '#c07f28', h: 66, w: 15 }, { c: '#5a2418', h: 76, w: 13 }, { c: '#0a5c3a', h: 58, w: 16 },
+]
+
+function BackBar() {
+  return (
+    <div aria-hidden style={{
+      position: 'absolute', top: 28, left: 0, right: 0, height: 118, zIndex: 1, pointerEvents: 'none',
+      opacity: 0.5, filter: 'blur(1.4px)',
+      maskImage: 'linear-gradient(180deg,#000 62%,transparent)', WebkitMaskImage: 'linear-gradient(180deg,#000 62%,transparent)',
+    }}>
+      {/* luces cálidas detrás de las botellas */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 20% 30%,rgba(255,180,90,.5),transparent 22%),radial-gradient(circle at 52% 24%,rgba(255,150,70,.4),transparent 20%),radial-gradient(circle at 82% 32%,rgba(255,190,110,.45),transparent 22%)' }} />
+      {/* fila de botellas sobre una repisa */}
+      <div style={{ position: 'absolute', left: 40, right: 40, bottom: 20, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+        {BACK_BOTTLES.map((b, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div style={{ width: b.w * 0.34, height: 10, background: b.c, filter: 'brightness(.8)', borderRadius: 2 }} />
+            <div style={{ width: b.w, height: b.h, background: `linear-gradient(90deg,rgba(255,255,255,.35),${b.c} 40%,rgba(0,0,0,.3))`, borderRadius: '6px 6px 3px 3px' }} />
+          </div>
+        ))}
+      </div>
+      {/* repisa de madera */}
+      <div style={{ position: 'absolute', left: 24, right: 24, bottom: 12, height: 9, background: 'linear-gradient(180deg,#7a4c20,#4a2c12)', borderRadius: 3, boxShadow: '0 3px 6px rgba(0,0,0,.4)' }} />
+    </div>
+  )
+}

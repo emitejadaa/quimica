@@ -65,7 +65,7 @@ function ShelfBase({ tab, setTab, onBottleDown, extrasInfo }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(88px,1fr))', gap: 2, alignItems: 'end' }}>
           {isPre
             ? items.map((p) => (
-              <div key={p.id} data-id={p.id} data-preset="1" onPointerDown={onBottleDown} style={{
+              <div key={p.id} data-id={p.id} data-preset="1" onPointerDown={onBottleDown} className="grabbable" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '6px 2px 12px',
                 cursor: 'grab', touchAction: 'none', userSelect: 'none',
               }}>
@@ -79,7 +79,7 @@ function ShelfBase({ tab, setTab, onBottleDown, extrasInfo }) {
               const n = extrasInfo?.counts?.[d.id] || 0
               const disabled = isExtra && exFull && n === 0
               return (
-                <div key={d.id} data-id={d.id} onPointerDown={disabled ? undefined : onBottleDown} style={{
+                <div key={d.id} data-id={d.id} onPointerDown={disabled ? undefined : onBottleDown} className={disabled ? undefined : 'grabbable'} style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, padding: '6px 2px 12px',
                   cursor: disabled ? 'not-allowed' : 'grab', touchAction: 'none', position: 'relative',
                   opacity: disabled ? 0.4 : 1, userSelect: 'none',

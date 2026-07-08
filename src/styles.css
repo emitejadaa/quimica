@@ -88,6 +88,9 @@ a { color: var(--accent); }
 @keyframes splashArc { 0% { transform: translate(-50%,0) scale(1); opacity: .95; } 100% { transform: translate(calc(-50% + var(--dx,0px)),-16px) scale(.35); opacity: 0; } }
 @keyframes rippleOut { 0% { transform: scale(.35); opacity: .75; } 100% { transform: scale(1.5); opacity: 0; } }
 @keyframes surfaceWave { 0%,100% { transform: translateY(0) scaleX(1); } 50% { transform: translateY(-1.5px) scaleX(1.015); } }
+@keyframes dripDown { 0% { transform: translateY(0) scaleY(.7); opacity: 0; } 18% { opacity: .85; } 90% { opacity: .7; } 100% { transform: translateY(var(--len,16px)) scaleY(1.15); opacity: 0; } }
+@keyframes foamSettle { 0%,100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(1px) scaleY(.95); } }
+@keyframes containerPop { 0% { transform: scale(.82) translateY(10px); opacity: .35; } 60% { transform: scale(1.05) translateY(-3px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 @keyframes toastPop { 0% { transform: translateX(-50%) translateY(-16px) scale(.85); opacity: 0; } 10% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 86% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-10px) scale(.96); opacity: 0; } }
 
 /* scrollbar horizontal fino para las filas deslizables */
@@ -102,3 +105,7 @@ a { color: var(--accent); }
 
 input[type=range] { -webkit-appearance: none; appearance: none; background: transparent; }
 input[type=range]:focus { outline: none; }
+
+/* "pop" táctil al agarrar una botella/pre-armado de la estantería */
+.grabbable { transition: transform .13s cubic-bezier(.34,1.5,.5,1); }
+.grabbable:active { transform: scale(.85); }
