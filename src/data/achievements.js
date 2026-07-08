@@ -16,7 +16,7 @@ export const ACHIEVEMENTS = [
   // ── difíciles (hay que buscarlos a propósito) ──
   { id: 'mixologo', hard: true, icon: '⚗️', name: 'Mixólogo', desc: '5 bebidas distintas en un solo vaso.', check: (c) => c.liquids.length >= 5 },
   { id: 'coleccionista', hard: true, icon: '🗄️', name: 'Coleccionista', desc: 'Serviste en los 7 recipientes.', check: (c) => c.containersCount >= 7 },
-  { id: 'barmanpro', hard: true, icon: '🏅', name: 'Barman PRO', desc: 'Probaste los 7 pre-armados.', check: (c) => c.presetsCount >= 7 },
+  { id: 'barmanpro', hard: true, icon: '🏅', name: 'Barman PRO', desc: 'Probaste 7 pre-armados distintos.', check: (c) => c.presetsCount >= 7 },
   { id: 'maraton', hard: true, icon: '🌙', name: 'Maratón', desc: 'Probaste 12 bebidas distintas.', check: (c) => c.tried >= 12 },
   { id: 'cientifico', hard: true, icon: '📊', name: 'Científico', desc: 'Analizaste 5 tragos distintos.', check: (c) => c.analyzeCount >= 5 },
   { id: 'cargado', hard: true, icon: '💥', name: 'Cargadísimo', desc: 'Un vaso con 4+ tragos estándar de alcohol.', check: (c) => c.std >= 4 },

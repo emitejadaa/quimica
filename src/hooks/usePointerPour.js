@@ -3,9 +3,10 @@ import { byId } from '../data/catalog.js'
 import { byPreset } from '../data/presets.js'
 
 // El chorro arranca lento y acelera mientras se mantiene (de RATE_MIN a RATE_MAX).
-const RATE_MIN = 42 // ml/s al empezar a servir
-const RATE_MAX = 300 // ml/s al mantener
-const ACCEL_T = 2.4 // s hasta llegar al máximo
+// Servido más pausado que antes, pero conserva la aceleración al sostener.
+const RATE_MIN = 22 // ml/s al empezar a servir
+const RATE_MAX = 150 // ml/s al mantener
+const ACCEL_T = 2.9 // s hasta llegar al máximo
 const TAP_MS = 220
 const TAP_SPLASH = 18
 

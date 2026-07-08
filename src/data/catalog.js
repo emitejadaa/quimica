@@ -29,6 +29,12 @@ export const CATALOG = [
     bottle: { form: 'bottle', glass: '#2b1a0f', cap: '#b98a2a', liquid: '#2a160a', label: 'Stout', labelBg: '#1a0f07', ink: '#e0b060' } },
   { id: 'sidra', name: 'Sidra', variety: 'dulce', cat: 'cerveza', abv: 5.0, dml: 330, kcal100: 45, sugar100: 4,
     bottle: { form: 'bottle', glass: '#7a6b1e', clear: true, cap: '#c0c4cc', liquid: '#d8b34a', label: 'Sidra', labelBg: '#fdf6d8', ink: '#8a5a10' } },
+  { id: 'roja', name: 'Cerveza roja', variety: 'red ale', cat: 'cerveza', abv: 5.2, dml: 330, kcal100: 52, sugar100: 1,
+    bottle: { form: 'bottle', glass: '#5a2a14', clear: true, cap: '#c0a02a', liquid: '#a8481a', label: 'Roja', labelBg: '#f0dcc0', ink: '#8a3b10' } },
+  { id: 'trigo', name: 'Cerveza de trigo', variety: 'weiss', cat: 'cerveza', abv: 5.0, dml: 330, kcal100: 48, sugar100: 1,
+    bottle: { form: 'bottle', glass: '#c9b06a', clear: true, cap: '#d8c85a', liquid: '#e8bf4a', label: 'Trigo', labelBg: '#fbf3d8', ink: '#8a6a10' } },
+  { id: 'radler', name: 'Radler', variety: 'con limón', cat: 'cerveza', abv: 2.5, dml: 330, kcal100: 35, sugar100: 4,
+    bottle: { form: 'bottle', glass: '#e8d27a', clear: true, cap: '#e0c04a', liquid: '#f2d84e', label: 'Radler', labelBg: '#fdf6d0', ink: '#8a6a10' } },
 
   // ─── VINOS ───
   { id: 'malbec', name: 'Malbec', variety: 'tinto', cat: 'vino', abv: 14, dml: 150, kcal100: 83, sugar100: 1,
@@ -39,6 +45,10 @@ export const CATALOG = [
     bottle: { form: 'wine', wide: true, glass: '#3a4a1e', cap: '#e0c04a', liquid: '#f2e6b0', label: 'Espumante', labelBg: '#1a1208', ink: '#e0c04a' } },
   { id: 'vermut', name: 'Vermut', variety: 'rojo', cat: 'vino', abv: 16, dml: 80, kcal100: 138, sugar100: 10,
     bottle: { form: 'bottle', slim: true, glass: '#5a2418', cap: '#3a1810', liquid: '#8a3b1e', label: 'Vermut', labelBg: '#f0dcc0', ink: '#8a3b1e' } },
+  { id: 'rosado', name: 'Vino rosado', variety: 'rosé', cat: 'vino', abv: 12.5, dml: 150, kcal100: 82, sugar100: 2,
+    bottle: { form: 'wine', glass: '#e8a0a8', clear: true, cap: '#c8b45a', liquid: '#f2a6ac', label: 'Rosado', labelBg: '#fbeaea', ink: '#a83b52' } },
+  { id: 'torrontes', name: 'Torrontés', variety: 'aromático', cat: 'vino', abv: 13, dml: 150, kcal100: 80, sugar100: 2,
+    bottle: { form: 'wine', glass: '#d0d09a', clear: true, cap: '#c8b45a', liquid: '#ece79a', label: 'Torrontés', labelBg: '#fbfae6', ink: '#7a7a20' } },
 
   // ─── DESTILADOS ───
   { id: 'fernet', name: 'Fernet', variety: 'Branca', cat: 'destilado', abv: 39, dml: 50, kcal100: 180, sugar100: 16,
@@ -55,6 +65,12 @@ export const CATALOG = [
     bottle: { form: 'bottle', slim: true, glass: '#e6e0b8', clear: true, cap: '#3a7a3a', liquid: '#f1edc8', label: 'Tequila', labelBg: '#fbf6dc', ink: '#8a6a10' } },
   { id: 'jager', name: 'Jäger', variety: 'herbal', cat: 'destilado', abv: 35, dml: 40, kcal100: 250, sugar100: 28,
     bottle: { form: 'bottle', slim: true, glass: '#1a2216', cap: '#e0a020', liquid: '#1f140c', label: 'Jäger', labelBg: '#e0a020', ink: '#1a2216' } },
+  { id: 'brandy', name: 'Brandy', variety: 'añejo', cat: 'destilado', abv: 40, dml: 45, kcal100: 231, sugar100: 0,
+    bottle: { form: 'bottle', wide: true, glass: '#8a4a1e', clear: true, cap: '#2b1c0e', liquid: '#a8541e', label: 'Brandy', labelBg: '#e6cfa0', ink: '#6b3a10' } },
+  { id: 'mezcal', name: 'Mezcal', variety: 'ahumado', cat: 'destilado', abv: 42, dml: 45, kcal100: 230, sugar100: 0,
+    bottle: { form: 'bottle', slim: true, glass: '#d8d0a0', clear: true, cap: '#3a2a18', liquid: '#ede6c2', label: 'Mezcal', labelBg: '#f0e6c8', ink: '#6b4a10' } },
+  { id: 'cachaca', name: 'Cachaça', variety: 'caña', cat: 'destilado', abv: 40, dml: 45, kcal100: 220, sugar100: 0,
+    bottle: { form: 'bottle', slim: true, glass: '#e0e6c8', clear: true, cap: '#2a7a3a', liquid: '#eef2d8', label: 'Cachaça', labelBg: '#f6f9e6', ink: '#2a7a3a' } },
 
   // ─── APERITIVOS ───
   { id: 'campari', name: 'Campari', variety: 'amargo', cat: 'aperitivo', abv: 25, dml: 60, kcal100: 192, sugar100: 20,
@@ -67,6 +83,12 @@ export const CATALOG = [
     bottle: { form: 'bottle', wide: true, glass: '#c9a06b', cap: '#e0d0a0', liquid: '#c9a06b', label: 'Baileys', labelBg: '#3a2a18', ink: '#e0c090' } },
   { id: 'durazno', name: 'Licor durazno', variety: 'dulce', cat: 'aperitivo', abv: 18, dml: 45, kcal100: 200, sugar100: 20,
     bottle: { form: 'bottle', slim: true, glass: '#ffb37a', clear: true, cap: '#e07a2a', liquid: '#ffb37a', label: 'Durazno', labelBg: '#fff0e0', ink: '#c85a10' } },
+  { id: 'cynar', name: 'Cynar', variety: 'alcaucil', cat: 'aperitivo', abv: 16.5, dml: 60, kcal100: 160, sugar100: 16,
+    bottle: { form: 'bottle', slim: true, glass: '#2a2410', cap: '#3a7a3a', liquid: '#4a3212', label: 'Cynar', labelBg: '#f0e6c8', ink: '#2a5a2a' } },
+  { id: 'limoncello', name: 'Limoncello', variety: 'limón', cat: 'aperitivo', abv: 28, dml: 45, kcal100: 245, sugar100: 28,
+    bottle: { form: 'bottle', slim: true, glass: '#f2e04a', clear: true, cap: '#f0f0f0', liquid: '#f5e63a', label: 'Limoncello', labelBg: '#fffde0', ink: '#8a7a10' } },
+  { id: 'amaretto', name: 'Amaretto', variety: 'almendra', cat: 'aperitivo', abv: 24, dml: 45, kcal100: 250, sugar100: 24,
+    bottle: { form: 'bottle', wide: true, glass: '#7a3418', clear: true, cap: '#c0202a', liquid: '#9c4420', label: 'Amaretto', labelBg: '#f0dcc0', ink: '#8a2418' } },
 
   // ─── SIN ALCOHOL (MEZCLADORES) ───
   { id: 'cola', name: 'Coca-Cola', variety: '', cat: 'mezcla', abv: 0, dml: 200, kcal100: 42, sugar100: 11,
@@ -85,6 +107,14 @@ export const CATALOG = [
     bottle: { form: 'bottle', glass: '#bfe6ff', clear: true, cap: '#2aa5d6', liquid: '#d6eeff', label: 'Soda', labelBg: '#e6f6ff', ink: '#0a6ca0' } },
   { id: 'granada', name: 'Granadina', variety: 'jarabe', cat: 'mezcla', abv: 0, dml: 30, kcal100: 267, sugar100: 67,
     bottle: { form: 'bottle', slim: true, glass: '#b3122e', clear: true, cap: '#7a0a1e', liquid: '#b3122e', label: 'Granadina', labelBg: '#fff', ink: '#b3122e' } },
+  { id: 'pomelo', name: 'Pomelo', variety: 'Paso de los Toros', cat: 'mezcla', abv: 0, dml: 200, kcal100: 38, sugar100: 10,
+    bottle: { form: 'can', glass: '#e8a23a', cap: '#c8842a', liquid: '#f2b86a', label: 'Pomelo', labelBg: '#e8a23a', ink: '#7a3a10' } },
+  { id: 'ginger', name: 'Ginger ale', variety: 'Canada Dry', cat: 'mezcla', abv: 0, dml: 200, kcal100: 34, sugar100: 9,
+    bottle: { form: 'can', glass: '#c9a53a', cap: '#a8852a', liquid: '#e6d488', label: 'Ginger', labelBg: '#c9a53a', ink: '#3a2a10' } },
+  { id: 'manzana', name: 'Jugo manzana', variety: '', cat: 'mezcla', abv: 0, dml: 200, kcal100: 46, sugar100: 10,
+    bottle: { form: 'bottle', wide: true, glass: '#e0a828', cap: '#3a7a3a', liquid: '#e8b840', label: 'Manzana', labelBg: '#fff', ink: '#8a5a10' } },
+  { id: 'agua', name: 'Agua mineral', variety: 'sin gas', cat: 'mezcla', abv: 0, dml: 250, kcal100: 0, sugar100: 0,
+    bottle: { form: 'bottle', glass: '#cfeef6', clear: true, cap: '#1e88c8', liquid: '#e2f5fb', label: 'Agua', labelBg: '#eaf8fd', ink: '#1e6ca0' } },
 
   // ─── EXTRAS (no suman líquido, máx 2) ───
   { id: 'hielo', name: 'Hielo', cat: 'extra', abv: 0, kcalEach: 0, sugarEach: 0, emoji: '🧊' },
@@ -93,6 +123,8 @@ export const CATALOG = [
   { id: 'frutas', name: 'Frutas', cat: 'extra', abv: 0, kcalEach: 18, sugarEach: 4, emoji: '🍓' },
   { id: 'menta', name: 'Menta', cat: 'extra', abv: 0, kcalEach: 0, sugarEach: 0, emoji: '🌿' },
   { id: 'sal', name: 'Sal', cat: 'extra', abv: 0, kcalEach: 0, sugarEach: 0, emoji: '🧂' },
+  { id: 'pepino', name: 'Pepino', cat: 'extra', abv: 0, kcalEach: 2, sugarEach: 0, emoji: '🥒' },
+  { id: 'cafe', name: 'Café', cat: 'extra', abv: 0, kcalEach: 2, sugarEach: 0, emoji: '☕' },
 ]
 
 export const byId = Object.fromEntries(CATALOG.map((d) => [d.id, d]))
