@@ -4,6 +4,7 @@ import { capOf, DEFAULT_CONTAINER } from '../data/containers.js'
 
 const initial = {
   added: [], // [{ id, ml, n }]  liquidos: ml>0 · extras: ml=0, n=cantidad
+  consumed: [], // rondas ya tomadas: [{ items: [{id,ml,n}], container }]
   tab: 'preparado',
   container: DEFAULT_CONTAINER,
   cabinetOpen: false,
@@ -21,6 +22,19 @@ const initial = {
 const isExtra = (id) => byId[id]?.cat === 'extra'
 export const liquidsMl = (added) => added.reduce((a, it) => a + (isExtra(it.id) ? 0 : it.ml || 0), 0)
 export const extraCount = (added) => added.reduce((a, it) => a + (isExtra(it.id) ? it.n || 1 : 0), 0)
+
+// Fusiona todas las rondas tomadas en una sola lista de items (para totals()).
+export function mergeConsumed(consumed) {
+  const map = new Map()
+  for (const round of consumed) {
+    for (const it of round.items) {
+      const prev = map.get(it.id)
+      if (prev) map.set(it.id, { ...prev, ml: prev.ml + (it.ml || 0), n: (prev.n || 0) + (it.n || 0) })
+      else map.set(it.id, { ...it })
+    }
+  }
+  return [...map.values()]
+}
 
 function reducer(s, a) {
   const cap = capOf(s.container)
@@ -106,8 +120,16 @@ function reducer(s, a) {
       return { ...s, factSeed: s.factSeed + 1 }
     case 'toggleMute':
       return { ...s, muted: !s.muted }
+    case 'consume': {
+      // El vaso actual pasa a la lista de rondas tomadas y queda vacío.
+      if (!s.added.length) return s
+      return { ...s, consumed: [...s.consumed, { items: s.added, container: s.container }], added: [] }
+    }
+    case 'revive':
+      // Vuelve a empezar la noche: cuerpo limpio, mismo vaso.
+      return { ...s, consumed: [], added: [], analyzed: false }
     case 'resetDrink':
-      return { ...s, added: [], phase: 0, analyzed: false }
+      return { ...s, added: [], consumed: [], phase: 0, analyzed: false }
     default:
       return s
   }
@@ -128,6 +150,8 @@ export function useBarState() {
     set: (field, value) => dispatch({ type: 'set', field, value }),
     setTab: (value) => dispatch({ type: 'tab', value }),
     setPhase: (value) => dispatch({ type: 'phase', value }),
+    consume: () => dispatch({ type: 'consume' }),
+    revive: () => dispatch({ type: 'revive' }),
     analyze: () => dispatch({ type: 'analyze' }),
     nextFact: () => dispatch({ type: 'nextFact' }),
     toggleMute: () => dispatch({ type: 'toggleMute' }),

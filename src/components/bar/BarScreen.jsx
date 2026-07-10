@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { totals, dreadFromStd, comma } from '../../logic/calc.js'
+import { totals, dreadFromStd, drunkFromStd, comma, DRINK_LIMITS } from '../../logic/calc.js'
 import { byId } from '../../data/catalog.js'
 import { CONTAINERS, byContainer, capOf } from '../../data/containers.js'
 import { byPreset } from '../../data/presets.js'
@@ -15,12 +15,13 @@ import MixGlass from './MixGlass.jsx'
 
 const INK = '#2b1c0e'
 
-export default function BarScreen({ state, actions, sound, mix, onMix, poke, onPoke, onPreset }) {
-  const { added, tab, container } = state
+export default function BarScreen({ state, actions, sound, sip, avMode, drankT, onDrink, onCalc, onRevive, poke, onPoke, onPreset }) {
+  const { added, tab, container, consumed } = state
   const t = useMemo(() => totals(added), [added])
   const cap = capOf(container)
+  const dead = avMode === 'dead'
   const { draggingId, dragOver, pouring, onBottleDown, ghostRef, glassRef } =
-    usePointerPour({ pour: actions.pour, pourPreset: actions.pourPreset, addExtra: actions.addExtra, sound, added, cap, onPresetPour: onPreset })
+    usePointerPour({ pour: actions.pour, pourPreset: actions.pourPreset, addExtra: actions.addExtra, sound, added, cap, onPresetPour: onPreset, disabled: sip.on || dead })
 
   const extrasSig = added.filter((it) => byId[it.id]?.cat === 'extra').map((it) => `${it.id}:${it.n || 1}`).join(',')
   const extrasInfo = useMemo(() => {
@@ -38,19 +39,43 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
 
   const draggingPreset = draggingId ? byPreset[draggingId] : null
 
-  const dread = dreadFromStd(t.std)
+  // ── estado del personaje: miedo por lo servido + mareo por lo YA tomado ──
+  const liveStd = sip.on ? sip.std : drankT.std
+  const drunk = drunkFromStd(liveStd)
+  const drunkQ = Math.round(drunk * 24) / 24
+  const dread = dreadFromStd(t.std) * (1 - drunk * 0.8) // si ya está mareado, el miedo pesa menos
   const dreadQ = Math.round(dread * 12) / 12
   const full = t.ml >= cap - 1
-  const av = mix.on
-    ? { fear: 0, drunk: mix.drunk, drinking: mix.drinking }
-    : { fear: dreadQ, drunk: 0, drinking: false }
-  const caption = added.length === 0 ? 'este serías vos · tocame 👆'
-    : dread > 0.66 ? '¡uh… es mucho! 😨' : dread > 0.33 ? 'ehh… tranqui 😟' : '¡buena esa! 🙂'
+
+  const topLiq = [...added].reverse().find((it) => byId[it.id]?.cat !== 'extra' && it.ml > 0)
+  const drinkColor = topLiq ? byId[topLiq.id].bottle.liquid : '#e3a90f'
+
+  const av = {
+    mode: avMode,
+    fear: sip.on ? 0 : dreadQ,
+    drunk: drunkQ,
+    drinking: sip.on,
+    drinkK: sip.drain,
+    drinkColor,
+  }
+
+  const caption = dead ? '☠️ demasiado alcohol… tocá revivir'
+    : avMode === 'sleep' ? '😴 se durmió… tocalo para despertarlo'
+      : avMode === 'vomit' ? '🤮 ¡puaj! (y ojo: vomitar NO baja la alcoholemia)'
+        : sip.on ? '¡glup glup glup!'
+          : liveStd >= DRINK_LIMITS.vomit * 0.75 ? '🥴 ya está muy mareado…'
+            : liveStd >= DRINK_LIMITS.drunk ? '😵‍💫 se le nota bastante…'
+              : liveStd >= DRINK_LIMITS.tipsy ? '¡hip! ya le pegó un poco 🙃'
+                : added.length === 0 && consumed.length === 0 ? 'este serías vos · tocame 👆'
+                  : dread > 0.66 ? '¡uh… eso es mucho! 😨' : dread > 0.33 ? 'ehh… tranqui 😟' : consumed.length ? '¿otra ronda? 🙂' : '¡buena esa! 🙂'
 
   const ghostDrink = draggingId ? byId[draggingId] : null
   const ghostIsExtra = ghostDrink?.cat === 'extra'
   const activeColor = ghostDrink?.bottle?.liquid || draggingPreset?.color || null
   const C = byContainer[container]
+
+  const canDrink = added.length > 0 && !sip.on && !dead
+  const canCalc = consumed.length > 0 && !sip.on
 
   return (
     <div style={{ display: 'flex', gap: 14, height: '100%', padding: '80px 16px 14px', boxSizing: 'border-box', position: 'relative' }} className="bar-wrap">
@@ -75,7 +100,7 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
           {CONTAINERS.map((c) => {
             const on = c.id === container
             return (
-              <button key={c.id} onClick={() => pickContainer(c.id)} title={`${c.name} · ${c.cap} ml`} style={{
+              <button key={c.id} onClick={() => pickContainer(c.id)} title={`${c.name} · ${c.cap} ml`} className="btn-cartoon" style={{
                 flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1,
                 background: on ? '#ffb03a' : '#ffedd0', border: '2.5px solid #3d2410', borderRadius: 10,
                 padding: '4px 8px 3px', cursor: 'pointer', boxShadow: on ? '0 3px 0 #3d2410' : '0 2px 0 #3d2410',
@@ -90,34 +115,60 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, minHeight: 0 }}>
           <div ref={glassRef} data-glass="1" key={container} style={{ position: 'relative', animation: 'containerPop .42s cubic-bezier(.34,1.4,.5,1)' }}>
-            <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.82} />
+            <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.82} drain={sip.on ? sip.drain : 0} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={dread > 0.33 && !mix.on ? '¡hip!' : null} bump={poke} onPoke={onPoke} />
+            <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={!sip.on && avMode === 'ok' && dread > 0.33 ? '¿todo eso?' : null} bump={poke} onPoke={onPoke} />
             <div style={{ width: 66, height: 11, background: '#8a5a2b', border: '3px solid #3d2410', borderRadius: 5 }} />
             <div style={{ width: 40, height: 28, background: '#6b4020', border: '3px solid #3d2410', borderTop: 'none', borderRadius: '0 0 6px 6px' }} />
-            <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 4, textAlign: 'center', maxWidth: 120, lineHeight: 1.15 }}>{caption}</div>
+            <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 4, textAlign: 'center', maxWidth: 130, lineHeight: 1.15 }}>{caption}</div>
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center', margin: '6px 0', fontWeight: 800, fontSize: 12 }}>
-          <span style={badge}>{added.length} ingred.</span>
           <span style={badge}>{Math.round(t.ml)} / {cap} ml</span>
           <span style={{ ...badge, background: full ? '#fde4e4' : '#ffedd0', color: full ? '#a51a2c' : INK }}>
             {full ? '🚱 lleno' : t.abv > 0 ? `${comma(t.abv)}°` : 'sin alcohol'}
           </span>
+          {/* lo que ya se tomó */}
+          <span style={{
+            ...badge,
+            background: drankT.std >= DRINK_LIMITS.vomit ? '#fde4e4' : drankT.std >= DRINK_LIMITS.tipsy ? '#fff0d6' : '#ffedd0',
+            color: drankT.std >= DRINK_LIMITS.vomit ? '#a51a2c' : INK,
+          }}>
+            🍸 tomó {consumed.length} {consumed.length === 1 ? 'ronda' : 'rondas'} · {comma(drankT.std)} est.
+          </span>
         </div>
 
-        <div style={{ display: 'flex', gap: 10 }}>
-          <div onClick={() => added.length && onMix()} style={{
-            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-            background: added.length ? '#ffb03a' : '#8a7a60', border: '3px solid #3d2410', borderRadius: 16,
+        <div style={{ display: 'flex', gap: 8 }}>
+          {dead ? (
+            <div onClick={onRevive} className="btn-cartoon" style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+              background: '#7ec26a', border: '3px solid #3d2410', borderRadius: 16,
+              padding: 12, fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 18, color: INK,
+              cursor: 'pointer', boxShadow: '0 6px 0 #3d2410', animation: 'fillPulse 1.4s ease-in-out infinite',
+            }}>
+              <span style={{ fontSize: 21 }}>⛑️</span> ¡Revivir!
+            </div>
+          ) : (
+            <div onClick={() => canDrink && onDrink()} className={canDrink ? 'btn-cartoon' : undefined} style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
+              background: canDrink ? '#ffb03a' : '#8a7a60', border: '3px solid #3d2410', borderRadius: 16,
+              padding: 12, fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 18, color: INK,
+              cursor: canDrink ? 'pointer' : 'not-allowed', boxShadow: '0 6px 0 #3d2410', opacity: canDrink ? 1 : 0.6,
+            }}>
+              <span style={{ fontSize: 21 }}>{sip.on ? '🫗' : '🥤'}</span> {sip.on ? 'Tomando…' : '¡Tomar!'}
+            </div>
+          )}
+          <div onClick={() => canCalc && onCalc()} className={canCalc ? 'btn-cartoon' : undefined} title="Calcular el efecto de todo lo que tomó" style={{
+            flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: canCalc ? '#7ec26a' : '#8a7a60', border: '3px solid #3d2410', borderRadius: 16,
             padding: 12, fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 18, color: INK,
-            cursor: added.length ? 'pointer' : 'not-allowed', boxShadow: '0 6px 0 #3d2410', opacity: added.length ? 1 : 0.6,
+            cursor: canCalc ? 'pointer' : 'not-allowed', boxShadow: '0 6px 0 #3d2410', opacity: canCalc ? 1 : 0.6,
           }}>
-            <span style={{ fontSize: 21 }}>🛎️</span> ¡Mezclar!
+            <span style={{ fontSize: 20 }}>🧮</span> Calcular
           </div>
-          <div onClick={() => { sound.swoosh(); actions.clear() }} title="Vaciar el vaso" style={{
+          <div onClick={() => { sound.swoosh(); actions.clear() }} title="Vaciar el vaso" className="btn-cartoon" style={{
             flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             background: '#ffedd0', border: '3px solid #3d2410', borderRadius: 14, padding: '6px 13px',
             fontFamily: 'Fredoka, sans-serif', fontWeight: 600, fontSize: 12, cursor: 'pointer', boxShadow: '0 5px 0 #3d2410',
@@ -144,7 +195,7 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
         <Cabinet open={state.cabinetOpen} onOpen={openCabinet} onClose={closeCabinet}>
           <Shelf tab={tab} setTab={setTab} onBottleDown={onBottleDown} extrasInfo={extrasInfo} />
         </Cabinet>
-        <Recipe added={added} bumpMl={bumpMl} remove={removeItem} />
+        <Recipe added={added} bumpMl={bumpMl} remove={removeItem} consumed={consumed} drankT={drankT} />
       </div>
 
       {/* GHOST del drag (portal a body para que no lo recorte el mundo) */}

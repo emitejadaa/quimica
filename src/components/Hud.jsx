@@ -44,17 +44,18 @@ export default function Hud({ phase, setPhase, canForm, canResults, muted, toggl
                 key={ph.p}
                 onClick={() => en && setPhase(ph.p)}
                 title={ph.title}
+                className={en ? 'btn-cartoon' : undefined}
                 style={{
                   width: 38, height: 38, borderRadius: '50%', border: '3px solid #3d2410', display: 'flex',
                   alignItems: 'center', justifyContent: 'center', fontSize: 15, boxShadow: '0 4px 0 #3d2410',
                   background: on ? '#ffb03a' : '#ffedd0', cursor: en ? 'pointer' : 'not-allowed',
-                  opacity: en ? 1 : 0.45, transition: 'transform .1s',
+                  opacity: en ? 1 : 0.45,
                 }}
               >{ph.icon}</div>
             )
           })}
         </div>
-        <div onClick={onTrophy} title="Tus stickers" style={roundBtn}>
+        <div onClick={onTrophy} title="Tus stickers" className="btn-cartoon" style={roundBtn}>
           🏆
           {achDone > 0 && (
             <span style={{
@@ -64,8 +65,8 @@ export default function Hud({ phase, setPhase, canForm, canResults, muted, toggl
             }}>{achDone}</span>
           )}
         </div>
-        <div onClick={toggleAmbient} title="Música de bar" style={{ ...roundBtn, background: ambient ? '#ffb03a' : '#ffedd0' }}>{ambient ? '🎵' : '🎶'}</div>
-        <div onClick={toggleMute} title="Sonidos" style={roundBtn}>{muted ? '🔕' : '🔔'}</div>
+        <div onClick={toggleAmbient} title="Música de bar" className="btn-cartoon" style={{ ...roundBtn, background: ambient ? '#ffb03a' : '#ffedd0' }}>{ambient ? '🎵' : '🎶'}</div>
+        <div onClick={toggleMute} title="Sonidos" className="btn-cartoon" style={roundBtn}>{muted ? '🔕' : '🔔'}</div>
       </div>
     </div>
   )
