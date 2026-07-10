@@ -87,6 +87,17 @@ a { color: var(--accent); }
 @keyframes splash { 0% { transform: translateY(0) scale(1); opacity: .9; } 100% { transform: translateY(-14px) scale(.4); opacity: 0; } }
 @keyframes toastPop { 0% { transform: translateX(-50%) translateY(-16px) scale(.85); opacity: 0; } 10% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 86% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-10px) scale(.96); opacity: 0; } }
 
+/* mueble: temblor al pasar el mouse cuando está cerrado */
+.cabinet-frame:hover .cab-door.cab-closed { animation: doorShake .5s ease both; }
+@keyframes doorShake { 0%,100% { transform: translate3d(0,0,0); } 12% { transform: translate3d(-3px,0,0); } 28% { transform: translate3d(3px,0,0); } 44% { transform: translate3d(-2px,0,0); } 60% { transform: translate3d(2px,0,0); } 76% { transform: translate3d(-1px,0,0); } }
+
+/* vasos: interacción de hover (levantan un poco) */
+.vessel { transition: transform .16s ease; transform-origin: bottom center; }
+.vessel:hover { transform: translateY(-5px) scale(1.03); }
+@keyframes vesselIdle { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-2.5px) rotate(-.5deg); } }
+@keyframes cheersTilt { 0% { transform: rotate(0deg); } 22% { transform: rotate(-11deg) translateY(-6px); } 52% { transform: rotate(7deg) translateY(-2px); } 78% { transform: rotate(-3deg); } 100% { transform: rotate(0deg); } }
+@keyframes surfaceSlosh { 0%,100% { transform: translateX(-50%) rotate(-1.2deg); } 50% { transform: translateX(-50%) rotate(1.2deg); } }
+
 /* scrollbar horizontal fino para las filas deslizables */
 .scroll-x { scrollbar-width: thin; scrollbar-color: var(--wood) transparent; }
 .scroll-x::-webkit-scrollbar { height: 7px; }

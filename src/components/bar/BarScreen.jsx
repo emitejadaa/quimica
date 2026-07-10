@@ -89,7 +89,7 @@ export default function BarScreen({ state, actions, sound, mix, onMix, poke, onP
 
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, minHeight: 0 }}>
           <div ref={glassRef} data-glass="1" style={{ position: 'relative' }}>
-            <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.86} />
+            <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.82} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={dread > 0.33 && !mix.on ? '¡hip!' : null} bump={poke} onPoke={onPoke} />
