@@ -3,15 +3,40 @@ import GameSlider from './GameSlider.jsx'
 
 const INK = '#2b1c0e'
 
-function BodySilhouette({ peso, sexo }) {
+// Transición compartida del símbolo de género: rotación con anticipación y rebote.
+const SYM_T = { transition: 'transform .55s cubic-bezier(.6,-.3,.3,1.35)' }
+
+function BodySilhouette({ peso, sexo, estomago }) {
   // ancho del torso escala con el peso (35..110)
   const f = 0.62 + ((peso - 35) / 75) * 0.85
+  // el torso se "llena" de naranja de abajo hacia arriba según el estómago (y 112 → 44)
+  const lvl = Math.max(0, Math.min(1, (estomago ?? 50) / 100))
+  const fillTop = 112 - 68 * lvl
+  const torso = `M${60 - 22 * f} 60 Q${60 - 26 * f} 46 ${60 - 10} 44 L${60 + 10} 44 Q${60 + 26 * f} 46 ${60 + 22 * f} 60 L${60 + 18 * f} 104 Q${60 + 18 * f} 112 ${60 + 10} 112 L${60 - 10} 112 Q${60 - 18 * f} 112 ${60 - 18 * f} 104 Z`
+  const male = sexo === 'M'
   return (
     <svg viewBox="0 0 120 130" width="88" height="95" style={{ display: 'block' }}>
+      <defs><clipPath id="torsoFill"><path d={torso} /></clipPath></defs>
       <ellipse cx="60" cy="124" rx={26 * f} ry="6" fill="rgba(0,0,0,.18)" />
-      <g fill="#ffb03a" stroke={INK} strokeWidth="3.4" strokeLinejoin="round">
-        <circle cx="60" cy="24" r="16" />
-        <path d={`M${60 - 22 * f} 60 Q${60 - 26 * f} 46 ${60 - 10} 44 L${60 + 10} 44 Q${60 + 26 * f} 46 ${60 + 22 * f} 60 L${60 + 18 * f} 104 Q${60 + 18 * f} 112 ${60 + 10} 112 L${60 - 10} 112 Q${60 - 18 * f} 112 ${60 - 18 * f} 104 Z`} />
+      <circle cx="60" cy="24" r="16" fill="#ffb03a" stroke={INK} strokeWidth="3.4" />
+      <g clipPath="url(#torsoFill)">
+        <rect x="0" y="40" width="120" height="76" fill="#fff" />
+        <rect x="0" y={fillTop} width="120" height="80" fill="#ffb03a" style={{ transition: 'y .25s ease' }} />
+        <rect x="0" y={fillTop - 1} width="120" height="3" fill="#f29a2e" opacity={lvl > 0.03 && lvl < 0.97 ? 1 : 0} style={{ transition: 'y .25s ease, opacity .2s' }} />
+      </g>
+      <path d={torso} fill="none" stroke={INK} strokeWidth="3.4" strokeLinejoin="round" />
+      {/* símbolo del género: al cambiar, la flecha ♂ barre girando y muta en la cruz de ♀ */}
+      <g transform="translate(60 78)">
+        <circle r="8.2" fill="rgba(255,246,230,.9)" stroke={INK} strokeWidth="2.6" />
+        <g transform={`rotate(${male ? -45 : 90})`} style={SYM_T}>
+          <line x1="8.2" y1="0" x2="16.6" y2="0" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+          <g transform={male ? 'translate(14.4 -2.3) rotate(42)' : 'translate(12.4 0) rotate(90)'} style={SYM_T}>
+            <line x1="-3.6" y1="0" x2="3.6" y2="0" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+          </g>
+          <g transform={male ? 'translate(14.4 2.3) rotate(-42)' : 'translate(12.4 0) rotate(90)'} style={SYM_T}>
+            <line x1="-3.6" y1="0" x2="3.6" y2="0" stroke={INK} strokeWidth="2.6" strokeLinecap="round" />
+          </g>
+        </g>
       </g>
     </svg>
   )
@@ -31,7 +56,7 @@ function ContexturaFig({ id, on }) {
 }
 
 function Stomach({ level }) {
-  const fill = level === 'vacio' ? 0.12 : level === 'algo' ? 0.5 : 0.92
+  const fill = 0.08 + 0.84 * level
   return (
     <svg viewBox="0 0 60 60" width="40" height="40">
       <defs><clipPath id="st"><path d="M22 8 Q40 6 42 24 Q52 30 44 44 Q36 56 22 50 Q10 46 12 32 Q10 16 22 8 Z" /></clipPath></defs>
@@ -78,7 +103,7 @@ export default function FormScreen({ state, actions, sound, drankT, onAnalyze, o
                   <span style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 20, color: '#b3541e' }}>{state.peso} kg</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <BodySilhouette peso={state.peso} sexo={state.sexo} />
+                  <BodySilhouette peso={state.peso} sexo={state.sexo} estomago={state.estomago} />
                   <div style={{ flex: 1 }}>
                     <GameSlider min={35} max={110} step={1} value={state.peso} onChange={(v) => actions.set('peso', v)} knob="⚖️" label="peso" />
                   </div>
@@ -92,13 +117,18 @@ export default function FormScreen({ state, actions, sound, drankT, onAnalyze, o
                 </div>
               </div>
               <div>
-                <div style={lbl}>🍽️ ¿Cómo está tu estómago?</div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 6 }}>
-                  {[['vacio', 'Vacío'], ['algo', 'Algo'], ['lleno', 'Lleno']].map(([v, l]) => (
-                    <button key={v} onClick={() => set('estomago', v)} style={{ ...seg(state.estomago === v), display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                      <Stomach level={v} />{l}
-                    </button>
-                  ))}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={lbl}>🍽️ ¿Cómo está tu estómago?</span>
+                  <span style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 20, color: '#b3541e' }}>{state.estomago}%</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <Stomach level={state.estomago / 100} />
+                  <div style={{ flex: 1 }}>
+                    <GameSlider min={0} max={100} step={5} value={state.estomago} onChange={(v) => actions.set('estomago', v)} knob="🍽️" label="estómago" />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'Patrick Hand, cursive', fontSize: 12, color: '#8a6a45', marginTop: -4 }}>
+                      <span>vacío</span><span>lleno</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

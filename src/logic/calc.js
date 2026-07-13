@@ -50,7 +50,9 @@ export function widmark({ grams, peso, contextura, sexo }) {
   return { rFactor, Cpeak, rLabel: row.label }
 }
 
+// Pico de absorción según qué tan lleno está el estómago (0 % vacío → 100 % lleno).
 export function tpeakFromStomach(estomago) {
+  if (typeof estomago === 'number') return 0.5 + Math.max(0, Math.min(100, estomago)) / 100
   return estomago === 'vacio' ? 0.5 : estomago === 'lleno' ? 1.5 : 1.0
 }
 

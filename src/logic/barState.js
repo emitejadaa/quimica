@@ -12,7 +12,7 @@ const initial = {
   peso: 70,
   sexo: 'M',
   contextura: 'Promedio',
-  estomago: 'algo',
+  estomago: 50, // % de lleno (0 vacío · 100 lleno)
   horas: 1,
   analyzed: false,
   factSeed: 0,
