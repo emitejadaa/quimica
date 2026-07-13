@@ -185,3 +185,30 @@ input[type=range]:focus { outline: none; }
 .btn-cartoon { transition: transform .12s cubic-bezier(.34,1.5,.5,1), box-shadow .12s, filter .12s; }
 .btn-cartoon:hover { transform: translateY(-2px); filter: brightness(1.05); }
 .btn-cartoon:active { transform: translateY(3px) scale(.98); box-shadow: 0 1px 0 #3d2410 !important; }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+/* Estos valores base viven en CSS (no inline) para que las media queries de
+   abajo puedan adaptarlos a distintas resoluciones. El vaso y el personaje se
+   reescalan solos por JS (useFitScale) para llenar el espacio disponible. */
+.bar-wrap { gap: 14px; padding: 80px 16px 14px; }
+.bar-left { flex: 0 0 40%; min-width: 300px; }
+.bar-right { padding: 12px; }
+
+/* pantallas medianas: menos separación y una izquierda algo más angosta */
+@media (max-width: 1024px) {
+  .bar-wrap { gap: 10px; padding-left: 12px; padding-right: 12px; }
+  .bar-left { flex-basis: 42%; min-width: 262px; }
+}
+@media (max-width: 860px) {
+  .bar-wrap { gap: 8px; padding-top: 72px; }
+  .bar-left { flex-basis: 44%; min-width: 236px; }
+  .bar-right { padding: 10px; }
+  .res-wrap { gap: 10px; }
+}
+/* pantallas bajas (horizontal en notebooks chicos / móvil apaisado) */
+@media (max-height: 620px) {
+  .bar-wrap { padding-top: 62px; padding-bottom: 10px; }
+}
+@media (max-height: 500px) {
+  .bar-wrap { padding-top: 54px; }
+}
