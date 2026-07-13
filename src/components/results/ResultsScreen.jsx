@@ -67,7 +67,6 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#2b1c0e', border: '4px dashed #8a5a2b', borderRadius: 18, padding: 12, minHeight: 0 }}>
             <Avatar fear={0} drunk={drunkQ} mode={avatarMode} scale={0.95} accent="#ffb03a" poke={poke} onPoke={onPoke} />
             <div style={{ width: 180, height: 18, background: 'linear-gradient(180deg,#8a5a2b,#5d3a19)', border: '3px solid #3d2410', borderRadius: '50%', marginTop: -6 }} />
-            <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 6 }}>tocá al personaje 👆 · movés la curva y lo ves cambiar</div>
           </div>
           <div style={{ background: T.bg, border: `4px solid ${T.bd}`, borderRadius: 16, padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ fontSize: 40 }}>{T.face}</div>

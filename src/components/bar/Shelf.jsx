@@ -50,13 +50,11 @@ function ShelfBase({ tab, setTab, onBottleDown, extrasInfo }) {
         })}
       </div>
 
-      <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 14, color: '#e8c58f', margin: '0 2px 6px', textAlign: 'center' }}>
-        {isPre
-          ? <>Clásicos listos: arrastralos al vaso y serví lo que quieras 🍹 (después ajustás cada uno).</>
-          : tab === 'extra'
-            ? <>Decoran y dan gusto — NO bajan el alcohol. Máx {MAX_EXTRAS}.{exFull && ' · ¡ya pusiste 2!'}</>
-            : <>Arrastrá la botella al vaso 🫳 y mantenela para servir.</>}
-      </div>
+      {tab === 'extra' && (
+        <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 14, color: '#e8c58f', margin: '0 2px 6px', textAlign: 'center' }}>
+          Decoran y dan gusto — NO bajan el alcohol. Máx {MAX_EXTRAS}.{exFull && ' · ¡ya pusiste 2!'}
+        </div>
+      )}
 
       <div className="scroll-y" style={{
         flex: 1, minHeight: 0, background: 'rgba(0,0,0,.16)', borderRadius: 12, padding: '8px 8px 4px',

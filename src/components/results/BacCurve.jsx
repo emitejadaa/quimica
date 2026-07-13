@@ -60,7 +60,7 @@ export default function BacCurve({ Cpeak, tpeak, tZero, horasNow, onScrub }) {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, background: 'linear-gradient(180deg,#2f3e34,#26332b)', border: '4px solid #8a5a2b', borderRadius: 16, padding: '8px 12px 10px', boxShadow: 'inset 0 0 26px rgba(0,0,0,.35)' }}>
       {/* header con LECTURA FIJA */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 6, color: '#fff', flexWrap: 'wrap' }}>
-        <span style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 16 }}>📈 Alcohol en sangre · <span style={{ color: '#ffd23f' }}>arrastrá la línea</span></span>
+        <span style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 16 }}>📈 Alcohol en sangre</span>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <div style={{ background: '#14100a', border: '2.5px solid #ffd23f', borderRadius: 999, padding: '3px 12px', fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 14, color: '#ffd23f', whiteSpace: 'nowrap' }}>
             ⏱ {fmtH(t)} · {comma(bacT, 2)} g/L

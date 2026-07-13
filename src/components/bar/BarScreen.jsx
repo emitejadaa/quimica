@@ -66,7 +66,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
           : liveStd >= DRINK_LIMITS.vomit * 0.75 ? '🥴 ya está muy mareado…'
             : liveStd >= DRINK_LIMITS.drunk ? '😵‍💫 se le nota bastante…'
               : liveStd >= DRINK_LIMITS.tipsy ? '¡hip! ya le pegó un poco 🙃'
-                : added.length === 0 && consumed.length === 0 ? 'este serías vos · tocame 👆'
+                : added.length === 0 && consumed.length === 0 ? ''
                   : dread > 0.66 ? '¡uh… eso es mucho! 😨' : dread > 0.33 ? 'ehh… tranqui 😟' : consumed.length ? '¿otra ronda? 🙂' : '¡buena esa! 🙂'
 
   const ghostDrink = draggingId ? byId[draggingId] : null
