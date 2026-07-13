@@ -2,7 +2,8 @@ import { useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import { useBarState, mergeConsumed } from './logic/barState.js'
 import { useSound } from './hooks/useSound.js'
 import { useAchievements } from './hooks/useAchievements.js'
-import { totals, stateFromStd, DRINK_LIMITS } from './logic/calc.js'
+import { totals, stateFromStd, drunkFromStd, DRINK_LIMITS } from './logic/calc.js'
+import { POKE_MS } from './components/avatar/pose.js'
 import Hud from './components/Hud.jsx'
 import Confetti from './components/Confetti.jsx'
 import BarScreen from './components/bar/BarScreen.jsx'
@@ -26,11 +27,14 @@ export default function App() {
   // sip = el personaje está tragando el vaso actual (drain 0..1, std interpolado)
   const [sip, setSip] = useState({ on: false, drain: 0, std: 0 })
   const [avMode, setAvMode] = useState('ok') // ok · vomit · sleep · dead
-  const [poke, setPoke] = useState(false)
+  const [poke, setPoke] = useState(null) // { kind, n } | null
   const [confetti, setConfetti] = useState({ on: false, seed: 0 })
   const [trophyOpen, setTrophyOpen] = useState(false)
   const [ambient, setAmbient] = useState(false)
-  const timers = useRef({ raf: 0, t1: 0, t2: 0, t3: 0, pk: 0, gulp: 0 })
+  const [nightFade, setNightFade] = useState(null) // null · 'closing' · 'opening'
+  const timers = useRef({ raf: 0, t1: 0, t2: 0, t3: 0, pk: 0, pk2: 0, gulp: 0, f1: 0, f2: 0 })
+  const lastPoke = useRef(null)
+  const pokeN = useRef(0)
 
   // Total ya tomado (todas las rondas fusionadas).
   const drankItems = useMemo(() => mergeConsumed(state.consumed), [state.consumed])
@@ -60,14 +64,28 @@ export default function App() {
     timers.current.t2 = setTimeout(() => setConfetti((c) => ({ ...c, on: false })), 1600)
   }, [])
 
+  // Toque al personaje: reacción aleatoria (sin repetir la anterior).
+  // Si ya está mareado, la mayoría de las veces se cae y se levanta.
   const onPoke = useCallback(() => {
     if (avMode === 'dead') { sound.thud(); return } // muerto no reacciona…
     if (avMode === 'sleep') { sound.pop(); setAvMode('ok'); return } // ¡se despierta!
-    sound.pop()
-    setPoke(true)
+    const drunk = drunkFromStd(drankT.std)
+    let kind
+    if (drunk > 0.35 && Math.random() < 0.6) {
+      kind = 'fall'
+    } else {
+      const pool = ['jump', 'ouch', 'confused', 'ask'].filter((k) => k !== lastPoke.current)
+      kind = pool[Math.floor(Math.random() * pool.length)]
+    }
+    lastPoke.current = kind
+    if (kind === 'fall' || kind === 'ouch') sound.thud()
+    if (kind === 'ask') sound.ding(); else sound.pop()
+    if (kind === 'fall') { clearTimeout(timers.current.pk2); timers.current.pk2 = setTimeout(() => sound.pop(), 1900) } // se levanta
+    pokeN.current += 1
+    setPoke({ kind, n: pokeN.current })
     clearTimeout(timers.current.pk)
-    timers.current.pk = setTimeout(() => setPoke(false), 520)
-  }, [sound, avMode])
+    timers.current.pk = setTimeout(() => setPoke(null), POKE_MS[kind] || 520)
+  }, [sound, avMode, drankT.std])
 
   const goPhase = useCallback((p) => { sound.swoosh(); actions.setPhase(p) }, [sound, actions])
 
@@ -120,13 +138,33 @@ export default function App() {
     timers.current.raf = requestAnimationFrame(step)
   }, [state.added, sip.on, avMode, drankT.std, sound, actions, noteEvent])
 
+  // ── REINICIAR LA NOCHE: se duerme, la pantalla "parpadea" a negro,
+  //    se resetea todo y despierta abriendo los ojos de a poco ──
+  const resetNight = useCallback((doReset) => {
+    if (nightFade) return
+    sound.ensure()
+    // si está despierto, primero se queda dormido; si está muerto/dormido queda como está
+    if (avMode !== 'dead') { setAvMode('sleep'); sound.snore() }
+    cancelAnimationFrame(timers.current.raf)
+    clearInterval(timers.current.gulp)
+    clearTimeout(timers.current.t1); clearTimeout(timers.current.t3)
+    setNightFade('closing')
+    clearTimeout(timers.current.f1); clearTimeout(timers.current.f2)
+    timers.current.f1 = setTimeout(() => {
+      // pantalla en negro: reset invisible del estado
+      doReset()
+      setAvMode('ok')
+      setSip({ on: false, drain: 0, std: 0 })
+      setNightFade('opening')
+      sound.ding()
+      timers.current.f2 = setTimeout(() => setNightFade(null), 3000)
+    }, 2000)
+  }, [nightFade, avMode, sound])
+
   // ── REVIVIR / empezar la noche de nuevo ──
   const revive = useCallback(() => {
-    sound.tada()
-    actions.revive()
-    setAvMode('ok')
-    setSip({ on: false, drain: 0, std: 0 })
-  }, [sound, actions])
+    resetNight(() => { sound.tada(); actions.revive() })
+  }, [resetNight, sound, actions])
 
   // ── CALCULAR: ir a la ficha con todo lo tomado ──
   const onCalc = useCallback(() => {
@@ -142,15 +180,13 @@ export default function App() {
   }, [sound, actions, fireConfetti, noteAnalyze, achSync, state.added, state.container, state.consumed.length])
 
   const onOther = useCallback(() => {
-    sound.swoosh()
-    actions.resetDrink()
-    setAvMode('ok')
-    setSip({ on: false, drain: 0, std: 0 })
-  }, [sound, actions])
+    resetNight(() => actions.resetDrink())
+  }, [resetNight, actions])
 
   useEffect(() => () => {
     const t = timers.current
-    cancelAnimationFrame(t.raf); clearTimeout(t.t1); clearTimeout(t.t2); clearTimeout(t.t3); clearTimeout(t.pk); clearInterval(t.gulp)
+    cancelAnimationFrame(t.raf); clearTimeout(t.t1); clearTimeout(t.t2); clearTimeout(t.t3)
+    clearTimeout(t.pk); clearTimeout(t.pk2); clearTimeout(t.f1); clearTimeout(t.f2); clearInterval(t.gulp)
   }, [])
 
   return (
@@ -183,6 +219,7 @@ export default function App() {
                   state={state} actions={actions} sound={sound}
                   sip={sip} avMode={avMode} drankT={drankT}
                   onDrink={startDrink} onCalc={onCalc} onRevive={revive}
+                  onResetNight={() => resetNight(() => actions.resetDrink())}
                   poke={poke} onPoke={onPoke} onPreset={onPreset}
                 />
               )}
@@ -196,6 +233,38 @@ export default function App() {
       <Confetti on={confetti.on} seed={confetti.seed} />
       <AchievementToast toast={toast} />
       {trophyOpen && <AchievementsModal unlocked={unlocked} onClose={() => setTrophyOpen(false)} />}
+      {nightFade && <NightBlink phase={nightFade} />}
+    </div>
+  )
+}
+
+// Overlay de "párpados": dos tapas negras que cierran la pantalla al dormirse
+// y la abren parpadeando lento al despertar en la mañana siguiente.
+function NightBlink({ phase }) {
+  const lid = (top) => ({
+    // 64% de alto y radio vertical 14%: aun con la curva, los dos párpados se solapan
+    // en toda la pantalla (incluidos los bordes laterales) cuando están cerrados
+    position: 'absolute', left: 0, right: 0, height: '64%',
+    [top ? 'top' : 'bottom']: 0,
+    background: '#0a0602',
+    borderRadius: top ? '0 0 50% 50% / 0 0 14% 14%' : '50% 50% 0 0 / 14% 14% 0 0',
+    transformOrigin: top ? 'center top' : 'center bottom',
+    transform: 'scaleY(0)',
+    animation: phase === 'closing'
+      ? 'lidShut 1.5s .4s cubic-bezier(.65,0,.35,1) both'
+      : 'lidOpen 2.9s ease-in-out both',
+    willChange: 'transform',
+  })
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 300, overflow: 'hidden' }}>
+      <div style={lid(true)} />
+      <div style={lid(false)} />
+      {phase === 'closing' && (
+        <div style={{
+          position: 'absolute', top: '42%', left: '50%', transform: 'translate(-50%,-50%)',
+          fontSize: 44, animation: 'zzzFade 2s .5s ease both', pointerEvents: 'none',
+        }}>💤</div>
+      )}
     </div>
   )
 }

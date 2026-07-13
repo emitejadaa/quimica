@@ -45,10 +45,12 @@ function Eye({ cx, p, ink, skin }) {
       ) : (
         <>
           <g transform={`translate(${p.pupilDX} ${p.pupilDY})`}>
-            <circle cx={cx} cy="96" r="8.5" fill="#6b4a2a" />
-            <circle cx={cx} cy="96" r="4.6" fill={ink} />
-            <circle cx={cx - 3} cy="92" r="2.6" fill="#fff" />
-            <circle cx={cx + 3.4} cy="99" r="1.3" fill="#fff" opacity="0.8" />
+            <g style={p.lookAround ? { animation: 'lookAround 1.5s ease-in-out' } : undefined}>
+              <circle cx={cx} cy="96" r="8.5" fill="#6b4a2a" />
+              <circle cx={cx} cy="96" r="4.6" fill={ink} />
+              <circle cx={cx - 3} cy="92" r="2.6" fill="#fff" />
+              <circle cx={cx + 3.4} cy="99" r="1.3" fill="#fff" opacity="0.8" />
+            </g>
           </g>
           {/* párpado caído (borrachera): baja desde arriba */}
           {p.lidDroop > 0.04 && (
@@ -155,12 +157,21 @@ function SleepFX({ ink }) {
   )
 }
 
+const POKE_BUBBLE = {
+  ouch: '¡ay! eso dolió 😖',
+  confused: '¿eh? ¿quién fue?',
+  ask: '¿necesitás algo? 🙂',
+  fall: '¡wooo…ps!',
+}
+
 function AvatarBase({
   fear = 0, drunk = 0, drinking = false, drinkK = 0, drinkColor = '#e3a90f',
-  mode = 'ok', scale = 1, accent = '#ffb03a', bump = false, bubble = null, onPoke,
+  mode = 'ok', scale = 1, accent = '#ffb03a', poke = null, bubble = null, onPoke,
 }) {
-  const p = poseFromState({ fear, drunk, drinking, mode })
-  const anim = bodyAnim({ fear, drunk, drinking, bump, mode })
+  const pokeKind = poke?.kind || null
+  const p = poseFromState({ fear, drunk, drinking, mode, poke: pokeKind })
+  const anim = bodyAnim({ fear, drunk, drinking, poke: pokeKind, mode })
+  if (pokeKind && mode === 'ok' && !drinking && POKE_BUBBLE[pokeKind]) bubble = POKE_BUBBLE[pokeKind]
   const uid = useId().replace(/:/g, '')
   const dead = mode === 'dead'
   const skin = '#f6c98a'
@@ -206,7 +217,8 @@ function AvatarBase({
         background: 'rgba(0,0,0,.30)', transition: 'width .5s ease',
       }} />
 
-      <div style={{ width: '100%', height: '100%', animation: anim, transformOrigin: '46% 96%', willChange: 'transform' }}>
+      {/* key con el contador del poke: remonta el div para reiniciar la animación aunque se repita la reacción */}
+      <div key={poke ? `pk${poke.n}` : 'idle'} style={{ width: '100%', height: '100%', animation: anim, transformOrigin: '46% 96%', willChange: 'transform' }}>
         <svg viewBox={`0 0 ${VBW} ${VBH}`} width={W} height={H}
           style={{ display: 'block', overflow: 'visible', filter: dead ? 'saturate(.55) brightness(.96)' : undefined, transition: 'filter .6s ease' }}>
           <defs>

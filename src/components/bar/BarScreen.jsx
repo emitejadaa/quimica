@@ -15,7 +15,7 @@ import MixGlass from './MixGlass.jsx'
 
 const INK = '#2b1c0e'
 
-export default function BarScreen({ state, actions, sound, sip, avMode, drankT, onDrink, onCalc, onRevive, poke, onPoke, onPreset }) {
+export default function BarScreen({ state, actions, sound, sip, avMode, drankT, onDrink, onCalc, onRevive, onResetNight, poke, onPoke, onPreset }) {
   const { added, tab, container, consumed } = state
   const t = useMemo(() => totals(added), [added])
   const cap = capOf(container)
@@ -118,7 +118,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
             <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.82} drain={sip.on ? sip.drain : 0} />
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={!sip.on && avMode === 'ok' && dread > 0.33 ? '¿todo eso?' : null} bump={poke} onPoke={onPoke} />
+            <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={!sip.on && avMode === 'ok' && dread > 0.33 ? '¿todo eso?' : null} poke={poke} onPoke={onPoke} />
             <div style={{ width: 66, height: 11, background: '#8a5a2b', border: '3px solid #3d2410', borderRadius: 5 }} />
             <div style={{ width: 40, height: 28, background: '#6b4020', border: '3px solid #3d2410', borderTop: 'none', borderRadius: '0 0 6px 6px' }} />
             <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 4, textAlign: 'center', maxWidth: 130, lineHeight: 1.15 }}>{caption}</div>
@@ -157,7 +157,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
               padding: 12, fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 18, color: INK,
               cursor: canDrink ? 'pointer' : 'not-allowed', boxShadow: '0 6px 0 #3d2410', opacity: canDrink ? 1 : 0.6,
             }}>
-              <span style={{ fontSize: 21 }}>{sip.on ? '🫗' : '🥤'}</span> {sip.on ? 'Tomando…' : '¡Tomar!'}
+              <span style={{ fontSize: 21 }}>{sip.on ? '😋' : '🥤'}</span> {sip.on ? 'Tomando…' : '¡Tomar!'}
             </div>
           )}
           <div onClick={() => canCalc && onCalc()} className={canCalc ? 'btn-cartoon' : undefined} title="Calcular el efecto de todo lo que tomó" style={{
@@ -173,7 +173,14 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
             background: '#ffedd0', border: '3px solid #3d2410', borderRadius: 14, padding: '6px 13px',
             fontFamily: 'Fredoka, sans-serif', fontWeight: 600, fontSize: 12, cursor: 'pointer', boxShadow: '0 5px 0 #3d2410',
           }}>
-            <span style={{ fontSize: 19 }}>🪣</span>Vaciar
+            <span style={{ fontSize: 19 }}>🗑️</span>Vaciar
+          </div>
+          <div onClick={onResetNight} title="Reiniciar la noche: se va a dormir y arranca de cero" className="btn-cartoon" style={{
+            flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            background: '#c9b8e8', border: '3px solid #3d2410', borderRadius: 14, padding: '6px 13px',
+            fontFamily: 'Fredoka, sans-serif', fontWeight: 600, fontSize: 12, cursor: 'pointer', boxShadow: '0 5px 0 #3d2410', color: INK,
+          }}>
+            <span style={{ fontSize: 19 }}>🌙</span>Reiniciar
           </div>
         </div>
       </div>

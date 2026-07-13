@@ -78,6 +78,27 @@ a { color: var(--accent); }
 @keyframes ringPulse { 0% { transform: scale(.6); opacity: .8; } 100% { transform: scale(1.6); opacity: 0; } }
 @keyframes scrubGlow { 0%,100% { filter: drop-shadow(0 0 3px rgba(255,210,63,.7)); } 50% { filter: drop-shadow(0 0 8px rgba(255,210,63,1)); } }
 @keyframes pokeJump { 0% { transform: translateY(0) scale(1,1); } 30% { transform: translateY(-20px) scale(.94,1.08); } 60% { transform: translateY(0) scale(1.08,.9); } 100% { transform: translateY(0) scale(1,1); } }
+/* ¡ay!: retrocede encogido y tiembla del golpe */
+@keyframes pokeOuch { 0% { transform: translate(0,0) scale(1,1); } 14% { transform: translate(-6px,2px) scale(.93,1.05) rotate(-5deg); } 30% { transform: translate(4px,0) scale(1.02,.96) rotate(3deg); } 46% { transform: translate(-3px,0) rotate(-2.4deg); } 62% { transform: translate(2px,0) rotate(1.6deg); } 78% { transform: translate(-1px,0) rotate(-.8deg); } 100% { transform: translate(0,0) scale(1,1); } }
+/* ¿eh?: gira el torso mirando a un lado y al otro, confundido */
+@keyframes pokeConfused { 0%,100% { transform: rotate(0); } 15% { transform: rotate(-9deg) translateX(-5px); } 38% { transform: rotate(-7deg) translateX(-4px); } 55% { transform: rotate(9deg) translateX(5px); } 78% { transform: rotate(7deg) translateX(4px); } 92% { transform: rotate(-2deg); } }
+/* ¿necesitás algo?: se inclina atento hacia adelante con un saltito amable */
+@keyframes pokeAsk { 0%,100% { transform: rotate(0) translateY(0); } 18% { transform: rotate(5deg) translateY(-6px) scale(1.02); } 42% { transform: rotate(6.5deg) translateY(-2px); } 66% { transform: rotate(4deg) translateY(-4px); } 86% { transform: rotate(1.5deg) translateY(0); } }
+/* mareado: tambalea, se cae al piso y se levanta despacito */
+@keyframes pokeFall {
+  0% { transform: rotate(0); }
+  10% { transform: rotate(8deg); }
+  20% { transform: rotate(-10deg); }
+  30% { transform: rotate(14deg); }
+  44% { transform: rotate(-80deg) translateY(4px); }
+  50% { transform: rotate(-86deg) translateY(6px); }
+  64% { transform: rotate(-84deg) translateY(6px); }
+  78% { transform: rotate(-40deg) translateY(3px); }
+  90% { transform: rotate(6deg); }
+  100% { transform: rotate(0); }
+}
+/* pupilas que miran a un costado y al otro (confundido) */
+@keyframes lookAround { 0%,100% { transform: translateX(0); } 18%,38% { transform: translateX(-5px); } 58%,82% { transform: translateX(5px); } }
 @keyframes avIdle { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(0); } }
 @keyframes avSway { 0%,100% { transform: rotate(-3.5deg); } 50% { transform: rotate(3.5deg); } }
 @keyframes avWoozy { 0%,100% { transform: rotate(-8deg) translateX(-3px); } 50% { transform: rotate(8deg) translateX(3px); } }
@@ -116,6 +137,19 @@ a { color: var(--accent); }
 @keyframes dripDown { 0% { transform: translateY(0) scaleY(.7); opacity: 0; } 18% { opacity: .85; } 90% { opacity: .7; } 100% { transform: translateY(var(--len,16px)) scaleY(1.15); opacity: 0; } }
 @keyframes foamSettle { 0%,100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(1px) scaleY(.95); } }
 @keyframes containerPop { 0% { transform: scale(.82) translateY(10px); opacity: .35; } 60% { transform: scale(1.05) translateY(-3px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+/* reiniciar la noche: párpados que cierran la pantalla… */
+@keyframes lidShut { 0% { transform: scaleY(0); } 55% { transform: scaleY(1.03); } 100% { transform: scaleY(1); } }
+/* …y la abren a la mañana siguiente, parpadeando lento */
+@keyframes lidOpen {
+  0%, 14% { transform: scaleY(1); }
+  30% { transform: scaleY(.5); }
+  42% { transform: scaleY(1); }
+  58% { transform: scaleY(.28); }
+  68% { transform: scaleY(.62); }
+  80% { transform: scaleY(.14); }
+  100% { transform: scaleY(0); }
+}
+@keyframes zzzFade { 0% { opacity: 0; transform: translate(-50%,-30%) scale(.6); } 40% { opacity: 1; } 100% { opacity: 1; transform: translate(-50%,-58%) scale(1.1); } }
 @keyframes toastPop { 0% { transform: translateX(-50%) translateY(-16px) scale(.85); opacity: 0; } 10% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 86% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-10px) scale(.96); opacity: 0; } }
 
 /* mueble: temblor al pasar el mouse cuando está cerrado */

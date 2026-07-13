@@ -65,7 +65,7 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
         {/* IZQUIERDA: personaje + héroe */}
         <div style={{ flex: '1 1 300px', minWidth: 280, display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#2b1c0e', border: '4px dashed #8a5a2b', borderRadius: 18, padding: 12, minHeight: 0 }}>
-            <Avatar fear={0} drunk={drunkQ} mode={avatarMode} scale={0.95} accent="#ffb03a" bump={poke} onPoke={onPoke} />
+            <Avatar fear={0} drunk={drunkQ} mode={avatarMode} scale={0.95} accent="#ffb03a" poke={poke} onPoke={onPoke} />
             <div style={{ width: 180, height: 18, background: 'linear-gradient(180deg,#8a5a2b,#5d3a19)', border: '3px solid #3d2410', borderRadius: '50%', marginTop: -6 }} />
             <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 6 }}>tocá al personaje 👆 · movés la curva y lo ves cambiar</div>
           </div>

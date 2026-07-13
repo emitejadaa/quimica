@@ -16,7 +16,7 @@ export function mix(c1, c2, t) {
   return `rgb(${Math.round(lerp(a[0], b[0], t))},${Math.round(lerp(a[1], b[1], t))},${Math.round(lerp(a[2], b[2], t))})`
 }
 
-export function poseFromState({ fear = 0, drunk = 0, drinking = false, mode = 'ok' } = {}) {
+export function poseFromState({ fear = 0, drunk = 0, drinking = false, mode = 'ok', poke = null } = {}) {
   fear = clamp(fear)
   drunk = clamp(drunk)
   const dMid = clamp((drunk - 0.3) / 0.4) // ya se le nota
@@ -42,6 +42,7 @@ export function poseFromState({ fear = 0, drunk = 0, drinking = false, mode = 'o
   let drool = dHigh > 0.55 && !drinking ? clamp((dHigh - 0.55) / 0.45) : 0
   let sleepLids = false
   let halo = false
+  let lookAround = false
 
   const floats = []
   if (mode === 'ok') {
@@ -49,6 +50,35 @@ export function poseFromState({ fear = 0, drunk = 0, drinking = false, mode = 'o
     if (drunk > 0.34 && drunk < 0.62) floats.push({ c: '💫', x: 170, y: 24, key: 'dizzy' })
     if (drunk >= 0.62) floats.push({ c: '🌀', x: 170, y: 24, key: 'spin' })
     if (drunk >= 0.78) floats.push({ c: '⭐', x: 44, y: 30, key: 'star' })
+  }
+
+  // reacción al toque: pisa la cara un ratito (solo despierto y sin estar tragando)
+  if (poke && mode === 'ok' && !drinking) {
+    if (poke === 'ouch') {
+      eyeOpen = 0.14; canBlink = false; lidDroop = 0
+      browWorry = 1; browRaise = -3
+      mouthOpen = 0.1; mouthCurve = -1
+      floats.length = 0
+      floats.push({ c: '💢', x: 170, y: 26, key: 'ouch' })
+    } else if (poke === 'confused') {
+      canBlink = false; lookAround = true
+      eyeOpen = clamp(eyeOpen + 0.15, 0.3, 1.28); lidDroop = clamp(lidDroop * 0.4)
+      browRaise = 7; browWorry = 0.4
+      mouthOpen = 0.34; mouthCurve = -0.2
+      floats.length = 0
+      floats.push({ c: '❓', x: 170, y: 26, key: 'huh' })
+    } else if (poke === 'ask') {
+      canBlink = false
+      browRaise = 8; browWorry = 0
+      mouthOpen = 0; mouthCurve = clamp(mouthCurve + 0.7, 0.6, 1)
+    } else if (poke === 'fall') {
+      canBlink = false; eyeOpen = 0.55; lidDroop = clamp(lidDroop + 0.25)
+      browDrunk = 1; browWorry = 0.5
+      mouthOpen = 0.5; mouthCurve = -0.6
+      floats.length = 0
+      floats.push({ c: '🌀', x: 170, y: 24, key: 'spin' })
+      floats.push({ c: '⭐', x: 44, y: 30, key: 'star' })
+    }
   }
 
   if (mode === 'vomit') {
@@ -73,14 +103,24 @@ export function poseFromState({ fear = 0, drunk = 0, drinking = false, mode = 'o
   return {
     fear, drunk, dMid, dHigh, green, eyeOpen, canBlink, pupilDX, pupilDY,
     browRaise, browWorry, browDrunk, blush, sweatN, mouthOpen, mouthCurve,
-    headTilt, xeyes, tongue, drool, lidDroop, sleepLids, halo, floats, mode,
+    headTilt, xeyes, tongue, drool, lidDroop, sleepLids, halo, lookAround, floats, mode,
   }
 }
 
+// Duración de cada reacción al toque (ms): la usa App para cortar el estado.
+export const POKE_MS = { jump: 520, ouch: 950, confused: 1600, ask: 1700, fall: 2600 }
+
 // Animación CSS del cuerpo según el estado.
-export function bodyAnim({ fear = 0, drunk = 0, drinking = false, bump = false, mode = 'ok' }) {
+export function bodyAnim({ fear = 0, drunk = 0, drinking = false, poke = null, mode = 'ok' }) {
   if (mode === 'dead') return 'avDead 1.15s cubic-bezier(.55,-0.2,.65,1.1) forwards'
-  if (bump) return 'pokeJump .5s ease'
+  if (poke && !drinking && mode === 'ok') {
+    if (poke === 'ouch') return 'pokeOuch .95s ease'
+    if (poke === 'confused') return 'pokeConfused 1.6s ease-in-out'
+    if (poke === 'ask') return 'pokeAsk 1.7s ease-in-out'
+    if (poke === 'fall') return 'pokeFall 2.6s cubic-bezier(.55,0,.45,1)'
+    return 'pokeJump .5s ease'
+  }
+  if (poke) return 'pokeJump .5s ease'
   if (mode === 'vomit') return 'avVomit .52s ease-in-out infinite'
   if (mode === 'sleep') return 'avSleep 3.4s ease-in-out infinite'
   if (drinking) return 'avGlug .6s ease-in-out infinite'
