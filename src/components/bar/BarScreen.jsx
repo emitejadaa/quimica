@@ -84,7 +84,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
     <div style={{ display: 'flex', height: '100%', boxSizing: 'border-box', position: 'relative' }} className="bar-wrap">
       {/* ambiente: cartel de neón + brillo cálido (decoración de fondo) */}
       <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(60% 40% at 78% 12%,rgba(255,120,60,.12),transparent 60%)' }} />
-      <BackBar />
+      <BarAmbience />
       <div aria-hidden style={{
         position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1, pointerEvents: 'none',
         fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 15, color: '#ff8ad6', letterSpacing: '1px',
@@ -239,26 +239,91 @@ const BACK_BOTTLES = [
   { c: '#c07f28', h: 66, w: 15 }, { c: '#5a2418', h: 76, w: 13 }, { c: '#0a5c3a', h: 58, w: 16 },
 ]
 
-function BackBar() {
+// Foquitos de la guirnalda: posición a lo largo de las dos caídas del cable.
+const GARLAND_BULBS = [
+  { l: '6%', t: 14 }, { l: '15%', t: 25 }, { l: '25%', t: 30 }, { l: '35%', t: 25 }, { l: '44%', t: 14 },
+  { l: '56%', t: 14 }, { l: '65%', t: 25 }, { l: '75%', t: 30 }, { l: '85%', t: 25 }, { l: '94%', t: 14 },
+]
+
+// Fondo del bar: guirnalda de luces, lámparas colgantes con su halo, botellas
+// difuminadas, un cuadrito en la pared y una viñeta suave. Decoración sutil,
+// siempre detrás del contenido (zIndex 0/1) y sin capturar el puntero.
+function BarAmbience() {
   return (
-    <div aria-hidden style={{
-      position: 'absolute', top: 28, left: 0, right: 0, height: 118, zIndex: 1, pointerEvents: 'none',
-      opacity: 0.5, filter: 'blur(1.4px)',
-      maskImage: 'linear-gradient(180deg,#000 62%,transparent)', WebkitMaskImage: 'linear-gradient(180deg,#000 62%,transparent)',
-    }}>
-      {/* luces cálidas detrás de las botellas */}
-      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 20% 30%,rgba(255,180,90,.5),transparent 22%),radial-gradient(circle at 52% 24%,rgba(255,150,70,.4),transparent 20%),radial-gradient(circle at 82% 32%,rgba(255,190,110,.45),transparent 22%)' }} />
-      {/* fila de botellas sobre una repisa */}
-      <div style={{ position: 'absolute', left: 40, right: 40, bottom: 20, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-        {BACK_BOTTLES.map((b, i) => (
-          <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div style={{ width: b.w * 0.34, height: 10, background: b.c, filter: 'brightness(.8)', borderRadius: 2 }} />
-            <div style={{ width: b.w, height: b.h, background: `linear-gradient(90deg,rgba(255,255,255,.35),${b.c} 40%,rgba(0,0,0,.3))`, borderRadius: '6px 6px 3px 3px' }} />
-          </div>
+    <div aria-hidden style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}>
+      {/* estantería de botellas difuminadas (profundidad) */}
+      <div style={{
+        position: 'absolute', top: 28, left: 0, right: 0, height: 118,
+        opacity: 0.5, filter: 'blur(1.4px)',
+        maskImage: 'linear-gradient(180deg,#000 62%,transparent)', WebkitMaskImage: 'linear-gradient(180deg,#000 62%,transparent)',
+      }}>
+        {/* luces cálidas detrás de las botellas */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle at 20% 30%,rgba(255,180,90,.5),transparent 22%),radial-gradient(circle at 52% 24%,rgba(255,150,70,.4),transparent 20%),radial-gradient(circle at 82% 32%,rgba(255,190,110,.45),transparent 22%)' }} />
+        {/* fila de botellas sobre una repisa */}
+        <div style={{ position: 'absolute', left: 40, right: 40, bottom: 20, display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          {BACK_BOTTLES.map((b, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: b.w * 0.34, height: 10, background: b.c, filter: 'brightness(.8)', borderRadius: 2 }} />
+              <div style={{ width: b.w, height: b.h, background: `linear-gradient(90deg,rgba(255,255,255,.35),${b.c} 40%,rgba(0,0,0,.3))`, borderRadius: '6px 6px 3px 3px' }} />
+            </div>
+          ))}
+        </div>
+        {/* repisa de madera */}
+        <div style={{ position: 'absolute', left: 24, right: 24, bottom: 12, height: 9, background: 'linear-gradient(180deg,#7a4c20,#4a2c12)', borderRadius: 3, boxShadow: '0 3px 6px rgba(0,0,0,.4)' }} />
+      </div>
+
+      {/* guirnalda de foquitos cálidos que titilan */}
+      <div style={{ position: 'absolute', top: 6, left: '3%', right: '3%', height: 44, opacity: 0.55, filter: 'blur(.4px)' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '50%', height: 26, borderBottom: '2.5px solid rgba(61,36,16,.9)', borderRadius: '0 0 50% 50% / 0 0 100% 100%' }} />
+        <div style={{ position: 'absolute', top: 0, right: 0, width: '50%', height: 26, borderBottom: '2.5px solid rgba(61,36,16,.9)', borderRadius: '0 0 50% 50% / 0 0 100% 100%' }} />
+        {GARLAND_BULBS.map((b, i) => (
+          <div key={i} style={{
+            position: 'absolute', left: b.l, top: b.t, width: 7, height: 7, borderRadius: '50%',
+            background: i % 2 ? '#ffb03a' : '#ffd23f', boxShadow: '0 0 7px 2px rgba(255,190,80,.45)',
+            animation: `twinkle ${(2.2 + (i % 3) * 0.7).toFixed(1)}s ease-in-out ${(i * 0.35).toFixed(2)}s infinite`,
+          }} />
         ))}
       </div>
-      {/* repisa de madera */}
-      <div style={{ position: 'absolute', left: 24, right: 24, bottom: 12, height: 9, background: 'linear-gradient(180deg,#7a4c20,#4a2c12)', borderRadius: 3, boxShadow: '0 3px 6px rgba(0,0,0,.4)' }} />
+
+      {/* lámparas colgantes: se hamacan apenas; el halo de luz queda quieto */}
+      {[{ left: '30%', dur: 7, delay: '0s' }, { left: '68%', dur: 8, delay: '1.8s' }].map((L, i) => (
+        <div key={i} style={{ position: 'absolute', top: 0, left: L.left, width: 30, transform: 'translateX(-50%)', opacity: 0.8, filter: 'blur(.3px)' }}>
+          <div style={{ position: 'absolute', top: 40, left: '50%', transform: 'translateX(-50%)', width: 130, height: 200, background: 'radial-gradient(55% 100% at 50% 0%,rgba(255,185,95,.11),transparent 70%)' }} />
+          <div style={{ transformOrigin: 'top center', animation: `lampSwing ${L.dur}s ease-in-out ${L.delay} infinite` }}>
+            <div style={{ width: 2.5, height: 26, background: '#1c1006', margin: '0 auto' }} />
+            <div style={{ width: 30, height: 15, background: 'linear-gradient(180deg,#8a5a2b,#4a2c12)', clipPath: 'polygon(28% 0,72% 0,100% 100%,0 100%)' }} />
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffd23f', margin: '-3px auto 0', boxShadow: '0 0 10px 3px rgba(255,200,90,.55)' }} />
+          </div>
+        </div>
+      ))}
+
+      {/* motas de polvo subiendo por el haz de la lámpara izquierda */}
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} style={{
+          position: 'absolute', top: 96 + (i % 2) * 28, left: `calc(30% + ${[-14, -4, 8, 16][i]}px)`,
+          width: i % 2 ? 2.5 : 3.5, height: i % 2 ? 2.5 : 3.5, borderRadius: '50%', background: 'rgba(255,220,150,.55)',
+          animation: `moteRise ${(6.5 + i * 1.3).toFixed(1)}s linear ${(i * 1.7).toFixed(1)}s infinite`,
+        }} />
+      ))}
+
+      {/* cuadrito torcido en la pared */}
+      <div style={{
+        position: 'absolute', left: 10, top: 152, width: 36, height: 42, transform: 'rotate(-5deg)',
+        background: '#3a2410', border: '3px solid #5d3a19', borderRadius: 4, opacity: 0.45, filter: 'blur(.7px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <svg viewBox="0 0 24 26" width="22" height="24">
+          <g fill="none" stroke="#e8c58f" strokeWidth="1.8" strokeLinecap="round" opacity=".8">
+            <path d="M4 4 L20 4 L12 13 Z" strokeLinejoin="round" />
+            <line x1="12" y1="13" x2="12" y2="21" />
+            <line x1="7" y1="22" x2="17" y2="22" />
+            <circle cx="15" cy="6.5" r="1.4" fill="#e8c58f" stroke="none" />
+          </g>
+        </svg>
+      </div>
+
+      {/* viñeta: oscurece apenas bordes y piso para centrar la mirada */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(115% 95% at 50% 26%,transparent 58%,rgba(10,5,1,.3) 100%)' }} />
     </div>
   )
 }
