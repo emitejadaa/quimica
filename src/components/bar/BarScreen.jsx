@@ -5,6 +5,7 @@ import { byId } from '../../data/catalog.js'
 import { CONTAINERS, byContainer, capOf } from '../../data/containers.js'
 import { byPreset } from '../../data/presets.js'
 import { usePointerPour } from '../../hooks/usePointerPour.js'
+import { useFitScale } from '../../hooks/useFitScale.js'
 import Avatar from '../avatar/Avatar.jsx'
 import Glass from './Glass.jsx'
 import Shelf from './Shelf.jsx'
@@ -22,6 +23,8 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
   const dead = avMode === 'dead'
   const { draggingId, dragOver, pouring, onBottleDown, ghostRef, glassRef } =
     usePointerPour({ pour: actions.pour, pourPreset: actions.pourPreset, addExtra: actions.addExtra, sound, added, cap, onPresetPour: onPreset, disabled: sip.on || dead })
+  // el vaso + el personaje se reescalan para llenar el espacio disponible (responsive)
+  const { boxRef, groupRef, scale: fitScale } = useFitScale()
 
   const extrasSig = added.filter((it) => byId[it.id]?.cat === 'extra').map((it) => `${it.id}:${it.n || 1}`).join(',')
   const extrasInfo = useMemo(() => {
@@ -78,7 +81,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
   const canCalc = consumed.length > 0 && !sip.on
 
   return (
-    <div style={{ display: 'flex', gap: 14, height: '100%', padding: '80px 16px 14px', boxSizing: 'border-box', position: 'relative' }} className="bar-wrap">
+    <div style={{ display: 'flex', height: '100%', boxSizing: 'border-box', position: 'relative' }} className="bar-wrap">
       {/* ambiente: cartel de neón + brillo cálido (decoración de fondo) */}
       <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(60% 40% at 78% 12%,rgba(255,120,60,.12),transparent 60%)' }} />
       <BackBar />
@@ -90,7 +93,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
       }}>🍸 COCKTAILS</div>
 
       {/* IZQUIERDA */}
-      <div style={{ flex: '0 0 40%', minWidth: 300, display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative', zIndex: 2 }} className="bar-left">
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative', zIndex: 2 }} className="bar-left">
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 15, color: '#e8c58f' }}>tu {C?.name?.toLowerCase() || 'vaso'} {C?.emoji || '🍹'}</div>
         </div>
@@ -113,15 +116,17 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
           })}
         </div>
 
-        <div style={{ flex: 1, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 8, minHeight: 0 }}>
-          <div ref={glassRef} data-glass="1" key={container} style={{ position: 'relative', animation: 'containerPop .42s cubic-bezier(.34,1.4,.5,1)' }}>
-            <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.82} drain={sip.on ? sip.drain : 0} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={!sip.on && avMode === 'ok' && dread > 0.33 ? '¿todo eso?' : null} poke={poke} onPoke={onPoke} />
-            <div style={{ width: 66, height: 11, background: '#8a5a2b', border: '3px solid #3d2410', borderRadius: 5 }} />
-            <div style={{ width: 40, height: 28, background: '#6b4020', border: '3px solid #3d2410', borderTop: 'none', borderRadius: '0 0 6px 6px' }} />
-            <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 4, textAlign: 'center', maxWidth: 130, lineHeight: 1.15 }}>{caption}</div>
+        <div ref={boxRef} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0, overflow: 'hidden' }}>
+          <div ref={groupRef} style={{ display: 'flex', alignItems: 'flex-end', gap: 8, transform: `scale(${fitScale})`, transformOrigin: 'center center', transition: 'transform .25s ease' }}>
+            <div ref={glassRef} data-glass="1" key={container} style={{ position: 'relative', animation: 'containerPop .42s cubic-bezier(.34,1.4,.5,1)' }}>
+              <Glass added={added} container={container} activeColor={pouring ? activeColor : null} pouring={pouring} dragOver={dragOver} onClink={() => sound.clink()} scale={0.82} drain={sip.on ? sip.drain : 0} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Avatar {...av} scale={0.58} accent="#ffb03a" bubble={!sip.on && avMode === 'ok' && dread > 0.33 ? '¿todo eso?' : null} poke={poke} onPoke={onPoke} />
+              <div style={{ width: 66, height: 11, background: '#8a5a2b', border: '3px solid #3d2410', borderRadius: 5 }} />
+              <div style={{ width: 40, height: 28, background: '#6b4020', border: '3px solid #3d2410', borderTop: 'none', borderRadius: '0 0 6px 6px' }} />
+              <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', marginTop: 4, textAlign: 'center', maxWidth: 130, lineHeight: 1.15, minHeight: 30 }}>{caption}</div>
+            </div>
           </div>
         </div>
 
@@ -140,7 +145,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           {dead ? (
             <div onClick={onRevive} className="btn-cartoon" style={{
               flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
@@ -188,7 +193,7 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
       {/* DERECHA: el mueble */}
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 0, position: 'relative', zIndex: 2,
         background: 'linear-gradient(180deg,#5d3a19,#4a2c12)', border: '4px solid #3d2410', borderRadius: 18,
-        padding: 12, boxShadow: '0 10px 0 #2a1707,0 22px 40px rgba(0,0,0,.45)' }} className="bar-right">
+        boxShadow: '0 10px 0 #2a1707,0 22px 40px rgba(0,0,0,.45)' }} className="bar-right">
         {/* cartel arriba del mueble */}
         <div style={{
           alignSelf: 'center', display: 'flex', alignItems: 'center', gap: 8,
