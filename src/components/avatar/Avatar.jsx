@@ -157,13 +157,6 @@ function SleepFX({ ink }) {
   )
 }
 
-const POKE_BUBBLE = {
-  ouch: '¡ay! eso dolió 😖',
-  confused: '¿eh? ¿quién fue?',
-  ask: '¿necesitás algo? 🙂',
-  fall: '¡wooo…ps!',
-}
-
 function AvatarBase({
   fear = 0, drunk = 0, drinking = false, drinkK = 0, drinkColor = '#e3a90f',
   mode = 'ok', scale = 1, accent = '#ffb03a', poke = null, bubble = null, onPoke,
@@ -171,7 +164,6 @@ function AvatarBase({
   const pokeKind = poke?.kind || null
   const p = poseFromState({ fear, drunk, drinking, mode, poke: pokeKind })
   const anim = bodyAnim({ fear, drunk, drinking, poke: pokeKind, mode })
-  if (pokeKind && mode === 'ok' && !drinking && POKE_BUBBLE[pokeKind]) bubble = POKE_BUBBLE[pokeKind]
   const uid = useId().replace(/:/g, '')
   const dead = mode === 'dead'
   const skin = '#f6c98a'
