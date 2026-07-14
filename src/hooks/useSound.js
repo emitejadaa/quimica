@@ -47,6 +47,8 @@ export function useSound(muted) {
       swoosh: () => beep(180, 700, 0.35, 'sawtooth', 0.05),
       tada: () => { beep(523, 523, 0.16, 'triangle', 0.12); setTimeout(() => beep(659, 659, 0.16, 'triangle', 0.12), 130); setTimeout(() => beep(784, 784, 0.3, 'triangle', 0.14), 260) },
       clink: () => { beep(1250, 950, 0.12, 'sine', 0.1); beep(1900, 1500, 0.2, 'sine', 0.06) },
+      // tic-tac del reloj de pared al avanzar la hora
+      tick: () => { beep(1500, 1100, 0.05, 'square', 0.07); setTimeout(() => beep(1000, 750, 0.06, 'square', 0.06), 170) },
       gulp: () => beep(220, 90, 0.16, 'sine', 0.16),
       hic: () => { beep(700, 300, 0.1, 'square', 0.08); setTimeout(() => beep(500, 900, 0.08, 'sine', 0.06), 90) },
       burp: () => { beep(140, 60, 0.28, 'sawtooth', 0.12); setTimeout(() => beep(110, 70, 0.18, 'square', 0.07), 120) },

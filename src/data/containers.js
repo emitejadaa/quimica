@@ -7,11 +7,11 @@
 export const CONTAINERS = [
   { id: 'shot', name: 'Shot', emoji: '🥃', cap: 45, shape: 'shot', sizeK: 1.16 },
   { id: 'chico', name: 'Vaso chico', emoji: '🥛', cap: 250, shape: 'tumbler', sizeK: 1.12 },
+  { id: 'copa', name: 'Copa', emoji: '🍷', cap: 300, shape: 'wine', sizeK: 1.04 },
   { id: 'medio', name: 'Vaso medio', emoji: '🥤', cap: 400, shape: 'highball', sizeK: 0.98 },
   { id: 'grande', name: 'Vaso grande', emoji: '🍺', cap: 500, shape: 'pint', sizeK: 0.98 },
-  { id: 'copa', name: 'Copa', emoji: '🍷', cap: 300, shape: 'wine', sizeK: 1.04 },
-  { id: 'jarra', name: 'Jarra', emoji: '🍺', cap: 1000, shape: 'mug', sizeK: 1.02 },
-  { id: 'botella', name: 'Botella', emoji: '🍾', cap: 750, shape: 'bottleV', sizeK: 0.96 },
+  { id: 'jarra', name: 'Jarra', emoji: '🍺', cap: 750, shape: 'mug', sizeK: 1.02 },
+  { id: 'botella', name: 'Botella', emoji: '🍾', cap: 1000, shape: 'bottleV', sizeK: 0.96 },
 ]
 
 export const byContainer = Object.fromEntries(CONTAINERS.map((c) => [c.id, c]))

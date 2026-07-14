@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react'
 import { byId } from '../../data/catalog.js'
 import { TIERS } from '../../data/content.js'
 import {
-  totals, widmark, tpeakFromStomach, timeToZero, bacAt, levelFromBac, tierIdx, fmtH, comma,
+  totals, widmark, tpeakFromStomach, buildBacSeries, levelFromBac, tierIdx, clockLabel, comma,
 } from '../../logic/calc.js'
 import Avatar from '../avatar/Avatar.jsx'
 import BacCurve from './BacCurve.jsx'
@@ -13,16 +13,22 @@ import ShareCard from './ShareCard.jsx'
 const INK = '#2b1c0e'
 
 export default function ResultsScreen({ state, actions, sound, items, onEditData, onOther, poke, onPoke }) {
-  const { peso, sexo, contextura, estomago, horas, factSeed } = state
+  const { peso, sexo, contextura, estomago, hoursPassed, factSeed } = state
   const added = items // todo lo que TOMÓ (rondas fusionadas)
   const t = useMemo(() => totals(added), [added])
-  const { rFactor, Cpeak, rLabel } = useMemo(() => widmark({ grams: t.grams, peso, contextura, sexo }), [t.grams, peso, contextura, sexo])
+  const { rFactor, rLabel } = useMemo(() => widmark({ grams: t.grams, peso, contextura, sexo }), [t.grams, peso, contextura, sexo])
   const tpeak = tpeakFromStomach(estomago)
-  const tZero = timeToZero(Cpeak, tpeak)
-  const Cnow = bacAt(horas, Cpeak, tpeak)
+  // Cada ronda es una dosis en la hora de reloj en que se tomó → curva multi-dosis.
+  const doses = useMemo(
+    () => state.consumed.map((r) => { const rt = totals(r.items); return { t: r.hour || 0, grams: rt.grams, std: rt.std } }),
+    [state.consumed],
+  )
+  const series = useMemo(() => buildBacSeries({ doses, peso, contextura, sexo, tpeak }), [doses, peso, contextura, sexo, tpeak])
+  const { peak: Cpeak, tZero } = series
+  const Cnow = series.at(hoursPassed)
   const noAlc = t.grams < 0.3
 
-  const [scrub, setScrub] = useState({ t: horas, bac: Cnow })
+  const [scrub, setScrub] = useState({ t: hoursPassed, bac: Cnow })
   // callback estable + bail-out: evita el loop de renders (efecto→setState→efecto…)
   const onScrub = useCallback((tt, bac) => {
     setScrub((prev) => (prev.t === tt && prev.bac === bac ? prev : { t: tt, bac }))
@@ -34,9 +40,10 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
   // el avatar entra en modo especial según el tramo de la curva
   const avatarMode = nowTier >= 6 ? 'dead' : nowTier >= 5 ? 'sleep' : 'ok'
 
-  const canDrive = Cpeak < 0.02
+  // ¿Manejar? según la alcoholemia AHORA (a la hora actual del reloj).
+  const canDrive = Cnow < 0.02
     ? { value: '✅ Sí · 0,0', danger: false }
-    : Cpeak >= 0.5
+    : Cnow >= 0.5
       ? { value: '🚫 No · +0,5 g/L', danger: true }
       : { value: '⚠️ Bajo 0,5 igual riesgo', danger: true }
 
@@ -46,7 +53,7 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
     { icon: '🥃', label: 'Graduación', value: `${comma(t.abv)}°` },
     { icon: '🍸', label: 'Tragos est.', value: comma(t.std) },
     { icon: '⚗️', label: 'Alcohol', value: `${comma(t.grams)} g` },
-    { icon: '⏱', label: 'Volver a 0,0', value: noAlc ? '🎉 ya' : fmtH(tZero) },
+    { icon: '⏱', label: 'Volver a 0,0', value: noAlc || tZero <= hoursPassed ? '🎉 ya' : `≈ ${clockLabel(tZero)}` },
     { icon: '🚗', label: '¿Manejar?', value: canDrive.value, danger: canDrive.danger },
     { icon: '🔥', label: 'Calorías', value: `${Math.round(t.kcal)}` },
     { icon: '📏', label: 'Volumen', value: `${Math.round(t.ml)} ml` },
@@ -73,7 +80,7 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
             <div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
                 <span style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 40, color: T.bd, lineHeight: 1 }}>{comma(scrub.bac, 2)}</span>
-                <span style={{ fontWeight: 800, fontSize: 12, color: T.tx }}>g/L · {fmtH(scrub.t)}</span>
+                <span style={{ fontWeight: 800, fontSize: 12, color: T.tx }}>g/L · {clockLabel(scrub.t)} hs</span>
               </div>
               <div style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 15, color: T.tx }}>{T.l}</div>
               <div style={{ fontSize: 12, color: T.tx, opacity: 0.85 }}>{T.b} · pico ≈ {comma(Cpeak, 2)} g/L</div>
@@ -84,7 +91,7 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
         {/* DERECHA: curva + stats + tarjeta */}
         <div style={{ flex: '1 1 420px', minWidth: 300, display: 'flex', flexDirection: 'column', gap: 10, minHeight: 0 }}>
           <div style={{ flex: 1, minHeight: 150 }}>
-            <BacCurve Cpeak={Cpeak} tpeak={tpeak} tZero={tZero} horasNow={horas} onScrub={onScrub} />
+            <BacCurve series={series} doses={doses} hoursNow={hoursPassed} onScrub={onScrub} />
           </div>
           <StatGrid stats={stats} />
           <RotatingCard seed={factSeed} onNext={() => { sound.pop(); actions.nextFact() }} />
@@ -94,7 +101,7 @@ export default function ResultsScreen({ state, actions, sound, items, onEditData
             <div onClick={onOther} className="btn-cartoon" style={{ ...btnWood, flex: 1, minWidth: 140, textAlign: 'center', background: '#ffb03a', color: INK }}>↩ Empezar otra noche</div>
           </div>
           <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 13, color: '#e8c58f', textAlign: 'center' }}>
-            🧮 Widmark: {comma(t.grams)} g ÷ ({peso} kg × {String(rFactor).replace('.', ',')}) — cuerpo {rLabel}. La única alcoholemia segura para manejar es <b style={{ color: '#ffd23f' }}>0,0</b>.
+            🧮 Widmark: cada ronda suma sus gramos ÷ ({peso} kg × {String(rFactor).replace('.', ',')}) — cuerpo {rLabel} — y el hígado elimina ~0,15 g/L por hora. La única alcoholemia segura para manejar es <b style={{ color: '#ffd23f' }}>0,0</b>.
           </div>
         </div>
       </div>
