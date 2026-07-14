@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { byId } from '../../data/catalog.js'
-import { comma } from '../../logic/calc.js'
+import { comma, clockLabel } from '../../logic/calc.js'
 
 // Pizarra con la receta del vaso ACTUAL + resumen de las rondas ya tomadas.
 function Recipe({ added, bumpMl, remove, consumed = [], drankT }) {
@@ -54,7 +54,7 @@ function Recipe({ added, bumpMl, remove, consumed = [], drankT }) {
             ✅ Ya tomó
             <span style={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               {consumed.slice(-6).map((r, i) => (
-                <span key={i} title={r.items.map((it) => byId[it.id]?.name).join(' + ')}
+                <span key={i} title={`${clockLabel(r.hour || 0)} · ${r.items.map((it) => byId[it.id]?.name).join(' + ')}`}
                   style={{ fontSize: 13, animation: 'popIn .3s ease' }}>🥃</span>
               ))}
               {consumed.length > 6 && <span style={{ fontSize: 12, color: 'rgba(255,255,255,.7)' }}>+{consumed.length - 6}</span>}

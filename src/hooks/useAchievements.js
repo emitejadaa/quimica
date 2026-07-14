@@ -23,7 +23,7 @@ export function useAchievements() {
   const triedRef = useRef(new Set(load(K_TRIED, [])))
   const presetsRef = useRef(new Set(load(K_PRESETS, [])))
   const containersRef = useRef(new Set(load(K_CONTAINERS, [])))
-  const countersRef = useRef({ analyze: 0, drinks: 0, vomit: 0, sleep: 0, dead: 0, zero: 0, ...load(K_COUNTERS, {}) })
+  const countersRef = useRef({ analyze: 0, drinks: 0, vomit: 0, sleep: 0, dead: 0, zero: 0, close: 0, ...load(K_COUNTERS, {}) })
   const unlockedRef = useRef(new Set(unlocked))
   const lastCtxRef = useRef({ added: [], container: 'grande', rounds: 0 })
 
@@ -53,6 +53,7 @@ export function useAchievements() {
       containersCount: containersRef.current.size, analyzeCount: countersRef.current.analyze,
       drinks: countersRef.current.drinks || 0, vomit: countersRef.current.vomit || 0,
       sleep: countersRef.current.sleep || 0, dead: countersRef.current.dead || 0, zero: countersRef.current.zero || 0,
+      close: countersRef.current.close || 0,
     }
   }
 
@@ -93,7 +94,7 @@ export function useAchievements() {
     save(K_COUNTERS, countersRef.current)
   }, [])
 
-  // Eventos del personaje: drink (tomó una ronda), zero, vomit, sleep, dead.
+  // Eventos de la noche: drink (tomó una ronda), zero, vomit, sleep, dead, close (llegó al cierre).
   const noteEvent = useCallback((kind) => {
     const key = kind === 'drink' ? 'drinks' : kind
     countersRef.current = { ...countersRef.current, [key]: (countersRef.current[key] || 0) + 1 }

@@ -1,4 +1,5 @@
-import { fmtH } from '../../logic/calc.js'
+import { clockLabel } from '../../logic/calc.js'
+import { ClockFace, hourDegAt, minuteDegAt } from '../Clock.jsx'
 import GameSlider from './GameSlider.jsx'
 
 const INK = '#2b1c0e'
@@ -147,11 +148,24 @@ export default function FormScreen({ state, actions, sound, drankT, onAnalyze, o
                 </div>
               </div>
               <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={lbl}>⏳ ¿Hace cuánto empezaste?</span>
-                  <span style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 18, color: '#b3541e' }}>{fmtH(state.horas)}</span>
+                <div style={lbl}>🕘 Tu noche en el bar</div>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 10, marginTop: 6, background: '#ffedd0',
+                  border: `3px solid ${INK}`, borderRadius: 12, padding: '7px 12px', boxShadow: `0 3px 0 ${INK}`,
+                }}>
+                  <ClockFace hourDeg={hourDegAt(state.hoursPassed)} minuteDeg={minuteDegAt(state.hoursPassed)} size={46} />
+                  <div style={{ lineHeight: 1.25 }}>
+                    <div style={{ fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 16, color: '#b3541e' }}>
+                      {clockLabel(0)} → {clockLabel(state.hoursPassed)}
+                      <span style={{ fontWeight: 600, fontSize: 12.5, color: INK, marginLeft: 6 }}>
+                        ({state.hoursPassed === 0 ? 'recién arrancás' : state.hoursPassed === 1 ? '1 hora' : `${state.hoursPassed} horas`})
+                      </span>
+                    </div>
+                    <div style={{ fontFamily: 'Patrick Hand, cursive', fontSize: 12.5, color: '#8a6a45' }}>
+                      el tiempo se maneja tocando el reloj del bar 🕰️
+                    </div>
+                  </div>
                 </div>
-                <GameSlider min={0} max={6} step={0.25} value={state.horas} onChange={(v) => actions.set('horas', v)} knob={state.horas < 3 ? '☀️' : '🌙'} label="horas" />
               </div>
               <button onClick={onAnalyze} style={{ marginTop: 'auto', width: '100%', background: INK, color: '#ffedd0', border: `3px solid ${INK}`, borderRadius: 15, padding: 13, fontFamily: 'Fredoka, sans-serif', fontWeight: 600, fontSize: 17, cursor: 'pointer', boxShadow: '0 5px 0 #14100a' }}>
                 🧪 Analizar mi trago →

@@ -13,6 +13,19 @@ export const R_TABLE = {
 
 export const BETA = 0.15 // g/L por hora (eliminación)
 
+// ─── El reloj de la noche: arranca 21:00 y avanza de a 1 h hasta las 06:00 ───
+export const NIGHT_START_HOUR = 21
+export const NIGHT_HOURS = 9 // 21:00 → 06:00 (cierre del bar)
+
+// "HH:MM" de reloj para `h` horas desde el inicio de la noche (admite fracciones).
+export function clockLabel(h) {
+  const tot = (((NIGHT_START_HOUR + Math.max(0, h)) % 24) + 24) % 24
+  let hh = Math.floor(tot)
+  let mm = Math.round((tot - hh) * 60)
+  if (mm === 60) { mm = 0; hh = (hh + 1) % 24 }
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+}
+
 export function itemGrams(item) {
   const d = byId[item.id]
   if (!d || !item.ml) return 0
@@ -56,15 +69,50 @@ export function tpeakFromStomach(estomago) {
   return estomago === 'vacio' ? 0.5 : estomago === 'lleno' ? 1.5 : 1.0
 }
 
-// Curva: sube lineal hasta el pico, luego baja a ritmo BETA.
-export function bacAt(t, Cpeak, tpeak) {
-  if (t <= 0) return 0
-  if (t <= tpeak) return Cpeak * (t / tpeak)
-  return Math.max(0, Cpeak - BETA * (t - tpeak))
-}
+// ─── Curva multi-dosis: cada ronda de la noche es una dosis en su propia hora ───
+// Cada dosis absorbe (sube lineal hasta su pico en `tpeak` horas desde que se tomó);
+// el hígado elimina a ritmo constante BETA mientras haya alcohol en sangre y no
+// haya una dosis absorbiéndose (igual que el Widmark clásico de una dosis: primero
+// sube al pico completo, después baja — estimación del lado seguro).
+// doses = [{ t: horas desde el inicio de la noche, grams }]
+// Devuelve { at(t), peak, tAtPeak, tZero } con t en horas desde el inicio.
+export function buildBacSeries({ doses, peso, contextura, sexo, tpeak }) {
+  const row = R_TABLE[contextura] || R_TABLE.Promedio
+  const rFactor = row[sexo] ?? 0.7
+  const peaks = (doses || [])
+    .map((d) => ({ t: Math.max(0, d.t || 0), c: peso > 0 ? d.grams / (peso * rFactor) : 0 }))
+    .filter((p) => p.c > 0)
+    .sort((a, b) => a.t - b.t)
+  if (!peaks.length) return { at: () => 0, peak: 0, tAtPeak: 0, tZero: 0 }
 
-export function timeToZero(Cpeak, tpeak) {
-  return Cpeak > 0 ? tpeak + Cpeak / BETA : 0
+  const lastT = peaks[peaks.length - 1].t
+  const totalC = peaks.reduce((a, p) => a + p.c, 0)
+  const horizon = lastT + tpeak + totalC / BETA + 0.25
+  const dt = 1 / 60 // paso de 1 minuto
+  const n = Math.ceil(horizon / dt)
+  const absorbed = (t) => {
+    let a = 0
+    for (const p of peaks) { if (t > p.t) a += p.c * Math.min(1, (t - p.t) / tpeak) }
+    return a
+  }
+  const absorbingAt = (t) => peaks.some((p) => t > p.t && t < p.t + tpeak)
+  const samples = new Float64Array(n + 1)
+  let elim = 0, peak = 0, tAtPeak = 0, lastPos = 0
+  for (let i = 0; i <= n; i++) {
+    const t = i * dt
+    const c = Math.max(0, absorbed(t) - elim)
+    samples[i] = c
+    if (c > peak) { peak = c; tAtPeak = t }
+    if (c > 0) { lastPos = i; if (!absorbingAt(t)) elim += BETA * dt }
+  }
+  const tZero = Math.min(horizon, (lastPos + 1) * dt)
+  const at = (t) => {
+    if (!(t > 0)) return 0
+    const x = t / dt, i = Math.floor(x)
+    if (i >= n) return 0
+    return samples[i] + (samples[i + 1] - samples[i]) * (x - i)
+  }
+  return { at, peak, tAtPeak, tZero }
 }
 
 // Nivel de intoxicación CONTINUO (0..6) alineado con los tiers.
@@ -87,8 +135,26 @@ export function dreadFromStd(std) {
 }
 
 // ─── Modo bar: el personaje toma rondas y se va poniendo peor en tiempo real ───
-// Umbrales en tragos estándar acumulados (perfil de referencia, sin ficha todavía).
+// Umbrales en tragos estándar EN EL CUERPO (perfil de referencia, sin ficha todavía).
 export const DRINK_LIMITS = { tipsy: 1.5, drunk: 3.5, vomit: 6, sleep: 9, dead: 12 }
+
+// Eliminación del perfil de referencia del bar, en tragos estándar por hora:
+// β × 70 kg × R promedio ÷ 10 g por trago ≈ 0,79 est./h.
+export const STD_ELIM_PER_H = (BETA * 70 * R_TABLE.Promedio.M) / STD_GRAMS
+
+// Tragos estándar que quedan en el cuerpo a la hora `nowH` de la noche:
+// cada ronda suma lo suyo en su hora y el hígado descuenta a ritmo constante
+// (solo mientras haya alcohol: si llega a 0, ahí se queda hasta la próxima ronda).
+export function effectiveStdAt(consumed, nowH) {
+  let body = 0, t = 0
+  for (const round of consumed) {
+    const h = round.hour || 0
+    body = Math.max(0, body - STD_ELIM_PER_H * Math.max(0, h - t))
+    body += totals(round.items).std
+    t = h
+  }
+  return Math.max(0, body - STD_ELIM_PER_H * Math.max(0, nowH - t))
+}
 
 // Mareo continuo 0..1 para la pose del avatar en el bar (1 = colapso).
 export function drunkFromStd(std) {
@@ -101,13 +167,6 @@ export function stateFromStd(std) {
   if (std >= DRINK_LIMITS.sleep) return 'sleep'
   if (std >= DRINK_LIMITS.vomit) return 'vomit'
   return 'ok'
-}
-
-export function fmtH(h) {
-  if (h <= 0) return '—'
-  const hh = Math.floor(h), mm = Math.round((h - hh) * 60)
-  if (hh <= 0) return mm + ' min'
-  return hh + ' h' + (mm ? ' ' + mm + ' min' : '')
 }
 
 export function comma(n, dec = 1) {

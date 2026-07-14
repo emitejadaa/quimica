@@ -1,10 +1,11 @@
 import { useReducer, useCallback, useMemo } from 'react'
 import { byId, MAX_EXTRAS } from '../data/catalog.js'
 import { capOf, DEFAULT_CONTAINER } from '../data/containers.js'
+import { NIGHT_HOURS } from './calc.js'
 
 const initial = {
   added: [], // [{ id, ml, n }]  liquidos: ml>0 · extras: ml=0, n=cantidad
-  consumed: [], // rondas ya tomadas: [{ items: [{id,ml,n}], container }]
+  consumed: [], // rondas ya tomadas: [{ items: [{id,ml,n}], container, hour }]
   tab: 'preparado',
   container: DEFAULT_CONTAINER,
   cabinetOpen: false,
@@ -13,7 +14,7 @@ const initial = {
   sexo: 'M',
   contextura: 'Promedio',
   estomago: 50, // % de lleno (0 vacío · 100 lleno)
-  horas: 1,
+  hoursPassed: 0, // horas de reloj desde que abrió el bar (21:00); avanza tocando el reloj
   analyzed: false,
   factSeed: 0,
   muted: false,
@@ -121,15 +122,18 @@ function reducer(s, a) {
     case 'toggleMute':
       return { ...s, muted: !s.muted }
     case 'consume': {
-      // El vaso actual pasa a la lista de rondas tomadas y queda vacío.
+      // El vaso actual pasa a la lista de rondas tomadas (con la hora en que se tomó) y queda vacío.
       if (!s.added.length) return s
-      return { ...s, consumed: [...s.consumed, { items: s.added, container: s.container }], added: [] }
+      return { ...s, consumed: [...s.consumed, { items: s.added, container: s.container, hour: s.hoursPassed }], added: [] }
     }
+    case 'advanceHour':
+      // El tiempo solo pasa de a una hora, tocando el reloj; a las 06:00 cierra el bar.
+      return { ...s, hoursPassed: Math.min(NIGHT_HOURS, s.hoursPassed + 1) }
     case 'revive':
-      // Vuelve a empezar la noche: cuerpo limpio, mismo vaso.
-      return { ...s, consumed: [], added: [], analyzed: false }
+      // Vuelve a empezar la noche: cuerpo limpio, mismo vaso, reloj a las 21:00.
+      return { ...s, consumed: [], added: [], analyzed: false, hoursPassed: 0 }
     case 'resetDrink':
-      return { ...s, added: [], consumed: [], phase: 0, analyzed: false }
+      return { ...s, added: [], consumed: [], phase: 0, analyzed: false, hoursPassed: 0 }
     default:
       return s
   }
@@ -151,6 +155,7 @@ export function useBarState() {
     setTab: (value) => dispatch({ type: 'tab', value }),
     setPhase: (value) => dispatch({ type: 'phase', value }),
     consume: () => dispatch({ type: 'consume' }),
+    advanceHour: () => dispatch({ type: 'advanceHour' }),
     revive: () => dispatch({ type: 'revive' }),
     analyze: () => dispatch({ type: 'analyze' }),
     nextFact: () => dispatch({ type: 'nextFact' }),

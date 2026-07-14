@@ -153,6 +153,10 @@ a { color: var(--accent); }
 @keyframes zzzFade { 0% { opacity: 0; transform: translate(-50%,-30%) scale(.6); } 40% { opacity: 1; } 100% { opacity: 1; transform: translate(-50%,-58%) scale(1.1); } }
 @keyframes toastPop { 0% { transform: translateX(-50%) translateY(-16px) scale(.85); opacity: 0; } 10% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 86% { transform: translateX(-50%) translateY(0) scale(1); opacity: 1; } 100% { transform: translateX(-50%) translateY(-10px) scale(.96); opacity: 0; } }
 
+/* cartel de neón: cede el centro de la pared al reloj y no pisa los botones del HUD */
+.neon-cocktails { position: absolute; top: 20px; left: 66%; transform: translateX(-50%); z-index: 1; pointer-events: none; }
+@media (max-width: 1060px) { .neon-cocktails { top: 54px; } }
+
 /* mueble: temblor al pasar el mouse cuando está cerrado */
 .cabinet-frame:hover .cab-door.cab-closed { animation: doorShake .5s ease both; }
 @keyframes doorShake { 0%,100% { transform: translate3d(0,0,0); } 12% { transform: translate3d(-3px,0,0); } 28% { transform: translate3d(3px,0,0); } 44% { transform: translate3d(-2px,0,0); } 60% { transform: translate3d(2px,0,0); } 76% { transform: translate3d(-1px,0,0); } }

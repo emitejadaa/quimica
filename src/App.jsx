@@ -2,7 +2,7 @@ import { useRef, useState, useEffect, useCallback, useMemo } from 'react'
 import { useBarState, mergeConsumed } from './logic/barState.js'
 import { useSound } from './hooks/useSound.js'
 import { useAchievements } from './hooks/useAchievements.js'
-import { totals, stateFromStd, drunkFromStd, DRINK_LIMITS } from './logic/calc.js'
+import { totals, stateFromStd, drunkFromStd, effectiveStdAt, DRINK_LIMITS, NIGHT_HOURS } from './logic/calc.js'
 import { POKE_MS } from './components/avatar/pose.js'
 import Hud from './components/Hud.jsx'
 import Confetti from './components/Confetti.jsx'
@@ -39,6 +39,9 @@ export default function App() {
   // Total ya tomado (todas las rondas fusionadas).
   const drankItems = useMemo(() => mergeConsumed(state.consumed), [state.consumed])
   const drankT = useMemo(() => totals(drankItems), [drankItems])
+  // Alcohol que queda EN EL CUERPO ahora: lo tomado menos lo que el hígado
+  // ya eliminó con las horas de reloj que pasaron. Esto es lo que ve el avatar.
+  const effStd = useMemo(() => effectiveStdAt(state.consumed, state.hoursPassed), [state.consumed, state.hoursPassed])
 
   // Logros: reevaluar cuando cambia el trago, el recipiente o las rondas.
   useEffect(() => {
@@ -69,7 +72,7 @@ export default function App() {
   const onPoke = useCallback(() => {
     if (avMode === 'dead') { sound.thud(); return } // muerto no reacciona…
     if (avMode === 'sleep') { sound.pop(); setAvMode('ok'); return } // ¡se despierta!
-    const drunk = drunkFromStd(drankT.std)
+    const drunk = drunkFromStd(effStd)
     let kind
     if (drunk > 0.35 && Math.random() < 0.6) {
       kind = 'fall'
@@ -85,7 +88,7 @@ export default function App() {
     setPoke({ kind, n: pokeN.current })
     clearTimeout(timers.current.pk)
     timers.current.pk = setTimeout(() => setPoke(null), POKE_MS[kind] || 520)
-  }, [sound, avMode, drankT.std])
+  }, [sound, avMode, effStd])
 
   const goPhase = useCallback((p) => { sound.swoosh(); actions.setPhase(p) }, [sound, actions])
 
@@ -95,7 +98,7 @@ export default function App() {
     if (avMode === 'sleep') setAvMode('ok') // lo despierta el olorcito
     sound.ensure(); sound.swoosh()
     const glass = totals(state.added)
-    const from = drankT.std
+    const from = effStd
     const to = from + glass.std
     const dur = Math.max(1400, Math.min(3400, 1100 + glass.ml * 2.4))
     setSip({ on: true, drain: 0, std: from })
@@ -136,7 +139,23 @@ export default function App() {
       }
     }
     timers.current.raf = requestAnimationFrame(step)
-  }, [state.added, sip.on, avMode, drankT.std, sound, actions, noteEvent])
+  }, [state.added, sip.on, avMode, effStd, sound, actions, noteEvent])
+
+  // ── AVANZAR LA HORA: el reloj del bar suma +1 h; el hígado descuenta alcohol.
+  //    Si estaba dormido y ya bajó del umbral, se despierta; el colapso ☠️ NO se
+  //    arregla esperando (solo con Revivir). A las 06:00 cierra el bar. ──
+  const onAdvanceHour = useCallback(() => {
+    if (sip.on || nightFade || state.hoursPassed >= NIGHT_HOURS) return
+    sound.ensure(); sound.tick()
+    const nextH = state.hoursPassed + 1
+    actions.advanceHour()
+    if (nextH >= NIGHT_HOURS) { noteEvent('close'); setTimeout(() => sound.ding(), 500) }
+    const eff = effectiveStdAt(state.consumed, nextH)
+    if (avMode === 'sleep' && eff < DRINK_LIMITS.sleep) {
+      clearTimeout(timers.current.t1)
+      timers.current.t1 = setTimeout(() => { setAvMode('ok'); sound.pop() }, 600)
+    }
+  }, [sip.on, nightFade, state.hoursPassed, state.consumed, avMode, sound, actions, noteEvent])
 
   // ── REINICIAR LA NOCHE: se duerme, la pantalla "parpadea" a negro,
   //    se resetea todo y despierta abriendo los ojos de a poco ──
@@ -217,9 +236,10 @@ export default function App() {
               {p === 0 && (
                 <BarScreen
                   state={state} actions={actions} sound={sound}
-                  sip={sip} avMode={avMode} drankT={drankT}
+                  sip={sip} avMode={avMode} drankT={drankT} effStd={effStd}
                   onDrink={startDrink} onCalc={onCalc} onRevive={revive}
                   onResetNight={() => resetNight(() => actions.resetDrink())}
+                  onAdvanceHour={onAdvanceHour}
                   poke={poke} onPoke={onPoke} onPreset={onPreset}
                 />
               )}

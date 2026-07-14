@@ -7,6 +7,7 @@ import { byPreset } from '../../data/presets.js'
 import { usePointerPour } from '../../hooks/usePointerPour.js'
 import { useFitScale } from '../../hooks/useFitScale.js'
 import Avatar from '../avatar/Avatar.jsx'
+import { BarWallClock } from '../Clock.jsx'
 import Glass from './Glass.jsx'
 import Shelf from './Shelf.jsx'
 import Recipe from './Recipe.jsx'
@@ -16,7 +17,7 @@ import MixGlass from './MixGlass.jsx'
 
 const INK = '#2b1c0e'
 
-export default function BarScreen({ state, actions, sound, sip, avMode, drankT, onDrink, onCalc, onRevive, onResetNight, poke, onPoke, onPreset }) {
+export default function BarScreen({ state, actions, sound, sip, avMode, drankT, effStd, onDrink, onCalc, onRevive, onResetNight, onAdvanceHour, poke, onPoke, onPreset }) {
   const { added, tab, container, consumed } = state
   const t = useMemo(() => totals(added), [added])
   const cap = capOf(container)
@@ -42,8 +43,9 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
 
   const draggingPreset = draggingId ? byPreset[draggingId] : null
 
-  // ── estado del personaje: miedo por lo servido + mareo por lo YA tomado ──
-  const liveStd = sip.on ? sip.std : drankT.std
+  // ── estado del personaje: miedo por lo servido + mareo por lo que tiene EN EL CUERPO
+  //    (lo tomado menos lo que el hígado ya eliminó con las horas del reloj) ──
+  const liveStd = sip.on ? sip.std : effStd
   const drunk = drunkFromStd(liveStd)
   const drunkQ = Math.round(drunk * 24) / 24
   const dread = dreadFromStd(t.std) * (1 - drunk * 0.8) // si ya está mareado, el miedo pesa menos
@@ -85,12 +87,16 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
       {/* ambiente: cartel de neón + brillo cálido (decoración de fondo) */}
       <div aria-hidden style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, backgroundImage: 'radial-gradient(60% 40% at 78% 12%,rgba(255,120,60,.12),transparent 60%)' }} />
       <BarAmbience />
-      <div aria-hidden style={{
-        position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 1, pointerEvents: 'none',
+      <div aria-hidden className="neon-cocktails" style={{
         fontFamily: 'Fredoka, sans-serif', fontWeight: 700, fontSize: 15, color: '#ff8ad6', letterSpacing: '1px',
         textShadow: '0 0 6px #ff2fae,0 0 14px #ff2fae,0 0 22px rgba(255,47,174,.6)',
         animation: 'neonFlicker 3.4s infinite',
       }}>🍸 COCKTAILS</div>
+
+      {/* reloj de pared: marca la hora de la noche; tocarlo hace pasar +1 h */}
+      <div style={{ position: 'absolute', top: 3, left: '50%', transform: 'translateX(-50%)', zIndex: 30 }}>
+        <BarWallClock hoursPassed={state.hoursPassed} onAdvance={onAdvanceHour} disabled={sip.on} />
+      </div>
 
       {/* IZQUIERDA */}
       <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, position: 'relative', zIndex: 2 }} className="bar-left">
@@ -135,14 +141,20 @@ export default function BarScreen({ state, actions, sound, sip, avMode, drankT, 
           <span style={{ ...badge, background: full ? '#fde4e4' : '#ffedd0', color: full ? '#a51a2c' : INK }}>
             {full ? '🚱 lleno' : t.abv > 0 ? `${comma(t.abv)}°` : 'sin alcohol'}
           </span>
-          {/* lo que ya se tomó */}
-          <span style={{
-            ...badge,
-            background: drankT.std >= DRINK_LIMITS.vomit ? '#fde4e4' : drankT.std >= DRINK_LIMITS.tipsy ? '#fff0d6' : '#ffedd0',
-            color: drankT.std >= DRINK_LIMITS.vomit ? '#a51a2c' : INK,
-          }}>
+          {/* lo que ya se tomó en la noche */}
+          <span style={badge}>
             🍸 tomó {consumed.length} {consumed.length === 1 ? 'ronda' : 'rondas'} · {comma(drankT.std)} est.
           </span>
+          {/* lo que le queda en el cuerpo AHORA (baja al pasar las horas del reloj) */}
+          {consumed.length > 0 && (
+            <span style={{
+              ...badge,
+              background: effStd >= DRINK_LIMITS.vomit ? '#fde4e4' : effStd >= DRINK_LIMITS.tipsy ? '#fff0d6' : '#dff0d8',
+              color: effStd >= DRINK_LIMITS.vomit ? '#a51a2c' : INK,
+            }}>
+              🩸 en el cuerpo ≈ {comma(effStd)} est.
+            </span>
+          )}
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
